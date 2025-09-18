@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import './index.css'
 import App from './App.jsx'
 import About from './About.jsx'
+import Dashboard from './Dashboard.jsx'
+import NotFound from './NotFound.jsx'
 
 const routerPath = createBrowserRouter([
   {
@@ -13,6 +15,14 @@ const routerPath = createBrowserRouter([
   {
     path: "/about",
     element: <About />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   }
 ]);
 

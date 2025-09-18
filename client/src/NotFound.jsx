@@ -1,11 +1,11 @@
 import react, { useState, useEffect } from "react";
 
-function About(){
+function NotFound(){
     return (
         <div>
-            <p>On Progress | About</p>
+            <p>404 Not Found</p>
         </div>
     )
 }
 
-export default About;
+export default NotFound;

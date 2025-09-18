@@ -1,11 +1,11 @@
 import react, { useState, useEffect } from "react";
 
-function About(){
+function Dashboard(){
     return (
         <div>
-            <p>On Progress | About</p>
+            <p>On Progress | Dashboard</p>
         </div>
     )
 }
 
-export default About;
+export default Dashboard;
