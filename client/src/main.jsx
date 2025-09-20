@@ -6,6 +6,9 @@ import App from './App.jsx'
 import About from './About.jsx'
 import Dashboard from './Dashboard.jsx'
 import NotFound from './NotFound.jsx'
+import Register from './Register.jsx'
+import Login from './Login.jsx'
+import EditUser from './EditUser.jsx'
 
 const routerPath = createBrowserRouter([
   {
@@ -19,6 +22,18 @@ const routerPath = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "edit/:id",
+    element: <EditUser />,
   },
   {
     path: "*",
