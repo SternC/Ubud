@@ -9,7 +9,7 @@ const salt = 10;
 const app = express();
 app.use(cors({
   origin: "http://localhost:5173",
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "PUT"],
   credentials: true
 }));
 app.use(express.json());
@@ -119,6 +119,64 @@ app.get("/logout", (req, res) => {
   res.clearCookie('token');
   res.status(200).json({ message: "Logged out successfully" });
 });
+
+app.get("/users", async (req, res) => {
+  try {
+    const users = await User.findAll({ attributes: ['id', 'name', 'email'] });
+    res.status(200).json(users);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/delete/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await User.destroy({ where: { id } });
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/edit/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.put("/edit/:id", verifyToken, async (req, res) => {
+  const { id } = req.params;
+  const { name, email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.name = name;
+    user.email = email;
+
+    await user.save();
+
+    res.status(200).json({ message: "User updated successfully" });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 app.listen(5000, () => {
   console.log("Server started on http://localhost:5000");
