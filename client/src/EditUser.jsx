@@ -131,6 +131,9 @@ function EditUser() {
           >
             Save Changes
           </button>
+          <Link to="/dashboard" className="text-blue-600 hover:underline">
+            Return to Dashboard
+          </Link>
         </form>
       </div>
     </div>
