@@ -13,7 +13,7 @@ function App(){
 
   return (
     <div>
-      <p>{data.message}</p>
+      <p className="text-blue-500">{data.message}</p>
     </div>
   )
 }
