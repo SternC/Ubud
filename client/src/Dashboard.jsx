@@ -73,7 +73,6 @@ function Dashboard() {
               <table className="min-w-full border text-left text-sm">
                 <thead className="bg-gray-200">
                   <tr>
-                    <th className="px-4 py-2 border">ID</th>
                     <th className="px-4 py-2 border">Name</th>
                     <th className="px-4 py-2 border">Email</th>
                     <th className="px-4 py-2 border">Actions</th>
@@ -82,7 +81,6 @@ function Dashboard() {
                 <tbody>
                   {users.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border">{user.id}</td>
                       <td className="px-4 py-2 border">{user.name}</td>
                       <td className="px-4 py-2 border">{user.email}</td>
                       <td className="px-4 py-2 border">
