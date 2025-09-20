@@ -4,6 +4,9 @@ import axios from 'axios';
 
 function Register() {
 
+    const navigate = useNavigate();
+    axios.defaults.withCredentials = true;
+
     const [value, setValue] = useState({
         username: "",
         email: "",
@@ -21,7 +24,7 @@ function Register() {
             .then(res => {
                 if (res.status === 201) {
                     alert("Registration Successful");
-                    useNavigate("/login");
+                    navigate("/login");
                 } else {
                     alert("Registration Failed");
                 }

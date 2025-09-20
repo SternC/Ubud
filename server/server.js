@@ -3,10 +3,15 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { Sequelize, DataTypes } from "sequelize";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const salt = 10;
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST"],
+  credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -38,7 +43,7 @@ await sequelize.authenticate();     // check connection
 await sequelize.sync();             // creates table if it doesn’t exist
 console.log('Database connected and users table ready');
 
-// --- Register route ---
+// Registration endpoint
 app.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -61,6 +66,58 @@ app.post("/register", async (req, res) => {
     console.error('Register error:', err);
     res.status(500).json({ error: "Server error" });
   }
+});
+
+// Login endpoint
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Find user by username
+    const user = await User.findOne({ where: { name: username } });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const name = username;
+    const token = jwt.sign({ name }, 'your_jwt_secret', { expiresIn: '1h' });
+    res.cookie('token', token, { httpOnly: true });
+    res.status(200).json({ message: "Login successful", token });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Dashboard endpoint (protected)
+const verifyToken = (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized" });
+    } else {
+        jwt.verify(token, 'your_jwt_secret', (err, decoded) => {
+            if (err) {
+                return res.status(401).json({ error: "Unauthorized" });
+            }
+            req.user = decoded;
+            next();
+        });
+    }
+}
+
+app.get("/dashboard", verifyToken, (req, res) => {
+  res.status(200).json({ message: "Welcome to the dashboard!", name: req.user.name });
+});
+
+app.get("/logout", (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: "Logged out successfully" });
 });
 
 app.listen(5000, () => {
