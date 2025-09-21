@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import Hero from "./hero";
 
-function App(){
+function App() {
   return (
-    <div>
-      <p>Welcome to the App!</p>
-    </div>
-  )
+    <>
+      <Hero />
+    </>
+  );
 }
 
 export default App;
+
