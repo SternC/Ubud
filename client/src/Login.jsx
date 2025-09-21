@@ -12,7 +12,6 @@ export default function Login() {
   const [value, setValue] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [isCardHovered, setIsCardHovered] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     let currentIndex = 0;
@@ -29,7 +28,6 @@ export default function Login() {
 
   const handleChange = (e) => {
     setValue({ ...value, [e.target.name]: e.target.value });
-    setIsTyping(true);
   };
 
   const handleSubmit = (e) => {
@@ -52,9 +50,8 @@ export default function Login() {
       .finally(() => setLoading(false));
   };
 
-
   const logoClasses = `w-35 h-35 bg-white rounded-full flex items-center justify-center transition-transform duration-500 
-    ${isCardHovered || isTyping ? 'scale-125 translate-y-2 rotate-12' : ''}`;
+    ${isCardHovered ? 'scale-125 translate-y-2 rotate-12' : ''}`;
 
   const cardClasses = `bg-white rounded-2xl shadow-lg p-8 border border-gray-200 transform transition-all duration-300`;
 
@@ -69,7 +66,7 @@ export default function Login() {
           <div className="text-center mb-6">
             {/* Logo */}
             <div className={`w-44 h-44 mx-auto mb-4 rounded-full flex items-center justify-center transform transition-all duration-500
-              ${isCardHovered || isTyping ? 'scale-110 rotate-6 translate-y-1' : ''}`}>
+              ${isCardHovered ? 'scale-110 rotate-6 translate-y-1' : ''}`}>
               <div className={logoClasses}>
                 <img src="/logo.png" alt="Ubud Logo" className="w-full h-full object-contain" />
               </div>
@@ -85,41 +82,55 @@ export default function Login() {
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Username */}
             <div className="relative group">
               <input
+                id="username"
                 type="text"
                 name="username"
                 value={value.username}
                 onChange={handleChange}
                 placeholder="Username"
                 required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 hover:border-blue-300 hover:shadow-md transform focus:scale-105 placeholder-transparent"
+                className="peer block w-full rounded-lg border border-gray-300 p-3 
+                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
+                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
+                  transform focus:scale-105 placeholder-transparent"
               />
-              <label className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+              <label 
+                htmlFor="username"
+                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
+                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
               >
                 Username
               </label>
             </div>
 
+            {/* Password */}
             <div className="relative group">
               <input
+                id="password"
                 type="password"
                 name="password"
                 value={value.password}
                 onChange={handleChange}
                 placeholder="Password"
                 required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 hover:border-blue-300 hover:shadow-md transform focus:scale-105 placeholder-transparent"
+                className="peer block w-full rounded-lg border border-gray-300 p-3 
+                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
+                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
+                  transform focus:scale-105 placeholder-transparent"
               />
-              <label className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+              <label 
+                htmlFor="password"
+                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
+                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
               >
                 Password
               </label>
@@ -128,7 +139,10 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-4 rounded-lg 
+                hover:from-blue-600 hover:to-blue-800 transition-all duration-300 
+                transform hover:scale-105 hover:shadow-lg active:scale-95 
+                font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Logging in..." : "Login"}
             </button>

@@ -18,7 +18,6 @@ export default function Register() {
 
   const [loading, setLoading] = useState(false);
   const [isCardHovered, setIsCardHovered] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     let currentIndex = 0;
@@ -30,13 +29,11 @@ export default function Register() {
         clearInterval(timer);
       }
     }, 100);
-
     return () => clearInterval(timer);
   }, []);
 
   const handleChange = (e) => {
     setValue({ ...value, [e.target.name]: e.target.value });
-    setIsTyping(true);
   };
 
   const handleSubmit = (e) => {
@@ -65,9 +62,8 @@ export default function Register() {
   };
 
   const logoClasses = `w-32 h-32 bg-white rounded-full flex items-center justify-center transition-transform duration-500
-    ${isCardHovered || isTyping ? 'scale-125 -translate-y-2 -rotate-6' : ''}`;
+    ${isCardHovered ? 'scale-125 -translate-y-2 -rotate-6' : ''}`;
 
-  // Slightly smaller card
   const cardClasses = `bg-white rounded-2xl shadow-lg p-6 border border-gray-200 transform transition-all duration-500 scale-105`;
 
   return (
@@ -81,7 +77,7 @@ export default function Register() {
           <div className="text-center mb-6">
             {/* Logo */}
             <div className={`w-40 h-40 mx-auto mb-4 rounded-full flex items-center justify-center transform transition-all duration-500
-              ${isCardHovered || isTyping ? 'scale-110 -rotate-12' : ''}`}>
+              ${isCardHovered ? 'scale-110 -rotate-12' : ''}`}>
               <div className={logoClasses}>
                 <img src="/logo.png" alt="Ubud Logo" className="w-full h-full object-contain" />
               </div>
@@ -100,19 +96,26 @@ export default function Register() {
             {/* Username */}
             <div className="relative group">
               <input
+                id="username"
                 type="text"
                 name="username"
                 value={value.username}
                 onChange={handleChange}
                 placeholder="Name"
                 required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 hover:border-blue-300 hover:shadow-md transform focus:scale-105 placeholder-transparent"
+                className="peer block w-full rounded-lg border border-gray-300 p-3 
+                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
+                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
+                  transform focus:scale-105 placeholder-transparent"
               />
-              <label className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1">
+              <label 
+                htmlFor="username"
+                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
+                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+              >
                 Name
               </label>
             </div>
@@ -120,19 +123,26 @@ export default function Register() {
             {/* Email */}
             <div className="relative group">
               <input
+                id="email"
                 type="email"
                 name="email"
                 value={value.email}
                 onChange={handleChange}
                 placeholder="Email"
                 required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 hover:border-blue-300 hover:shadow-md transform focus:scale-105 placeholder-transparent"
+                className="peer block w-full rounded-lg border border-gray-300 p-3 
+                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
+                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
+                  transform focus:scale-105 placeholder-transparent"
               />
-              <label className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1">
+              <label 
+                htmlFor="email"
+                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
+                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+              >
                 Email
               </label>
             </div>
@@ -140,19 +150,26 @@ export default function Register() {
             {/* Password */}
             <div className="relative group">
               <input
+                id="password"
                 type="password"
                 name="password"
                 value={value.password}
                 onChange={handleChange}
                 placeholder="Password"
                 required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 hover:border-blue-300 hover:shadow-md transform focus:scale-105 placeholder-transparent"
+                className="peer block w-full rounded-lg border border-gray-300 p-3 
+                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
+                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
+                  transform focus:scale-105 placeholder-transparent"
               />
-              <label className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1">
+              <label 
+                htmlFor="password"
+                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
+                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+              >
                 Password
               </label>
             </div>
@@ -160,19 +177,26 @@ export default function Register() {
             {/* Confirm Password */}
             <div className="relative group">
               <input
+                id="confirmPassword"
                 type="password"
                 name="confirmPassword"
                 value={value.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm Password"
                 required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 hover:border-blue-300 hover:shadow-md transform focus:scale-105 placeholder-transparent"
+                className="peer block w-full rounded-lg border border-gray-300 p-3 
+                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
+                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
+                  transform focus:scale-105 placeholder-transparent"
               />
-              <label className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1">
+              <label 
+                htmlFor="confirmPassword"
+                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
+                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+              >
                 Confirm Password
               </label>
             </div>
@@ -180,7 +204,10 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-4 rounded-lg 
+                hover:from-blue-600 hover:to-blue-800 transition-all duration-300 
+                transform hover:scale-105 hover:shadow-lg active:scale-95 
+                font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Registering..." : "Register"}
             </button>
