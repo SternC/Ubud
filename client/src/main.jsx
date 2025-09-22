@@ -13,7 +13,7 @@ import Hero from './Hero.jsx'
 
 const routerPath = createBrowserRouter([
   {
-    path: "/hero",
+    path: "/",
     element: <Hero />,
   },
   {

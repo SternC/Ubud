@@ -64,7 +64,7 @@ export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#FFFBDE] via-[#FFF0C4] to-[#FFF9AF]">
       <button
-        onClick={() => navigate("/hero")}
+        onClick={() => navigate("/")}
         className="absolute top-4 right-5 p-2 rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300 flex flex-col gap-1"
       >
         <span className="w-4 h-0.5 bg-blue-800 rounded"></span>
