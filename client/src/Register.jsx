@@ -67,7 +67,7 @@ export default function Register() {
   const cardClasses = `bg-white rounded-2xl shadow-lg p-6 border border-gray-200 transform transition-all duration-500 scale-105`;
 
   return (
-    <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#FFFBDE" }}>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#FFFBDE] via-[#FFF0C4] to-[#FFF9AF]">
       <div className="w-full max-w-md">
         <div
           className={cardClasses}
