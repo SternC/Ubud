@@ -110,7 +110,7 @@ export default function Login() {
             </div>
 
             {/* Password */}
-            <div className="relative group">
+            <div className="relative group mt-6">
               <input
                 id="password"
                 type="password"
