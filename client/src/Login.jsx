@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function Login() {
+  const [toast, setToast] = useState(null);
   const navigate = useNavigate();
   axios.defaults.withCredentials = true;
 
@@ -26,6 +27,11 @@ export default function Login() {
     return () => clearInterval(timer);
   }, []);
 
+    const showToast = (message, type) => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000); 
+  };
+
   const handleChange = (e) => {
     setValue({ ...value, [e.target.name]: e.target.value });
   };
@@ -37,15 +43,15 @@ export default function Login() {
     axios.post('http://localhost:5000/login', value)
       .then(res => {
         if (res.status === 200) {
-          alert('Login Successful');
-          navigate('/app');
+          showToast("Login Successful!", "success");
+          setTimeout(() => navigate("/app"), 1500);
         } else {
-          alert('Login Failed');
+          showToast("Login Failed", "error");
         }
       })
       .catch(err => {
         console.error(err);
-        alert('Login Failed');
+        showToast("Login Failed", "error");
       })
       .finally(() => setLoading(false));
   };
@@ -57,6 +63,14 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#FFFBDE] via-[#FFF0C4] to-[#FFF9AF]">
+      <button
+        onClick={() => navigate("/hero")}
+        className="absolute top-4 right-5 p-2 rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300 flex flex-col gap-1"
+      >
+        <span className="w-4 h-0.5 bg-blue-800 rounded"></span>
+        <span className="w-4 h-0.5 bg-blue-800 rounded"></span>
+        <span className="w-4 h-0.5 bg-blue-800 rounded"></span>
+      </button>
       <div className="w-full max-w-md">
         <div 
           className={cardClasses}
@@ -101,9 +115,9 @@ export default function Login() {
                 htmlFor="username"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:px-1 peer-valid:px-1"
               >
                 Username
               </label>
@@ -128,9 +142,9 @@ export default function Login() {
                 htmlFor="password"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:px-1 peer-valid:px-1"
               >
                 Password
               </label>
@@ -157,6 +171,15 @@ export default function Login() {
               Register here
             </Link>
           </p>
+                {toast && (
+        <div
+          className={`fixed top-10 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-2xl shadow-xl text-white font-medium text-lg
+            animate-fadeIn z-50
+            ${toast.type === "success" ? "bg-gradient-to-r from-green-400 to-green-600" : "bg-gradient-to-r from-red-400 to-red-600"}`}
+        >
+          {toast.message}
+        </div>
+      )}
         </div>
       </div>
     </div>
