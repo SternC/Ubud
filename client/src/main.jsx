@@ -9,15 +9,12 @@ import NotFound from './NotFound.jsx'
 import Register from './Register.jsx'
 import Login from './Login.jsx'
 import EditUser from './EditUser.jsx'
+import Hero from './Hero.jsx'
 
 const routerPath = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
-  },
-  {
-    path: "/about",
-    element: <About />,
+    element: <Hero />,
   },
   {
     path: "/dashboard",
@@ -30,6 +27,10 @@ const routerPath = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+    {
+    path: "/app",
+    element: <App />,
   },
   {
     path: "edit/:id",
