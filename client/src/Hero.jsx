@@ -1,6 +1,9 @@
 import { Button } from "../components/ui/button"
 import { Link } from "react-router-dom"
 import { BookOpen, Calculator, Palette, Users, ArrowRight } from "lucide-react"
+import Feature from "./Feature";
+import Info from "./Info";
+import Contact from "./Contact";
 
 export default function Hero() {
   return (
@@ -178,6 +181,10 @@ export default function Hero() {
           </div>
         </div>
       </section>
+    
+      <Feature />
+      <Info />
+      <Contact />
     </>
   )
 }
