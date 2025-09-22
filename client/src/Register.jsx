@@ -94,7 +94,7 @@ export default function Register() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Username */}
-            <div className="relative group">
+            <div className="relative group mt-6">
               <input
                 id="username"
                 type="text"
@@ -121,7 +121,7 @@ export default function Register() {
             </div>
 
             {/* Email */}
-            <div className="relative group">
+            <div className="relative group mt-6">
               <input
                 id="email"
                 type="email"
@@ -148,7 +148,7 @@ export default function Register() {
             </div>
 
             {/* Password */}
-            <div className="relative group">
+            <div className="relative group mt-6">
               <input
                 id="password"
                 type="password"
@@ -175,7 +175,7 @@ export default function Register() {
             </div>
 
             {/* Confirm Password */}
-            <div className="relative group">
+            <div className="relative group mt-6">
               <input
                 id="confirmPassword"
                 type="password"
