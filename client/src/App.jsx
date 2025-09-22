@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import Hero from "./Hero";
+import Card from "./card";
 
 function App() {
   return (
     <>
-      <Hero />
+      <Card />
     </>
   );
 }

@@ -62,7 +62,7 @@ function Dashboard() {
   }, [auth]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-800">
+    <div className="bg-gradient-to-b from-[#FFFBDE] via-[#FFF0C4] to-[#FFF9AF] flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-800">
       <div className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-3xl text-center">
         {auth ? (
           <>
