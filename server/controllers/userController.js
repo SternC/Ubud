@@ -51,3 +51,44 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export const getUserProfile = async (req, res) => {
+    const { id } = req.user.id;
+
+    try {
+        const profile = await Profile.findOne({where: {userId: id}});
+        if (!profile) {
+            return res.status(404).json({error: "Profile not found"});
+        }
+
+        res.status(200).json(profile);
+   } catch (err) {
+       console.error("Error fetching user profile:", err);
+       res.status(500).json({ error: "Server error" });
+   }
+}
+
+export const updateUserProfile = async (req, res) => {
+    const { id } = req.user.id;
+    const { name, email, age, interest, skill, city } = req.body;
+
+    try {
+      const profile = await Profile.findOne({ where: { userId: id } });
+      if (!profile) {
+          return res.status(404).json({ error: "Profile not found" });
+      }
+
+      profile.name = name;
+      profile.email = email;
+      profile.age = age;
+      profile.interest = interest;
+      profile.skill = skill;
+      profile.city = city;
+
+      await profile.save();
+      res.status(200).json({ message: "Profile updated successfully" });
+    } catch (err) {
+      console.error("Error updating user profile:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+}

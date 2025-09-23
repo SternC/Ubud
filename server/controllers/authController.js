@@ -1,3 +1,4 @@
+// controllers/authController.js
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
@@ -11,7 +12,8 @@ export const register = async (req, res) => {
     if (existingUser) return res.status(409).json({ error: "User already exists" });
 
     const hash = await bcrypt.hash(password, salt);
-    await User.create({ name: username, email, password: hash });
+    const newUser = await User.create({ name: username, email: email, password: hash });
+    await Profile.create({userId: newUser.id, email: email});
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
