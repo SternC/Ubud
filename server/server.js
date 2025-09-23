@@ -115,6 +115,7 @@ app.get("/dashboard", verifyToken, (req, res) => {
   res.status(200).json({ message: "Welcome to the dashboard!", name: req.user.name });
 });
 
+
 app.get("/logout", (req, res) => {
   res.clearCookie('token');
   res.status(200).json({ message: "Logged out successfully" });

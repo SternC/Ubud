@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function Register() {
+  const [toast, setToast] = useState(null);
   const navigate = useNavigate();
   axios.defaults.withCredentials = true;
 
@@ -32,6 +33,11 @@ export default function Register() {
     return () => clearInterval(timer);
   }, []);
 
+  const showToast = (message, type) => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000); 
+  };
+
   const handleChange = (e) => {
     setValue({ ...value, [e.target.name]: e.target.value });
   };
@@ -40,7 +46,7 @@ export default function Register() {
     e.preventDefault();
 
     if (value.password !== value.confirmPassword) {
-      alert("Passwords don't match!");
+      showToast("Passwords don't match!", "error");
       return;
     }
 
@@ -48,15 +54,15 @@ export default function Register() {
     axios.post('http://localhost:5000/register', value)
       .then(res => {
         if (res.status === 201) {
-          alert("Registration Successful");
-          navigate("/login");
+          showToast("Registration Successful", "success");
+          setTimeout(() => navigate("/login"), 1500);
         } else {
-          alert("Registration Failed");
+          showToast("Registration Failed", "error");
         }
       })
       .catch(err => {
         console.error(err);
-        alert("Registration Failed");
+        showToast("Registration Failed", "error");
       })
       .finally(() => setLoading(false));
   };
@@ -67,7 +73,15 @@ export default function Register() {
   const cardClasses = `bg-white rounded-2xl shadow-lg p-6 border border-gray-200 transform transition-all duration-500 scale-105`;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#FFFBDE] via-[#FFF0C4] to-[#FFF9AF]">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF]">
+      <button
+        onClick={() => navigate("/hero")}
+        className="absolute top-4 right-5 p-2 rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300 flex flex-col gap-1"
+      >
+        <span className="w-4 h-0.5 bg-white rounded"></span>
+        <span className="w-4 h-0.5 bg-white rounded"></span>
+        <span className="w-4 h-0.5 bg-white rounded"></span>
+      </button>
       <div className="w-full max-w-md">
         <div
           className={cardClasses}
@@ -112,9 +126,9 @@ export default function Register() {
                 htmlFor="username"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:px-1 peer-valid:px-1"
               >
                 Name
               </label>
@@ -139,9 +153,9 @@ export default function Register() {
                 htmlFor="email"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:px-1 peer-valid:px-1"
               >
                 Email
               </label>
@@ -166,9 +180,9 @@ export default function Register() {
                 htmlFor="password"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:px-1 peer-valid:px-1"
               >
                 Password
               </label>
@@ -193,9 +207,9 @@ export default function Register() {
                 htmlFor="confirmPassword"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-6 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-6 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:bg-white peer-focus:px-1 peer-valid:bg-white peer-valid:px-1"
+                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
+                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
+                  peer-focus:px-1 peer-valid:px-1"
               >
                 Confirm Password
               </label>
@@ -224,6 +238,16 @@ export default function Register() {
           </p>
         </div>
       </div>
+      {toast && (
+        <div
+          className={`fixed top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-2xl shadow-xl text-white font-medium text-lg animate-fadeIn z-50
+          ${toast.type === "success" 
+            ? "bg-gradient-to-r from-green-400 to-green-600" 
+            : "bg-gradient-to-r from-red-400 to-red-600"}`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
