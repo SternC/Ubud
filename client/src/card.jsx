@@ -44,7 +44,7 @@ export default function Card() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#FFFBDE] via-[#FFF0C4] to-[#FFF9AF] flex items-center justify-center relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF] flex items-center justify-center relative overflow-hidden">
       <img
         src="waves.gif"
         alt="Waves Background"
