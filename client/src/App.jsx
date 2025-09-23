@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Hero from "./Hero";
 
 function App() {
@@ -10,4 +10,3 @@ function App() {
 }
 
 export default App;
-
