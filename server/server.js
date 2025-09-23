@@ -17,7 +17,7 @@ app.use(cookieParser());
 
 // DB init
 await sequelize.authenticate();
-await sequelize.sync({ alter: true });
+await sequelize.sync();
 console.log("Database connected");
 
 // Routes
