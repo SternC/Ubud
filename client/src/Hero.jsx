@@ -1,20 +1,30 @@
-import { Button } from "../components/ui/button"
-import { Link } from "react-router-dom"
-import { BookOpen, Calculator, Palette, Users, ArrowRight } from "lucide-react"
-import Feature from "./Feature";
+// F:\Ubud\client\src\Hero.jsx
+
+import { Button } from "../components/ui/button";
+import { Link } from "react-router-dom";
+import { BookOpen, Calculator, Palette, Users, ArrowRight } from "lucide-react";
+import Navbar from "../components/ui/Navbar"; // Perbaikan path impor
+import Features from "./Feature";
 import Info from "./Info";
 import Contact from "./Contact";
 
 export default function Hero() {
   return (
     <>
+      {/* Navbar tetap di atas */}
+      <Navbar />
+
       {/* Load Chewy Font */}
       <link
-        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&display=swap" 
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&display=swap"
         rel="stylesheet"
       />
 
-      <section className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#9bdfebff] via-[#1c6ea4] to-[#000B58]">
+      {/* Bagian Hero */}
+      <section
+        id="home"
+        className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#9bdfebff] via-[#1c6ea4] to-[#000B58]"
+      >
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             <div className="text-center lg:text-left space-y-8">
@@ -81,12 +91,31 @@ export default function Hero() {
 
               <div className="flex justify-center lg:justify-start gap-6 pt-8 opacity-0 animate-fade-in-up animate-delay-600">
                 {[
-                  { icon: BookOpen, label: "Literature", color: "bg-accent/20 hover:bg-accent/30" },
-                  { icon: Calculator, label: "Math", color: "bg-accent/20 hover:bg-accent/30" },
-                  { icon: Palette, label: "Arts", color: "bg-accent/20 hover:bg-accent/30" },
-                  { icon: Users, label: "Social", color: "bg-accent/20 hover:bg-accent/30" },
+                  {
+                    icon: BookOpen,
+                    label: "Literature",
+                    color: "bg-accent/20 hover:bg-accent/30",
+                  },
+                  {
+                    icon: Calculator,
+                    label: "Math",
+                    color: "bg-accent/20 hover:bg-accent/30",
+                  },
+                  {
+                    icon: Palette,
+                    label: "Arts",
+                    color: "bg-accent/20 hover:bg-accent/30",
+                  },
+                  {
+                    icon: Users,
+                    label: "Social",
+                    color: "bg-accent/20 hover:bg-accent/30",
+                  },
                 ].map((subject, i) => (
-                  <div key={i} className="flex flex-col items-center gap-3 group cursor-pointer">
+                  <div
+                    key={i}
+                    className="flex flex-col items-center gap-3 group cursor-pointer"
+                  >
                     <div
                       className={`w-16 h-16 ${subject.color} rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-6`}
                     >
@@ -106,7 +135,6 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Right side water animation */}
             <div className="relative opacity-0 animate-fade-in-up animate-delay-400">
               <div className="relative h-96 overflow-hidden">
                 <div className="absolute inset-0">
@@ -120,7 +148,6 @@ export default function Hero() {
                     style={{ animationDelay: "2s" }}
                   ></div>
 
-                  {/* Floating bubbles */}
                   {[...Array(8)].map((_, i) => (
                     <div
                       key={i}
@@ -135,7 +162,6 @@ export default function Hero() {
                   ))}
                 </div>
 
-                {/* UBUD Title with Baloo 2 */}
                 <div className="absolute inset-0 flex items-center justify-center animate-water-float">
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-4">
@@ -147,12 +173,19 @@ export default function Hero() {
                         style={{
                           color: "#CBDCEB",
                           fontFamily: "'Baloo 2', sans-serif",
-                          textShadow: "0 0 10px #12235dff, 0 0 20px #1193eaff, 0 0 30px #A7D3F0",
+                          textShadow:
+                            "0 0 10px #12235dff, 0 0 20px #1193eaff, 0 0 30px #A7D3F0",
                         }}
                       >
-                        <span className="inline-block" style={{ animationDelay: "0.1s" }}>B</span>
-                        <span className="inline-block" style={{ animationDelay: "0.2s" }}>U</span>
-                        <span className="inline-block" style={{ animationDelay: "0.3s" }}>D</span>
+                        <span className="inline-block" style={{ animationDelay: "0.1s" }}>
+                          B
+                        </span>
+                        <span className="inline-block" style={{ animationDelay: "0.2s" }}>
+                          U
+                        </span>
+                        <span className="inline-block" style={{ animationDelay: "0.3s" }}>
+                          D
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -181,10 +214,11 @@ export default function Hero() {
           </div>
         </div>
       </section>
-    
-      <Feature />
+
+      {/* Tambahkan id pada komponen lainnya */}
+      <Features />
       <Info />
       <Contact />
     </>
-  )
+  );
 }

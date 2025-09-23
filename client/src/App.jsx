@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Card from "./card";
+import Hero from "./Hero";
 
 function App() {
   return (
     <>
-      <Card />
+      <Hero/>
     </>
   );
 }
 
 export default App;
-

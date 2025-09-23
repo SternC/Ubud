@@ -3,9 +3,7 @@ import { Button } from "../components/ui/button";
 
 export default function Contact() {
   return (
-    // Mengubah arah gradien agar semakin ke bawah semakin gelap
-    // Dimulai dari warna biru tua yang sama dengan Info.jsx dan berakhir di warna hitam
-    <section className="py-20 text-[#FFFBDE] bg-gradient-to-b from-[#000B58] to-black">
+    <section id="contact" className="py-20 text-[#FFFBDE] bg-gradient-to-b from-[#000B58] to-black">  
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
           className="text-4xl sm:text-5xl font-bold mb-4 animate-fade-in-up"
