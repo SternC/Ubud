@@ -111,8 +111,8 @@ const verifyToken = (req, res, next) => {
     }
 }
 
-app.get("/dashboard", verifyToken, (req, res) => {
-  res.status(200).json({ message: "Welcome to the dashboard!", name: req.user.name });
+app.get("/authentication", verifyToken, (req, res) => {
+  res.status(200).json({ message: "Succesfully Authenticated", name: req.user.name });
 });
 
 

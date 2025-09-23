@@ -19,7 +19,7 @@ function EditUser() {
   // Check authentication first
   useEffect(() => {
     axios
-      .get("http://localhost:5000/dashboard")
+      .get("http://localhost:5000/authentication")
       .then((res) => {
         if (res.status === 200) {
           setAuth(true);
