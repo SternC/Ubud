@@ -56,6 +56,15 @@ export default function Login() {
       .finally(() => setLoading(false));
   };
 
+  useEffect(() => {
+    axios.get("http://localhost:5000/authentication")
+      .then((res) => {
+        if (res.status === 200){
+          navigate("/app");
+        }
+      })
+  }, []);
+
   const logoClasses = `w-35 h-35 bg-white rounded-full flex items-center justify-center transition-transform duration-500 
     ${isCardHovered ? 'scale-125 translate-y-2 rotate-12' : ''}`;
 
