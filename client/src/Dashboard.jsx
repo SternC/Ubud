@@ -9,7 +9,26 @@ function Dashboard() {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  axios.defaults.withCredentials = true;
+    useEffect(() => {
+    axios
+      .get("http://localhost:5000/authentication")
+      .then((res) => {
+        if (res.status === 200) {
+          setAuth(true);
+          setMessage(res.data.message);
+          setName(res.data.name);
+        } else {
+          setAuth(false);
+          setMessage("Please login to view this page");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setAuth(false);
+        setMessage("Please login to view this page");
+      });
+  }, []);
+
 
   const handleLogout = () => {
     axios.get("http://localhost:5000/logout").then(() => {
@@ -34,26 +53,6 @@ function Dashboard() {
       })
       .catch((err) => console.error(err));
   };
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/dashboard")
-      .then((res) => {
-        if (res.status === 200) {
-          setAuth(true);
-          setMessage(res.data.message);
-          setName(res.data.name);
-        } else {
-          setAuth(false);
-          setMessage("Please login to view this page");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setAuth(false);
-        setMessage("Please login to view this page");
-      });
-  }, []);
 
   useEffect(() => {
     if (auth) {

@@ -5,7 +5,6 @@ import axios from 'axios';
 export default function Login() {
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
-  axios.defaults.withCredentials = true;
 
   const [displayText, setDisplayText] = useState("");
   const fullText = "Let's get you in";
@@ -13,6 +12,15 @@ export default function Login() {
   const [value, setValue] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [isCardHovered, setIsCardHovered] = useState(false);
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/authentication")
+      .then((res) => {
+        if (res.status === 200){
+          navigate("/app");
+        }
+      })
+  }, []);
 
   useEffect(() => {
     let currentIndex = 0;
