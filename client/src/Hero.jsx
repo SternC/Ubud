@@ -49,7 +49,7 @@ export default function Hero() {
                 <Link to="/register">
                   <Button
                     size="lg"
-                    className="group bg-[#004179] text-[#fff2ce] px-10 py-4 text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_50px_15px_#91C8E4] hover:shadow-blue-200/60 animate-pulse-glow"
+                    className="group bg-[#004179] text-[#fff2ce] px-10 py-4 text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_50px_15px_#91C8E4] hover:shadow-blue-200/60 hover:bg-[#4cb6f8d2] animate-pulse-glow"
                     style={{ fontFamily: "Dream Road" }}
                   >
                     Get Started

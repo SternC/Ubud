@@ -82,14 +82,6 @@ export default function Register() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF]">
-      <button
-        onClick={() => navigate("/hero")}
-        className="absolute top-4 right-5 p-2 rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300 flex flex-col gap-1"
-      >
-        <span className="w-4 h-0.5 bg-white rounded"></span>
-        <span className="w-4 h-0.5 bg-white rounded"></span>
-        <span className="w-4 h-0.5 bg-white rounded"></span>
-      </button>
       <div className="w-full max-w-md">
         <div
           className={cardClasses}
@@ -138,7 +130,7 @@ export default function Register() {
                   peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
                   peer-focus:px-1 peer-valid:px-1"
               >
-                Name
+                Username
               </label>
             </div>
 
