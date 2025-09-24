@@ -6,6 +6,8 @@ export default function Login() {
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
 
+  axios.defaults.withCredentials = true;
+
   const [displayText, setDisplayText] = useState("");
   const fullText = "Let's get you in";
 
