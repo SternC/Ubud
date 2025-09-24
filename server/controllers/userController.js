@@ -14,7 +14,13 @@ export const getUsers = async (req, res) => {
 export const deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
+
+    if (!req.user.is_admin){
+      return res.status(403).json({error: "Forbidden"});
+    }
+
     await User.destroy({ where: { id } });
+    res.clearCookie("token", { httpOnly: true, sameSite: "strict", secure: true });
     res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
     console.error("Error deleting user:", err);

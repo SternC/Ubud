@@ -45,9 +45,10 @@ function Dashboard() {
 
   const handleDeleteUser = (id) => {
     axios
-      .get(`http://localhost:5000/delete/${id}`)
+      .get(`http://localhost:5000/delete/${id}`, {withCredentials: true})
       .then((res) => {
         if (res.status === 200) {
+
           fetchUsers();
         }
       })
