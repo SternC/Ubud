@@ -14,8 +14,6 @@ function EditUser() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  axios.defaults.withCredentials = true;
-
   // Check authentication first
   useEffect(() => {
     axios

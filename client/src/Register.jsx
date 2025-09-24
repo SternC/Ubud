@@ -5,7 +5,6 @@ import axios from 'axios';
 export default function Register() {
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
-  axios.defaults.withCredentials = true;
 
   const [displayText, setDisplayText] = useState("");
   const fullText = "Sign up and be our buddy!";
@@ -19,6 +18,15 @@ export default function Register() {
 
   const [loading, setLoading] = useState(false);
   const [isCardHovered, setIsCardHovered] = useState(false);
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/authentication")
+      .then((res) => {
+        if (res.status === 200){
+          navigate("/app");
+        }
+      })
+  }, []);
 
   useEffect(() => {
     let currentIndex = 0;
@@ -66,15 +74,6 @@ export default function Register() {
       })
       .finally(() => setLoading(false));
   };
-
-  useEffect(() => {
-    axios.get("http://localhost:5000/authentication")
-      .then((res) => {
-        if (res.status === 200){
-          navigate("/app");
-        }
-      })
-  }, []);
 
   const logoClasses = `w-32 h-32 bg-white rounded-full flex items-center justify-center transition-transform duration-500
     ${isCardHovered ? 'scale-125 -translate-y-2 -rotate-6' : ''}`;

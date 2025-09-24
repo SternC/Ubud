@@ -13,17 +13,6 @@ export default function Card() {
     city: "Jakarta",
   });
 
-  axios.defaults.withCredentials = true;
-
-  const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
-  const [auth, setAuth] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const handleChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
-  };
-
   useEffect(() => {
     axios
       .get("http://localhost:5000/authentication")
@@ -42,6 +31,16 @@ export default function Card() {
         setMessage("Please login to view this page");
       });
   }, []);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+  const [auth, setAuth] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setProfile({ ...profile, [e.target.name]: e.target.value });
+  };
+
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF] flex items-center justify-center relative overflow-hidden">
