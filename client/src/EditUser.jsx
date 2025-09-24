@@ -2,17 +2,28 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
-function EditUser() {
+export default function EditUser() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  axios.defaults.withCredentials = true;
 
   const [auth, setAuth] = useState(false);
   const [message, setMessage] = useState("");
   const [name, setName] = useState(""); 
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // form values in one object
+  const [value, setValue] = useState({
+    userName: "",
+    userEmail: ""
+  });
+
+  // single handleChange (like your Login)
+  const handleChange = (e) => {
+    setValue({ ...value, [e.target.name]: e.target.value });
+  };
 
   // Check authentication first
   useEffect(() => {
@@ -37,13 +48,16 @@ function EditUser() {
       });
   }, []);
 
+  // load user data
   useEffect(() => {
     if (auth) {
       axios
         .get(`http://localhost:5000/edit/${id}`)
         .then((res) => {
-          setUserName(res.data.name);
-          setUserEmail(res.data.email);
+          setValue({
+            userName: res.data.name,
+            userEmail: res.data.email
+          });
           setLoading(false);
         })
         .catch((err) => {
@@ -58,12 +72,12 @@ function EditUser() {
     e.preventDefault();
     axios
       .put(`http://localhost:5000/edit/${id}`, {
-        name: userName,
-        email: userEmail,
+        name: value.userName,
+        email: value.userEmail,
       })
       .then((res) => {
         if (res.status === 200) {
-          navigate("/dashboard"); // redirect back to dashboard
+          navigate("/dashboard");
         }
       })
       .catch((err) => {
@@ -105,8 +119,9 @@ function EditUser() {
             <label className="block text-sm font-medium mb-1">Name</label>
             <input
               type="text"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
+              name="userName"
+              value={value.userName}
+              onChange={handleChange}
               className="w-full border rounded-lg p-2"
               required
             />
@@ -116,8 +131,9 @@ function EditUser() {
             <label className="block text-sm font-medium mb-1">Email</label>
             <input
               type="email"
-              value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
+              name="userEmail"
+              value={value.userEmail}
+              onChange={handleChange}
               className="w-full border rounded-lg p-2"
               required
             />
@@ -137,5 +153,3 @@ function EditUser() {
     </div>
   );
 }
-
-export default EditUser;

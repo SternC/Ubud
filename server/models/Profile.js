@@ -2,6 +2,10 @@ import { DataTypes } from 'sequelize';
 import db from "../config/database.js";
 
 const Profile = db.define('Profile', {
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,

@@ -53,7 +53,7 @@ export const updateUser = async (req, res) => {
 };
 
 export const getUserProfile = async (req, res) => {
-    const { id } = req.user.id;
+    const { id } = req.user;
 
     try {
         const profile = await Profile.findOne({where: {userId: id}});
@@ -69,7 +69,7 @@ export const getUserProfile = async (req, res) => {
 }
 
 export const updateUserProfile = async (req, res) => {
-    const { id } = req.user.id;
+    const { id } = req.user;
     const { name, email, age, interest, skill, city } = req.body;
 
     try {

@@ -11,6 +11,7 @@ import Register from './Register.jsx'
 import Login from './Login.jsx'
 import EditUser from './EditUser.jsx'
 import Hero from './Hero.jsx'
+import Card from './card.jsx'
 
 axios.defaults.withCredentials = true;
 
@@ -42,6 +43,10 @@ const routerPath = createBrowserRouter([
   {
     path: "*",
     element: <NotFound />,
+  },
+  {
+    path: "/profile",
+    element: <Card />,
   }
 ]);
 

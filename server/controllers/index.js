@@ -5,7 +5,8 @@ import Profile from './Profile.js';
 
 User.hasOne(Profile, {
   foreignKey: 'userId',
-  onDelete: 'CASCADE'
+  onDelete: 'CASCADE',
+  hooks: true
 });
 Profile.belongsTo(User, {
   foreignKey: 'userId'
