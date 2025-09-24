@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import axios from 'axios'
 import './index.css'
-import App from './App.jsx'
-import About from './About.jsx'
 import Dashboard from './Dashboard.jsx'
 import NotFound from './NotFound.jsx'
 import Register from './Register.jsx'
@@ -31,10 +29,6 @@ const routerPath = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
-  },
-    {
-    path: "/app",
-    element: <App />,
   },
   {
     path: "edit/:id",

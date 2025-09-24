@@ -52,7 +52,7 @@ export default function Login() {
       .then(res => {
         if (res.status === 200) {
           showToast("Login Successful!", "success");
-          setTimeout(() => navigate("/app"), 1500);
+          setTimeout(() => navigate("/profile"), 100);
         } else {
           showToast("Login Failed", "error");
         }
@@ -71,14 +71,6 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF]">
-      <button
-        onClick={() => navigate("/")}
-        className="absolute top-4 right-5 p-2 rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300 flex flex-col gap-1"
-      >
-        <span className="w-4 h-0.5 bg-white rounded"></span>
-        <span className="w-4 h-0.5 bg-white rounded"></span>
-        <span className="w-4 h-0.5 bg-white rounded"></span>
-      </button>
       <div className="w-full max-w-md">
         <div 
           className={cardClasses}
