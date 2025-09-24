@@ -1,4 +1,4 @@
-// F:\Ubud\client\src\Hero.jsx
+
 
 import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
@@ -20,30 +20,26 @@ export default function Hero() {
         rel="stylesheet"
       />
 
-      {/* Bagian Hero */}
-      <section
-        id="home"
-        className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#9bdfebff] via-[#1c6ea4] to-[#000B58]"
-      >
+      <section className="min-h-screen relative overflow-hidden bg-gradient-to-b bg-[#ffffe8] flex items-center justify-center">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             <div className="text-center lg:text-left space-y-8">
               <div className="space-y-6">
                 <h1
                   className="text-5xl sm:text-6xl lg:text-8xl font-bold leading-tight text-balance opacity-0 animate-fade-in-up"
-                  style={{ color: "#FFFBDE", fontFamily: "Dream Road" }}
+                  style={{ color: "#154D71", fontFamily: "Dream Road" }}
                 >
                   Your Best
                   <span
                     className="block animate-fade-in-up animate-delay-200"
-                    style={{ color: "#FFFBDE", fontFamily: "Dream Road" }}
+                    style={{ color: "#154D71", fontFamily: "Dream Road" }}
                   >
                     Study Buddy
                   </span>
                 </h1>
                 <p
                   className="text-xl sm:text-2xl leading-relaxed text-pretty opacity-0 animate-fade-in-up animate-delay-400"
-                  style={{ color: "#FFFBDE", fontFamily: "Raleway" }}
+                  style={{ color: "#154D71", fontFamily: "Raleway" }}
                 >
                   Empowering students and educators to thrive in a dynamic world with cutting-edge learning solutions
                 </p>
@@ -53,7 +49,7 @@ export default function Hero() {
                 <Link to="/register">
                   <Button
                     size="lg"
-                    className="group bg-[#F5F0CD] text-[#154D71] px-10 py-4 text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_50px_15px_#fcf5a9] hover:shadow-yellow-200/60 animate-pulse-glow"
+                    className="group bg-[#004179] text-[#fff2ce] px-10 py-4 text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_50px_15px_#91C8E4] hover:shadow-blue-200/60 animate-pulse-glow"
                     style={{ fontFamily: "Dream Road" }}
                   >
                     Get Started
@@ -173,8 +169,7 @@ export default function Hero() {
                         style={{
                           color: "#CBDCEB",
                           fontFamily: "'Baloo 2', sans-serif",
-                          textShadow:
-                            "0 0 10px #12235dff, 0 0 20px #1193eaff, 0 0 30px #A7D3F0",
+                        
                         }}
                       >
                         <span className="inline-block" style={{ animationDelay: "0.1s" }}>
