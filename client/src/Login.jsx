@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Background from '../components/ui/background';
 
 export default function Login() {
   const [toast, setToast] = useState(null);
@@ -72,8 +73,31 @@ export default function Login() {
   const cardClasses = `bg-white rounded-2xl shadow-lg p-8 border border-gray-200 transform transition-all duration-300`;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF]">
-      <div className="w-full max-w-md">
+  <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-[#fff1da] via-[#fff1da] to-[#04BAB6]">
+  
+    <div className="fixed inset-0 z-2 pointer-events-none">
+      <Background
+        colors={['#60e7ce', '#b2fdfb']}
+              mouseForce={10}
+              cursorSize={1000}
+              isViscous={false}
+              viscous={10}
+              iterationsViscous={10}
+              iterationsPoisson={5}
+              resolution={0.5}
+              isBounce={false}
+              autoDemo={true}
+              autoSpeed={0.25}
+              autoIntensity={0.5}
+              takeoverDuration={0.1}
+              autoResumeDelay={3000}
+              autoRampDuration={0.6}
+      />
+    </div>
+
+
+         <div className="w-full max-w-md relative z-10">
+        
         <div 
           className={cardClasses}
           onMouseEnter={() => setIsCardHovered(true)}
@@ -184,6 +208,7 @@ export default function Login() {
       )}
         </div>
       </div>
-    </div>
+
+        </div>
   );
 }

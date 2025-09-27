@@ -14,29 +14,28 @@ export default function Hero() {
     <>
       <Navbar />
 
- 
-      <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&display=swap" rel="stylesheet" />
 
-      <section id = 'hero' className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#66D2CE] to-[#04BAB6] flex items-center justify-center">
+      <section id = 'hero' className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#fff1da] via-[#fff1da] to-[#04BAB6] flex items-center justify-center ">
         <div className="absolute inset-0">
-            <Background
+           
+         <Background
               colors={['#60e7ce', '#b2fdfb']}
-              mouseForce={20}
-              cursorSize={100}
+              mouseForce={12}
+              cursorSize={800}
               isViscous={false}
               viscous={10}
               iterationsViscous={10}
-              iterationsPoisson={32}
+              iterationsPoisson={5}
               resolution={0.5}
-              isBounce={false}
+              isBounce={true}
               autoDemo={true}
-              autoSpeed={0.4}
+              autoSpeed={0.25}
               autoIntensity={2}
-              takeoverDuration={0.1}
-              autoResumeDelay={3000}
+              takeoverDuration={0.05}
+              autoResumeDelay={200}
               autoRampDuration={0.6}
             />
-        </div>
+            </div>
         <div className="relative z-10 w-full max-w-none mx-auto px-8 sm:px-12 lg:px-16 pt-32 pb-24">
           <div className="grid lg:grid-cols-1 gap-16 items-center justify-center min-h-[85vh] max-w-7xl mx-auto">
             <div className="text-center space-y-10 flex flex-col items-center justify-center">
@@ -76,7 +75,7 @@ export default function Hero() {
               </Link>
             </div>
 
-              <div className="flex flex-col sm:flex-row gap-6 text-sm opacity-0 animate-slide-in-left animate-delay-600">
+              <div className="flex flex-col sm:flex-row gap-6 text-lg opacity-0 animate-slide-in-left animate-delay-600 text-[#004179]">
                 {[
                   {
                     icon: "✓",
@@ -94,79 +93,32 @@ export default function Hero() {
                   <div
                     key={i}
                     className="flex items-center group cursor-pointer"
-                    style={{ fontFamily: "Raleway, sans-serif" }}
+                   
                   >
                     <div
                       className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-transform group-hover:scale-110"
-                      style={{ color: "#FFFBDE", backgroundColor: "transparent" }}
+                      style={{ color: "#004179", backgroundColor: "transparent" }}
                     >
                       {item.icon}
                     </div>
-                    <span className="transition-colors group-hover:text-highlight" style={{ color: "#FFFBDE" }}>
+                    <span className="transition-colors group-hover:text-highlight" style={{ color: "#004179" }}>
                       {item.text}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="flex justify-center lg:justify-start gap-6 pt-8 opacity-0 animate-fade-in-up animate-delay-600">
-                {[
-                  {
-                    icon: BookOpen,
-                    label: "Literature",
-                    color: "bg-accent/20 hover:bg-accent/30",
-                  },
-                  {
-                    icon: Calculator,
-                    label: "Math",
-                    color: "bg-accent/20 hover:bg-accent/30",
-                  },
-                  {
-                    icon: Palette,
-                    label: "Arts",
-                    color: "bg-accent/20 hover:bg-accent/30",
-                  },
-                  {
-                    icon: Users,
-                    label: "Social",
-                    color: "bg-accent/20 hover:bg-accent/30",
-                  },
-                ].map((subject, i) => (
-                  <div key={i} className="flex flex-col items-center gap-3 group cursor-pointer">
-                    <div
-                      className={`w-16 h-16 ${subject.color} rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-6`}
-                    >
-                      <subject.icon
-                        className="w-8 h-8 transition-transform group-hover:scale-110"
-                        style={{ color: "#FFFBDE" }}
-                      />
-                    </div>
-                    <span
-                      className="text-xs transition-colors group-hover:text-highlight font-medium"
-                      style={{ color: "#FFFBDE" }}
-                    >
-                      {subject.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative opacity-0 animate-fade-in-up animate-delay-400">
-              <div className="absolute -top-6 -right-6 w-32 h-32 bg-highlight/30 rounded-full blur-2xl animate-pulse"></div>
-              <div
-                className="absolute -bottom-6 -left-6 w-40 h-40 bg-accent/20 rounded-full blur-2xl animate-pulse"
-                style={{ animationDelay: "1s" }}
-              ></div>
+           
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Tambahkan id pada komponen lainnya */}
+          
       <Features />
       <Info />
       <Contact />
+        </div>
+      </section>
+
+  
     </>
   )
 }

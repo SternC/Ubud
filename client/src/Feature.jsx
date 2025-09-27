@@ -3,17 +3,21 @@ import Background from "../components/ui/background"
 
 export default function Features() {
   return (
-    <section id="features" className="py-20 bg-gradient-to-b from-[#07aba8] to-[#000a40] text-[#FFFBDE]">
+    <section 
+        id="features" 
+        className="relative py-20 text-[#004179] "
+      >
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
           className="text-4xl sm:text-5xl font-bold mb-4 animate-fade-in-up"
-          style={{ fontFamily: "Dream Road" }}
+          
         >
           Why Us ?
         </h2>
         <p
           className="text-lg sm:text-xl mb-12 max-w-2xl mx-auto animate-fade-in-up animate-delay-200"
-          style={{ fontFamily: "Raleway" }}
+          
         >
           We are here to transform your learning experience. Discover features designed to help you reach your full potential.
         </p>
@@ -28,11 +32,11 @@ export default function Features() {
             </div>
             <h3
               className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-              style={{ fontFamily: "Dream Road" }}
+             
             >
               Personalized Learning
             </h3>
-            <p className="text-gray-600" style={{ fontFamily: "Raleway" }}>
+            <p className="text-gray-600">
               Curriculum tailored to your learning style and pace, ensuring every material is absorbed optimally.
             </p>
           </div>
@@ -45,11 +49,10 @@ export default function Features() {
             </div>
             <h3
               className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-              style={{ fontFamily: "Dream Road" }}
             >
               Certification & Awards
             </h3>
-            <p className="text-gray-600" style={{ fontFamily: "Raleway" }}>
+            <p className="text-gray-600" >
               Achieve official certificates and awards for every accomplishment. Prove your skills and enhance your academic profile.
             </p>
           </div>
@@ -62,11 +65,10 @@ export default function Features() {
             </div>
             <h3
               className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-              style={{ fontFamily: "Dream Road" }}
             >
               Study Group
             </h3>
-            <p className="text-gray-600" style={{ fontFamily: "Raleway" }}>
+            <p className="text-gray-600">
               Join a supportive and active community. Discuss, share, and grow with peers.
             </p>
           </div>
@@ -78,11 +80,10 @@ export default function Features() {
             </div>
             <h3
               className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-              style={{ fontFamily: "Dream Road" }}
             >
               Interactive Quiz
             </h3>
-            <p className="text-gray-600" style={{ fontFamily: "Raleway" }}>
+            <p className="text-gray-600">
               Test your knowledge with fun, interactive quizzes that adapt to your learning progress.
             </p>
           </div>

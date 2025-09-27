@@ -40,17 +40,14 @@ const Navbar = () => {
             className="h-10 w-15 transition-all duration-300 ease-out transform hover:rotate-9 hover:brightness-120"
           />
           
-          <span className="text-white text-3xl font-['Raleway'] font-bold">
-            UBUD
-          </span>
         </div>
-        <div className="flex space-x-10">
+        <div className="flex space-x-10 ">
           {navLinks.map((link) => (
             <a
               key={link.id}
               href={`#${link.id}`}
               onClick={(e) => handleSmoothScroll(e, link.id)}
-              className="text-white text-lg font-['Raleway'] transition-all duration-300 hover:text-[#9bdfebff] cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#9bdfebff] after:transition-all after:duration-300 hover:after:w-full"
+              className="text-[#004179] text-lg transition-all duration-300 hover:text-[#3d91e4] cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#9bdfebff] after:transition-all after:duration-300 hover:after:w-full"
             >
               {link.label}
             </a>
