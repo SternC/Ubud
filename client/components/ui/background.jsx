@@ -128,7 +128,7 @@ export default function Background({
         this._onTouchEnd = this.onTouchEnd.bind(this);
         this.isHoverInside = false;
         this.hasUserControl = false;
-        this.isAutoActive = false;
+        this.isAutoActive = true;
         this.autoIntensity = 2.0;
         this.takeoverActive = false;
         this.takeoverStartTime = 0;

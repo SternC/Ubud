@@ -1,30 +1,31 @@
 import { Sparkles, GraduationCap, Users, Heart } from "lucide-react";
 
+
 export default function Info() {
   return (
-    <section id="info" className="py-20 text-[#FFFBDE] bg-gradient-to-t from-[#000B58] to-[#1c6ea4]">
+    <section id="info" className="py-20 text-[#004179] "> 
+                     
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2
             className="text-4xl sm:text-5xl font-bold mb-4 animate-fade-in-up"
-            style={{ fontFamily: "Dream Road" }}
+          
           >
             About Us
           </h2>
           <p
             className="text-lg sm:text-xl max-w-2xl mx-auto animate-fade-in-up animate-delay-200"
-            style={{ fontFamily: "Raleway" }}
+           
           >
             Escalate your knowledge with UBUD
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Sisi Kiri: Deskripsi */}
           <div className="space-y-6 text-center md:text-left animate-slide-in-left animate-delay-400">
             <h3
               className="text-3xl font-bold leading-tight"
-              style={{ fontFamily: "Dream Road" }}
+              
             >
               UBUD is More Than Just a Learning Platform
             </h3>
@@ -44,10 +45,10 @@ export default function Info() {
                 <Sparkles className="w-10 h-10" />
               </div>
               <div>
-                <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
+                <h4 className="text-xl font-bold" >
                   Innovative Solutions
                 </h4>
-                <p className="text-sm" style={{ fontFamily: "Raleway" }}>
+                <p className="text-sm">
                   We leverage cutting edge technology to create a dynamic learning environment that adapts to the evolving needs of our users.
                 </p>
               </div>
@@ -58,10 +59,10 @@ export default function Info() {
                 <GraduationCap className="w-10 h-10" />
               </div>
               <div>
-                <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
+                <h4 className="text-xl font-bold">
                   Global Standards
                 </h4>
-                <p className="text-sm" style={{ fontFamily: "Raleway" }}>
+                <p className="text-sm">
                   Our courses and certifications meet international standards, ensuring that our learners are well-prepared for the global stage.
                 </p>
               </div>
@@ -72,10 +73,10 @@ export default function Info() {
                 <Heart className="w-10 h-10" />
               </div>
               <div>
-                <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
+                <h4 className="text-xl font-bold">
                   Humanic Approach
                 </h4>
-                <p className="text-sm" style={{ fontFamily: "Raleway" }}>
+                <p className="text-sm">
                   We prioritize the human element in education, fostering meaningful connections between students and instructors to enhance the learning experience.
                 </p>
               </div>
