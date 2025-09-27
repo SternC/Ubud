@@ -9,13 +9,13 @@ export default function Contact() {
           className="text-4xl sm:text-5xl font-bold mb-4 animate-fade-in-up"
           style={{ fontFamily: "Dream Road" }}
         >
-          Hubungi Kami
+          Contact Us
         </h2>
         <p
           className="text-lg sm:text-xl mb-12 max-w-2xl mx-auto animate-fade-in-up animate-delay-200"
           style={{ fontFamily: "Raleway" }}
         >
-          Punya pertanyaan? Butuh bantuan? Jangan ragu untuk menghubungi tim UBUD. Kami siap membantu Anda.
+          Have questions? We're here to help!
         </p>
 
         <div className="flex flex-col md:flex-row gap-12 items-center">
@@ -28,7 +28,7 @@ export default function Contact() {
                   Email
                 </h4>
                 <a href="mailto:info@ubud.com" className="text-lg hover:underline transition-colors duration-300" style={{ fontFamily: "Raleway" }}>
-                  info@ubud.com
+                  @UBUD.com
                 </a>
               </div>
             </div>
@@ -37,10 +37,10 @@ export default function Contact() {
               <Phone className="w-8 h-8 flex-shrink-0" />
               <div>
                 <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
-                  Telepon
+                  Phone
                 </h4>
                 <p className="text-lg" style={{ fontFamily: "Raleway" }}>
-                  +62 812 3456 7890
+                  +62 0815 1000 3535
                 </p>
               </div>
             </div>
@@ -49,10 +49,10 @@ export default function Contact() {
               <MapPin className="w-8 h-8 flex-shrink-0" />
               <div>
                 <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
-                  Alamat
+                  Address
                 </h4>
                 <p className="text-lg" style={{ fontFamily: "Raleway" }}>
-                  Jl. Pendidikan No. 123, Jakarta, Indonesia
+                  St. Jakarta No. 88, Indonesia
                 </p>
               </div>
             </div>
@@ -64,7 +64,7 @@ export default function Contact() {
               className="text-3xl font-bold mb-6 text-[#1c6ea4]"
               style={{ fontFamily: "Dream Road" }}
             >
-              Kirim Pesan Anda
+              Send Us a Message
             </h3>
             <form className="space-y-6">
               <div>
@@ -73,7 +73,7 @@ export default function Contact() {
                   className="block text-sm font-medium mb-2 text-left"
                   style={{ fontFamily: "Raleway" }}
                 >
-                  Nama Lengkap
+                  Name
                 </label>
                 <input
                   type="text"
@@ -89,7 +89,7 @@ export default function Contact() {
                   className="block text-sm font-medium mb-2 text-left"
                   style={{ fontFamily: "Raleway" }}
                 >
-                  Alamat Email
+                  Email Address
                 </label>
                 <input
                   type="email"
@@ -105,7 +105,7 @@ export default function Contact() {
                   className="block text-sm font-medium mb-2 text-left"
                   style={{ fontFamily: "Raleway" }}
                 >
-                  Pesan Anda
+                  Message
                 </label>
                 <textarea
                   id="message"
@@ -120,7 +120,7 @@ export default function Contact() {
                 className="w-full bg-[#1c6ea4] text-[#F5F0CD] px-6 py-3 text-lg font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] hover:bg-[#154D71]"
                 style={{ fontFamily: "Dream Road" }}
               >
-                Kirim Pesan
+                Send Message
               </Button>
             </form>
           </div>

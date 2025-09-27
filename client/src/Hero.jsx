@@ -17,10 +17,10 @@ export default function Hero() {
  
       <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&display=swap" rel="stylesheet" />
 
-      <section className="min-h-screen relative overflow-hidden bg-gradient-to-b bg-[#fff8e7] flex items-center justify-center">
+      <section id = 'hero' className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#66D2CE] to-[#04BAB6] flex items-center justify-center">
         <div className="absolute inset-0">
             <Background
-              colors={['#8DD8FF', '#91C8E4', '#fffefb']}
+              colors={['#60e7ce', '#b2fdfb']}
               mouseForce={20}
               cursorSize={100}
               isViscous={false}

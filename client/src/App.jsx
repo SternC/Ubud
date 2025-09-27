@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Hero from "./hero";
+import Hero from "./Hero";
 
 function App() {
   return (

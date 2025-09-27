@@ -1,74 +1,63 @@
-
-
-import React, { useState } from 'react';
-import { Menu } from 'lucide-react';
+import React from 'react';
 
 const Navbar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSmoothScroll = (e, targetId) => {
     e.preventDefault();
     const targetElement = document.getElementById(targetId);
+    const NAVBAR_HEIGHT = 70;
+
     if (targetElement) {
+      const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - NAVBAR_HEIGHT;
       window.scrollTo({
-        top: targetElement.offsetTop,
+        top: targetId === 'hero' ? 0 : offsetPosition, 
         behavior: 'smooth'
       });
-      setIsSidebarOpen(false); // Tutup sidebar setelah link diklik
     }
   };
 
-  return (
-    <>
-      {/* Tombol Hamburger di pojok kanan atas */}
-      <div
-        className={`fixed z-50 top-4 right-4 p-4 rounded-full backdrop-blur-md transition-all duration-300 cursor-pointer ${
-          isSidebarOpen ? 'bg-white/20' : 'bg-white/20 shadow-xl'
-        }`}
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        <Menu className="w-6 h-6 text-white" />
-      </div>
+  const navLinks = [
+    { id: 'hero', label: 'Homepage' },
+    { id: 'features', label: 'Features' },
+    { id: 'info', label: 'About Us' },
+    { id: 'contact', label: 'Our Contact' },
+  ];
 
-      {/* Sidebar */}
-      <div
-        className={`fixed top-25 right-3 z-50 h-1/2 w-64 p-10 backdrop-blur-md bg-white/20 transition-transform duration-500 ease-in-out rounded-3xl ${
-          isSidebarOpen ? 'translate-x-0' : 'translate-x-100'
-        }`}
-      >
-        {/* Konten Sidebar */}
-        <div className="flex flex-col space-y-7">
-          <a
-            href="#home"
-            onClick={(e) => handleSmoothScroll(e, 'home')}
-            className="w-full text-white text-xl font-['Raleway'] text-center transition-all duration-300 hover:text-[#9bdfebff] cursor-pointer block p-2 rounded-lg hover:bg-white/10 hover:shadow-lg hover:scale-105"
-          >
-            Homepage
-          </a>
-          <a
-            href="#info"
-            onClick={(e) => handleSmoothScroll(e, 'info')}
-            className="w-full text-white text-xl font-['Raleway'] text-center transition-all duration-300 hover:text-[#9bdfebff] cursor-pointer block p-2 rounded-lg hover:bg-white/10 hover:shadow-lg hover:scale-105"
-          >
-            About Us
-          </a>
-          <a
-            href="#features"
-            onClick={(e) => handleSmoothScroll(e, 'features')}
-            className="w-full text-white text-xl font-['Raleway'] text-center transition-all duration-300 hover:text-[#9bdfebff] cursor-pointer block p-2 rounded-lg hover:bg-white/10 hover:shadow-lg hover:scale-105"
-          >
-            Features
-          </a>
-          <a
-            href="#contact"
-            onClick={(e) => handleSmoothScroll(e, 'contact')}
-            className="w-full text-white text-xl font-['Raleway'] text-center transition-all duration-300 hover:text-[#9bdfebff] cursor-pointer block p-2 rounded-lg hover:bg-white/10 hover:shadow-lg hover:scale-105"
-          >
-            Our Contact
-          </a>
+  return (
+    <nav
+      className="fixed top-2 left-0 right-0 z-50 p-4 mx-35 backdrop-blur-md bg-white/20 shadow-xl transition-all duration-300 rounded-2xl"
+    >
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        
+        <div 
+          className="flex items-center space-x-3 cursor-pointer transition-transform duration-300 ease-in-out transform hover:scale-105"
+          onClick={(e) => handleSmoothScroll(e, 'hero')} 
+        >
+          <img 
+            src="/logo.png" 
+            alt="Ubud Logo" 
+            className="h-10 w-15 transition-all duration-300 ease-out transform hover:rotate-9 hover:brightness-120"
+          />
+          
+          <span className="text-white text-3xl font-['Raleway'] font-bold">
+            UBUD
+          </span>
+        </div>
+        <div className="flex space-x-10">
+          {navLinks.map((link) => (
+            <a
+              key={link.id}
+              href={`#${link.id}`}
+              onClick={(e) => handleSmoothScroll(e, link.id)}
+              className="text-white text-lg font-['Raleway'] transition-all duration-300 hover:text-[#9bdfebff] cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#9bdfebff] after:transition-all after:duration-300 hover:after:w-full"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
       </div>
-    </>
+    </nav>
   );
 };
 
