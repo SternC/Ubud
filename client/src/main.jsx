@@ -8,7 +8,7 @@ import NotFound from './NotFound.jsx'
 import Register from './Register.jsx'
 import Login from './Login.jsx'
 import EditUser from './EditUser.jsx'
-import Hero from './Hero.jsx'
+import Hero from './hero.jsx'
 import Card from './card.jsx'
 import Module from './Modul.jsx'
 

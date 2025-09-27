@@ -9,13 +9,13 @@ export default function Info() {
             className="text-4xl sm:text-5xl font-bold mb-4 animate-fade-in-up"
             style={{ fontFamily: "Dream Road" }}
           >
-            Tentang Kami
+            About Us
           </h2>
           <p
             className="text-lg sm:text-xl max-w-2xl mx-auto animate-fade-in-up animate-delay-200"
             style={{ fontFamily: "Raleway" }}
           >
-            Temukan potensi terbaikmu bersama UBUD, teman belajar yang siap mendampingi setiap langkahmu.
+            Escalate your knowledge with UBUD
           </p>
         </div>
 
@@ -26,13 +26,13 @@ export default function Info() {
               className="text-3xl font-bold leading-tight"
               style={{ fontFamily: "Dream Road" }}
             >
-              UBUD: Solusi Pembelajaran Inovatif untuk Masa Depan
+              UBUD is More Than Just a Learning Platform
             </h3>
             <p className="leading-relaxed" style={{ fontFamily: "Raleway" }}>
-              UBUD didirikan dengan visi untuk menghadirkan pendidikan yang lebih mudah diakses dan menyenangkan. Kami percaya setiap individu memiliki cara belajar unik, dan teknologi adalah alat untuk membuka potensi tersebut. Dengan kurikulum yang fleksibel dan instruktur yang berpengalaman, kami berkomitmen untuk menjadi mitra terpercaya dalam perjalanan akademis Anda.
+              Built with passion and dedication, UBUD has been at the forefront of educational innovation since its inception. Our platform is designed to cater to the unique needs of each learner, providing a seamless and engaging experience.
             </p>
             <p className="leading-relaxed" style={{ fontFamily: "Raleway" }}>
-              Sejak awal, kami telah membantu ribuan siswa meraih nilai terbaik, mengembangkan bakat, dan mempersiapkan diri menghadapi tantangan masa depan. Kami bukan sekadar platform, kami adalah komunitas.
+              Since our launch, we have empowered thousands of students and educators worldwide, fostering a community of lifelong learners. Our commitment to excellence and continuous improvement drives us to deliver top-notch educational content and tools.
             </p>
           </div>
 
@@ -45,10 +45,10 @@ export default function Info() {
               </div>
               <div>
                 <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
-                  Inovasi Tanpa Batas
+                  Innovative Solutions
                 </h4>
                 <p className="text-sm" style={{ fontFamily: "Raleway" }}>
-                  Kami terus mengembangkan solusi pembelajaran terbaru, dari materi interaktif hingga kurikulum yang dinamis.
+                  We leverage cutting edge technology to create a dynamic learning environment that adapts to the evolving needs of our users.
                 </p>
               </div>
             </div>
@@ -59,10 +59,10 @@ export default function Info() {
               </div>
               <div>
                 <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
-                  Standar Akademis Global
+                  Global Standards
                 </h4>
                 <p className="text-sm" style={{ fontFamily: "Raleway" }}>
-                  Materi kami disusun berdasarkan standar akademis internasional, memastikan Anda siap bersaing di tingkat global.
+                  Our courses and certifications meet international standards, ensuring that our learners are well-prepared for the global stage.
                 </p>
               </div>
             </div>
@@ -73,10 +73,10 @@ export default function Info() {
               </div>
               <div>
                 <h4 className="text-xl font-bold" style={{ fontFamily: "Dream Road" }}>
-                  Pendekatan yang Humanis
+                  Humanic Approach
                 </h4>
                 <p className="text-sm" style={{ fontFamily: "Raleway" }}>
-                  Kami peduli dengan setiap individu. Pembelajaran di UBUD dirancang untuk menumbuhkan motivasi dan kepercayaan diri.
+                  We prioritize the human element in education, fostering meaningful connections between students and instructors to enhance the learning experience.
                 </p>
               </div>
             </div>
