@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 function NotFound(){
     return (
-        <div className="min-h-screen relative overflow-hidden bg-gradient-to-b bg-[#ffffe8] flex items-center justify-center">
+        <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba] flex items-center justify-center">
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
                 <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold leading-tight text-balance" style={{ color: "#154D71", fontFamily: "Dream Road" }}>
                     404 - Page Not Found

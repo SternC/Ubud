@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Background from '../components/ui/bg';
 
 export default function Register() {
   const [toast, setToast] = useState(null);
@@ -81,8 +82,28 @@ export default function Register() {
   const cardClasses = `bg-white rounded-2xl shadow-lg p-6 border border-gray-200 transform transition-all duration-500 scale-105`;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF]">
-      <div className="w-full max-w-md">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba]">
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Background
+          colors={["#60e7ce", "#b2fdfb"]}
+          mouseForce={10}
+          cursorSize={1000}
+          isViscous={false}
+          viscous={10}
+          iterationsViscous={10}
+          iterationsPoisson={5}
+          resolution={0.5}
+          isBounce={false}
+          autoDemo={true}   
+          autoSpeed={1}
+          autoIntensity={0.5}
+          takeoverDuration={0.1}
+          autoResumeDelay={0}
+          autoRampDuration={0.6}
+        />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
         <div
           className={cardClasses}
           onMouseEnter={() => setIsCardHovered(true)}
@@ -90,8 +111,10 @@ export default function Register() {
         >
           <div className="text-center mb-6">
             {/* Logo */}
-            <div className={`w-40 h-40 mx-auto mb-4 rounded-full flex items-center justify-center transform transition-all duration-500
-              ${isCardHovered ? 'scale-110 -rotate-12' : ''}`}>
+            <div
+              className={`w-40 h-40 mx-auto mb-4 rounded-full flex items-center justify-center transform transition-all duration-500
+              ${isCardHovered ? "scale-110 -rotate-12" : ""}`}
+            >
               <div className={logoClasses}>
                 <img src="/logo.png" alt="Ubud Logo" className="w-full h-full object-contain" />
               </div>
@@ -122,7 +145,7 @@ export default function Register() {
                   transition-all duration-300 hover:border-blue-300 hover:shadow-md 
                   transform focus:scale-105 placeholder-transparent"
               />
-              <label 
+              <label
                 htmlFor="username"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
@@ -149,7 +172,7 @@ export default function Register() {
                   transition-all duration-300 hover:border-blue-300 hover:shadow-md 
                   transform focus:scale-105 placeholder-transparent"
               />
-              <label 
+              <label
                 htmlFor="email"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
@@ -176,7 +199,7 @@ export default function Register() {
                   transition-all duration-300 hover:border-blue-300 hover:shadow-md 
                   transform focus:scale-105 placeholder-transparent"
               />
-              <label 
+              <label
                 htmlFor="password"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
@@ -203,7 +226,7 @@ export default function Register() {
                   transition-all duration-300 hover:border-blue-300 hover:shadow-md 
                   transform focus:scale-105 placeholder-transparent"
               />
-              <label 
+              <label
                 htmlFor="confirmPassword"
                 className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
@@ -238,16 +261,19 @@ export default function Register() {
           </p>
         </div>
       </div>
+
       {toast && (
         <div
           className={`fixed top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-2xl shadow-xl text-white font-medium text-lg animate-fadeIn z-50
-          ${toast.type === "success" 
-            ? "bg-gradient-to-r from-green-400 to-green-600" 
-            : "bg-gradient-to-r from-red-400 to-red-600"}`}
+          ${
+            toast.type === "success"
+              ? "bg-gradient-to-r from-green-400 to-green-600"
+              : "bg-gradient-to-r from-red-400 to-red-600"
+          }`}
         >
           {toast.message}
         </div>
       )}
     </div>
-  );
+  )
 }
