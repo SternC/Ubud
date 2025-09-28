@@ -1,5 +1,5 @@
 import { BookOpen, Award, Users, Lightbulb } from "lucide-react";
-import Background from "../components/ui/background"
+
 
 export default function Features() {
   return (

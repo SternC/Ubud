@@ -15,11 +15,11 @@ export default function Hero() {
       <Navbar />
 
 
-      <section id = 'hero' className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#fff1da] via-[#fff1da] to-[#04BAB6] flex items-center justify-center ">
+      <section id = 'hero' className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba] flex items-center justify-center ">
         <div className="absolute inset-0">
            
          <Background
-              colors={['#60e7ce', '#b2fdfb']}
+              colors={['#9fcfe8', '#beeaff']}
               mouseForce={12}
               cursorSize={800}
               isViscous={false}

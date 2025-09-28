@@ -29,17 +29,16 @@ export default function Info() {
             >
               UBUD is More Than Just a Learning Platform
             </h3>
-            <p className="leading-relaxed" style={{ fontFamily: "Raleway" }}>
+            <p className="leading-relaxed" >
               Built with passion and dedication, UBUD has been at the forefront of educational innovation since its inception. Our platform is designed to cater to the unique needs of each learner, providing a seamless and engaging experience.
             </p>
-            <p className="leading-relaxed" style={{ fontFamily: "Raleway" }}>
+            <p className="leading-relaxed" >
               Since our launch, we have empowered thousands of students and educators worldwide, fostering a community of lifelong learners. Our commitment to excellence and continuous improvement drives us to deliver top-notch educational content and tools.
             </p>
           </div>
 
-          {/* Sisi Kanan: Keunggulan Kami */}
+        
           <div className="space-y-8 animate-slide-in-right animate-delay-600">
-            {/* Item Keunggulan */}
             <div className="flex items-start space-x-4 p-4 rounded-xl transition-all duration-300 hover:bg-[#FFFBDE]/10 hover:shadow-lg">
               <div className="flex-shrink-0 mt-1">
                 <Sparkles className="w-10 h-10" />
@@ -53,7 +52,6 @@ export default function Info() {
                 </p>
               </div>
             </div>
-            {/* Item Keunggulan */}
             <div className="flex items-start space-x-4 p-4 rounded-xl transition-all duration-300 hover:bg-[#FFFBDE]/10 hover:shadow-lg">
               <div className="flex-shrink-0 mt-1">
                 <GraduationCap className="w-10 h-10" />
@@ -67,7 +65,6 @@ export default function Info() {
                 </p>
               </div>
             </div>
-            {/* Item Keunggulan */}
             <div className="flex items-start space-x-4 p-4 rounded-xl transition-all duration-300 hover:bg-[#FFFBDE]/10 hover:shadow-lg">
               <div className="flex-shrink-0 mt-1">
                 <Heart className="w-10 h-10" />
