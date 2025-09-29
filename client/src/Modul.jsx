@@ -25,14 +25,14 @@ return null;
 
 return ( <div className="min-h-screen flex flex-col lg:flex-row bg-[#ffffe8]">
 
-<div className="lg:hidden flex items-center justify-between bg-[#0b2a45] text-white p-4"> <div className="flex items-center space-x-2"> <img src="/logo.png" alt="Ubud Logo" className="w-10 h-8" /> <span className="font-bold text-lg">Ubud</span> </div>
+<div className="lg:hidden flex items-center justify-between bg-gradient-to-tr from-[#0b2a45] to-[#1f4c7b]  text-white p-4"> <div className="flex items-center space-x-2"> <img src="/logo.png" alt="Ubud Logo" className="w-10 h-8" /> <span className="font-bold text-lg">Ubud</span> </div>
 <button onClick={() => setSidebarOpen(!sidebarOpen)}>
 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />} </button> </div>
 
 
 
   <aside
-    className={`fixed lg:static inset-y-0 left-0 w-64 bg-[#0b2a45] text-white flex flex-col p-4 transform transition-transform duration-300 z-40 ${
+    className={`fixed lg:static inset-y-0 left-0 w-64 bg-gradient-to-tr from-[#0b2a45] to-[#1f4c7b] text-white flex flex-col p-4 transform transition-transform duration-300 z-40 ${
       sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
     }`}
   >
