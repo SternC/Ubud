@@ -9,7 +9,6 @@ const Profile = db.define('Profile', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'John Smith'
   },
   email: {
     type: DataTypes.STRING,
@@ -17,19 +16,15 @@ const Profile = db.define('Profile', {
   },
   age: {
     type: DataTypes.STRING,
-    defaultValue: '21'
   },
   interest: {
     type: DataTypes.STRING,
-    defaultValue: 'Coding, Design'
   },
   skill: {
     type: DataTypes.STRING,
-    defaultValue: 'React, Tailwind'
   },
   city: {
     type: DataTypes.STRING,
-    defaultValue: 'Jakarta'
   }
 }, {
     tableName: 'profiles',
