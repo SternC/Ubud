@@ -19,6 +19,7 @@
     "clsx": "^2.1.1",
     "gsap": "^3.13.0",
     "lucide-react": "^0.544.0",
+    "motion": "^12.23.22",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3",
