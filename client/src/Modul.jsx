@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Courses } from "../components/section/Courses";
 import { Menu, X } from "lucide-react";
 import { Coachdeck } from "../components/section/Coachdeck";
+import ProfileCard from "../components/section/Card";
 
 export default function Module() {
 const [activePage, setActivePage] = useState("Dashboard");
@@ -10,7 +11,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
 const renderContent = () => {
 switch (activePage) {
 case "Dashboard":
-return ( <div className="border border-dashed border-gray-300 rounded-lg h-96 flex items-center justify-center text-gray-400">
+return ( <div className="border border-dashed border-gray-300 rounded-lg h-160 flex items-center justify-center text-gray-400">
 Konten dashboard di sini </div>
 );
 case "Courses":
@@ -39,6 +40,7 @@ return ( <div className="min-h-screen flex flex-col lg:flex-row bg-[#ffffe8]">
       <img src="/logo.png" alt="Ubud Logo" className="w-14 h-12 mb-2" />
     </div>
     <nav className="flex flex-col gap-4 flex-1">
+      <ProfileCard />
       {[
         "Dashboard",
         "Courses",
@@ -67,7 +69,7 @@ return ( <div className="min-h-screen flex flex-col lg:flex-row bg-[#ffffe8]">
 
   <main className="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-0 mt-16 lg:mt-0">
     <div className="bg-white shadow-lg rounded-xl p-6 h-full">
-      <h1 className="text-2xl font-bold mb-4">{activePage}</h1>
+      <h1 className="text-2xl font-bold mb-4 text-[#004179]">{activePage}</h1>
       {renderContent()}
     </div>
   </main>
