@@ -66,7 +66,7 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-8 opacity-0 animate-fade-in-up animate-delay-600">
               <Link to="/register" className="w-full sm:w-auto">
                <Button
-                  className="group bg-[#004179] text-[#fff8e7] px-20 py-8 text-4xl font-bold rounded-3xl transition-all duration-300 hover:scale-115 hover:shadow-[0_0_90px_30px_#91C8E4] hover:shadow-blue-200/70 hover:bg-[#4cb6f8d2] animate-pulse-glow w-full sm:w-auto font-raleway"
+                  className="group bg-[#004179] text-[#fff8e7] px-20 py-8 text-2xl font-bold rounded-3xl transition-all duration-300 hover:scale-115 hover:shadow-[0_0_90px_30px_#91C8E4] hover:shadow-blue-200/70 hover:bg-[#4cb6f8d2] animate-pulse-glow w-full sm:w-auto font-raleway"
                 >
                   Get Started
                   <ArrowRight className="ml-4 w-10 h-10 transition-transform group-hover:translate-x-3" />

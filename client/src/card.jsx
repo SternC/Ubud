@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
+import Background from "../components/ui/bg";
+
 export default function Card() {
   const [flipped, setFlipped] = useState(false);
   const [profile, setProfile] = useState({
@@ -69,13 +71,23 @@ const handleSave = (e) => {
 };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#000B58] via-[#1c6ea4] to-[#FFF9AF] flex items-center justify-center relative overflow-hidden">
-      <img
-        src="waves.gif"
-        alt="Waves Background"
-        className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-[200%] h-[50vh] object-cover opacity-70 pointer-events-none"
-      />
-
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba] flex items-center justify-center ">
+    <Background
+            mouseForce={10}
+            cursorSize={1000}
+            isViscous={false}
+            viscous={10}
+            iterationsViscous={10}
+            iterationsPoisson={5}
+            resolution={0.5}
+            isBounce={false}
+            autoDemo={true}   
+            autoSpeed={1}
+            autoIntensity={0.5}
+            takeoverDuration={0.1}
+            autoResumeDelay={0}
+            autoRampDuration={0.6}
+          />
       {auth ? (
         <>
           <button
@@ -218,6 +230,6 @@ const handleSave = (e) => {
           </Link>
         </div>
       )}
-    </main>
+    </div>
   );
 }
