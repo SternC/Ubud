@@ -36,6 +36,10 @@
   animation: slideInLeft 0.8s ease-out forwards;
 }
 
+html, body {
+  min-width: 400px;
+}
+
 
 
 
