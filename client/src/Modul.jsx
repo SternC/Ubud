@@ -5,6 +5,8 @@ import axios from "axios";
 import { Courses } from "../components/section/Courses";
 import { Coachdeck } from "../components/section/Coachdeck";
 import ProfileCard from "../components/section/Card";
+import BuyCourse from "../components/section/BuyCourse";
+import TransactionHistory from "../components/section/Transaction";
 
 export default function Module() {
   const [activePage, setActivePage] = useState("Dashboard");
@@ -35,6 +37,11 @@ export default function Module() {
         return <Courses />;
       case "Coach":
         return <Coachdeck />;
+      case "Buy Course":
+        return <BuyCourse />;
+
+      case "Transaction":
+        return <TransactionHistory />;
       default:
         return null;
     }
@@ -71,6 +78,7 @@ export default function Module() {
               "Schedule",
               "Coach",
               "Transaction",
+              "Buy Course",
             ].map((page) => (
               <button
                 key={page}
