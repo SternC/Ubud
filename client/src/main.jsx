@@ -10,6 +10,7 @@ import Login from './Login.jsx'
 import EditUser from './EditUser.jsx'
 import Hero from './Hero.jsx'
 import Module from './Modul.jsx'
+import CoachLogin from './CoachLogin.jsx';
 
 axios.defaults.withCredentials = true;
 
@@ -17,6 +18,10 @@ const routerPath = createBrowserRouter([
   {
     path: "/",
     element: <Hero />,
+  },
+  {
+    path: "/coach-login",
+    element: <CoachLogin />,
   },
   {
     path: "/dashboard",

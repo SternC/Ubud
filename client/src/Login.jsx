@@ -20,7 +20,7 @@ export default function Login() {
     axios.get("http://localhost:5000/authentication")
       .then((res) => {
         if (res.status === 200){
-          navigate("/app");
+          navigate("/profile");
         }
       })
   }, []);
@@ -196,6 +196,15 @@ export default function Login() {
             >
               Register here
             </Link>
+            <p className="text-center text-sm text-gray-600 mt-2">
+            Want to teach?{" "}
+              <Link
+                to="/coach-login"
+                className="text-blue-600 hover:underline transition-all duration-200 hover:text-blue-800 hover:scale-105 inline-block"
+              >
+                Login as Coach
+              </Link>
+            </p>
           </p>
                 {toast && (
         <div
