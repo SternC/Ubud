@@ -24,7 +24,7 @@ export default function Register() {
     axios.get("http://localhost:5000/authentication")
       .then((res) => {
         if (res.status === 200){
-          navigate("/app");
+          navigate("/profile");
         }
       })
   }, []);

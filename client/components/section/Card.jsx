@@ -108,7 +108,7 @@ export default function ProfileCard() {
                       name={field}
                       value={profile[field]}
                       onChange={handleChange}
-                      className="p-1 text-white rounded-lg border border-gray-300 bg-transparent"
+                      className="p-1 text-black rounded-lg border border-gray-300 bg-transparent"
                       placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                     />
                   ))}
