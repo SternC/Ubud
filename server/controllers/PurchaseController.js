@@ -1,6 +1,75 @@
 import Purchase from "../models/Purchase.js";
 import Course from "../models/Course.js";
+import PDFDocument from 'pdfkit';
 
+
+
+export const downloadReceipt = async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+
+    // 1. Ambil data transaksi
+    const transaction = await Purchase.findByPk(transactionId);
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    // 2. Persiapkan response headers untuk file PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="receipt-${transactionId}.pdf"`);
+
+    // 3. Buat dokumen PDF menggunakan pdfkit
+    const doc = new PDFDocument({ margin: 50 });
+
+    // Pipa (pipe) dokumen PDF langsung ke response stream
+    doc.pipe(res);
+
+    // --- Isi Konten PDF ---
+
+    doc
+      .fontSize(25)
+      .text('INVOICE / BUKTI PEMBELIAN', { align: 'center' });
+
+    doc.moveDown();
+
+    doc
+      .fontSize(12)
+      .text(`Transaction ID: ${transaction.id}`, { continued: true })
+      .text(`Date: ${new Date(transaction.createdAt).toLocaleDateString()}`, { align: 'right' });
+
+    doc.moveDown();
+
+    // Detail Produk
+    doc
+      .fontSize(16)
+      .text('Detail Produk:', { underline: true });
+    
+    doc.moveDown(0.5);
+
+    doc
+      .fontSize(12)
+      .text(`Course Title: ${transaction.title}`);
+
+    doc
+      .fontSize(12)
+      .text(`Price: $${Number(transaction.price).toFixed(2)}`);
+
+    doc.moveDown(2);
+
+    // Footer
+    doc
+      .fontSize(10)
+      .fillColor('gray')
+      .text('Terima kasih telah berbelanja.', { align: 'center' });
+
+    // --- Akhiri dokumen dan kirim ke browser ---
+    doc.end();
+
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    res.status(500).json({ message: "Error generating PDF receipt" });
+  }
+};
 // POST /api/purchase → Buy a course
 export const createPurchase = async (req, res) => {
   try {
