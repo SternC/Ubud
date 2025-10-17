@@ -7,6 +7,8 @@ import { Coachdeck } from "../components/section/Coachdeck";
 import ProfileCard from "../components/section/Card";
 import BuyCourse from "../components/section/BuyCourse";
 import TransactionHistory from "../components/section/Transaction";
+import Dashboard from "../components/section/dashboard";
+
 
 export default function Module() {
   const [activePage, setActivePage] = useState("Dashboard");
@@ -27,21 +29,22 @@ export default function Module() {
 
   const renderContent = () => {
     switch (activePage) {
-      case "Dashboard":
-        return (
-          <div className="border border-dashed border-gray-300 rounded-lg h-160 flex items-center justify-center text-gray-400">
-            Konten dashboard di sini
-          </div>
-        );
+      // case "Dashboard":
+      //   return (
+      //     <div className="border border-dashed border-gray-300 rounded-lg h-160 flex items-center justify-center text-gray-400">
+      //       Konten dashboard di sini
+      //     </div>
+      //   );
       case "Courses":
         return <Courses />;
       case "Coach":
         return <Coachdeck />;
       case "Buy Course":
         return <BuyCourse />;
-
       case "Transaction":
         return <TransactionHistory />;
+      case "Dashboard":
+        return <Dashboard />;
       default:
         return null;
     }
