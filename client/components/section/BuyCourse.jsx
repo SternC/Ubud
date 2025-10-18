@@ -10,7 +10,7 @@ export default function BuyCourse() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/courses")
+    .get("http://localhost:5000/courses", { withCredentials: true })
       .then((res) => setCourses(res.data))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -23,6 +23,8 @@ export default function BuyCourse() {
     }
 
     try {
+      console.log("🛒 Buying:", { userId: user.id, courseId });
+
       const res = await axios.post(
         "http://localhost:5000/api/purchase",
         { userId: user.id, courseId },
