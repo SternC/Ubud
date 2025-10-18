@@ -125,6 +125,8 @@ export const createUser = async (req, res) => {
       is_admin: is_admin ? 1 : 0,
     });
 
+    await Profile.create({ userId: newUser.id, email, name: name });
+
     res.status(201).json({
       message: "User created successfully",
       user: {
