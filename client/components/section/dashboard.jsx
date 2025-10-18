@@ -1,193 +1,267 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 
-// Data dummy untuk simulasi progress pembelajaran (TETAP SAMA)
 const coursesData = [
-  { id: 1, title: 'Pengenalan React dan Komponen', code: 'REACT101', progress: 75, status: 'In Progress' },
-  { id: 2, title: 'Styling dalam React (Tailwind CSS)', code: 'CSS202', progress: 30, status: 'Not Started' },
-  { id: 3, title: 'Manajemen State dengan Redux/Context', code: 'STATE303', progress: 100, status: 'Completed' },
+  { id: 1, title: 'Pengenalan React dan Komponen', code: 'REACT101', progress: 75, status: 'In Progress', date: '2025-02-10' },
+  { id: 2, title: 'Styling dalam React (Tailwind CSS)', code: 'CSS202', progress: 30, status: 'Not Started', date: '2025-04-05' },
+  { id: 3, title: 'Manajemen State dengan Redux/Context', code: 'STATE303', progress: 100, status: 'Completed', date: '2025-06-20' },
+  { id: 4, title: 'Integrasi API dan Fetch Data', code: 'API404', progress: 50, status: 'In Progress', date: '2025-06-21' },
 ];
 
-// Data dummy untuk 'Upcoming Class'
 const upcomingClass = {
   title: 'React Hooks & State Management',
   course: 'REACT101',
   lecturer: 'Dr. Ahmad Fauzi, S.Kom., M.T.',
   time: 'Hari Ini, 09:00 - 10:30 WIB',
   session: 5,
-  courseProgress: 3, // Global course progress percentage
+  courseProgress: 3,
 };
 
-// Komponen Bar Chart Horizontal untuk Progress
-const ProgressChartBar = ({ title, code, progress }) => {
-  // Styling modern untuk bar
-  const containerStyle = {
-    marginBottom: '15px',
-    display: 'flex',
-    flexDirection: 'column',
-  };
+const timelineData = [
+  { date: "Tuesday, 21 October", course: "IF451 - Advanced Web Programming - LAB", time: "09:00" },
+  { date: "Thursday, 23 October", course: "UM142 - Indonesian Language - LEC", time: "09:00" },
+];
 
-  const barWrapperStyle = {
-    height: '15px',
-    backgroundColor: '#e9ecef', // Light grey background
-    borderRadius: '4px',
-    marginTop: '4px',
-    overflow: 'hidden',
-  };
+const mockCoachTimeline = [
+  { date: 'Monday, 20 October', course: 'REACT101 - Hooks Lab', submissions: 5 },
+  { date: 'Wednesday, 22 October', course: 'NODE301 - API Assignment', submissions: 3 }
+];
 
-  const barFillStyle = {
-    height: '100%',
-    width: `${progress}%`,
-    backgroundColor: progress === 100 ? '#28a745' : '#007bff', // Green for 100%, Blue otherwise
-    borderRadius: '4px',
-    transition: 'width 0.5s ease-in-out',
-  };
-
-  return (
-    <div style={containerStyle}>
-      <p style={{ fontSize: '0.95em', margin: 0, color: '#333' }}>
-        {title} <span style={{ color: '#6c757d', fontSize: '0.85em' }}>({code})</span>
-      </p>
-      <div style={barWrapperStyle}>
-        <div style={barFillStyle}></div>
-      </div>
-      <p style={{ fontSize: '0.85em', color: '#007bff', textAlign: 'right', marginTop: '3px' }}>
-        {progress}% Complete
-      </p>
+const ProgressBar = ({ title, code, progress }) => (
+  <div className="mb-5">
+    <p className="text-[0.95em] mb-1 text-slate-900">
+      {title}{' '}
+      <span className="text-gray-500 text-[0.85em]">
+        ({code})
+      </span>
+    </p>
+    <div className="h-2 bg-gray-200 rounded-md overflow-hidden">
+      <div
+        className={`h-full rounded-md transition-all duration-400 ease-in-out ${progress === 100 ? 'bg-blue-700' : 'bg-blue-500'}`}
+        style={{ width: `${progress}%` }}
+      ></div>
     </div>
-  );
-};
+    <p className="text-right text-[0.85em] text-slate-700 mt-1">{progress}%</p>
+  </div>
+);
 
-// Komponen Upcoming Class Card
-const UpcomingClassCard = ({ classData }) => {
-  return (
-    <div style={{
-      border: '1px solid #dee2e6',
-      borderRadius: '8px',
-      padding: '20px',
-      backgroundColor: '#f8f9fa',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <span style={{ backgroundColor: '#007bff', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8em' }}>
-          Online Class
-        </span>
-        <span style={{ color: '#6c757d', fontSize: '0.9em' }}>
-          ⏳ 1h 30m
-        </span>
-      </div>
+const UpcomingClassCard = ({ data }) => (
+  <div className="border border-slate-200 rounded-xl p-5 bg-slate-50 shadow-md shadow-black/5 mb-4">
+    <h3 className="text-[1.2em] font-semibold text-slate-900 mb-1.5">{data.title}</h3>
+    <p className="text-slate-600 text-[0.95em] mb-2">{data.lecturer}</p>
+    <p className="text-gray-500 text-[0.9em] my-1">{data.time}</p>
+    <p className="text-gray-500 text-[0.9em] mb-4">Course: {data.course}</p>
+    <button
+      onClick={data.onViewSession ? data.onViewSession : null}
+      className="w-full py-2.5 bg-blue-700 text-white rounded-lg font-medium cursor-pointer transition-colors duration-300 hover:bg-blue-800"
+    >
+      Lihat Kegiatan Sesi {data.session}
+    </button>
+    <p className="mt-2.5 text-slate-700 text-[0.9em]">
+      Progress Kursus:{' '}
+      <span className="text-blue-600 font-semibold">{data.courseProgress}%</span>
+    </p>
+  </div>
+);
 
-      <h3 style={{ fontSize: '1.4em', fontWeight: 'bold', margin: '0 0 5px 0', color: '#0b2a45' }}>
-        {classData.title}
-      </h3>
-      <p style={{ fontSize: '1em', color: '#495057', marginBottom: '10px' }}>
-        {classData.lecturer}
-      </p>
+export default function Dashboard() {
+  const [selectedYear, setSelectedYear] = useState('All');
+  const [selectedMonth, setSelectedMonth] = useState('All');
+  const [selectedDay, setSelectedDay] = useState('All');
+  const [isCoach, setIsCoach] = useState(false);
+  const [studentProgress, setStudentProgress] = useState([]);
+  const [coachUpcomingClasses, setCoachUpcomingClasses] = useState([]);
+  const [coachTimeline, setCoachTimeline] = useState([]);
 
-      <div style={{ fontSize: '0.9em', color: '#6c757d', marginBottom: '15px' }}>
-        <p style={{ margin: '3px 0' }}>🗓️ {classData.time}</p>
-        <p style={{ margin: '3px 0' }}>📚 Course: {classData.course}</p>
-      </div>
+  useEffect(() => {
+    axios.defaults.withCredentials = true;
+    axios.get("http://localhost:5000/profile")
+      .then((res) => {
+        setIsCoach(res.data.is_coach);
+        if (res.data.is_coach) {
+          axios.get("http://localhost:5000/students-progress")
+            .then((resp) => setStudentProgress(resp.data))
+            .catch(() => setStudentProgress([]));
 
-      <button style={{
-        width: '100%',
-        padding: '12px',
-        backgroundColor: '#dc3545', // Warna Merah untuk Action Button
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        transition: 'background-color 0.3s',
-      }}>
-        View things to do in session {classData.session} &rarr;
-      </button>
+          axios.get("http://localhost:5000/upcoming-classes")
+            .then((resp) => setCoachUpcomingClasses(resp.data))
+            .catch(() => setCoachUpcomingClasses([]));
 
-      <div style={{ marginTop: '15px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
-        <p style={{ fontSize: '0.9em', color: '#495057', margin: 0 }}>
-          Course Progress: **{classData.courseProgress}%**
-        </p>
-      </div>
-    </div>
-  );
-};
+          axios.get("http://localhost:5000/timeline")
+            .then((resp) => setCoachTimeline(resp.data))
+            .catch(() => setCoachTimeline([]));
+        }
+      })
+      .catch(() => setIsCoach(false));
+  }, []);
 
+  const availableYears = [...new Set(coursesData.map((c) => new Date(c.date).getFullYear().toString()))];
+  const months = ['All', ...Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString('id', { month: 'long' }))];
+  const availableDays = ['All', ...Array.from({ length: 31 }, (_, i) => (i + 1).toString())];
 
-// Komponen Utama Dashboard (HANYA KONTEN)
-const Dashboard = () => {
-  
-  const layoutStyle = {
-    display: 'grid',
-    // Membagi layout menjadi dua kolom utama (Progress dan Upcoming Class)
-    gridTemplateColumns: '2fr 1fr', 
-    gap: '30px',
-    marginTop: '20px',
+  const filteredCourses = useMemo(() => {
+    return coursesData.filter((course) => {
+      const courseDate = new Date(course.date);
+      const year = courseDate.getFullYear().toString();
+      const month = courseDate.toLocaleString('id', { month: 'long' });
+      const day = courseDate.getDate().toString();
+      const matchYear = selectedYear === 'All' || year === selectedYear;
+      const matchMonth = selectedMonth === 'All' || month === selectedMonth;
+      const matchDay = selectedDay === 'All' || day === selectedDay;
+      return matchYear && matchMonth && matchDay;
+    });
+  }, [selectedYear, selectedMonth, selectedDay]);
+
+  const avgProgress = filteredCourses.length
+    ? Math.round(filteredCourses.reduce((a, b) => a + b.progress, 0) / filteredCourses.length)
+    : 0;
+
+  const handleEditDeadline = (item) => {
+    alert(`Edit deadline untuk ${item.course} pada ${item.date}`);
   };
 
-  const sectionStyle = {
-    padding: '25px',
-    backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-    border: '1px solid #eee', // Border halus
+  const handleGiveTask = (item) => {
+    alert(`Beri tugas untuk ${item.course} pada ${item.date}`);
+  };
+
+  const handleViewSession = (cls) => {
+    alert(`Lihat kegiatan sesi ${cls.session} dari kelas ${cls.title}`);
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Container untuk Progress dan Upcoming Class */}
-      <div style={layoutStyle}>
-
-        {/* KOLOM 1: My Progress */}
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: '1.5em', borderBottom: '2px solid #007bff', paddingBottom: '10px', marginBottom: '20px', color: '#0b2a45' }}>
-            My Progress
+    <div className="p-6 bg-slate-50 min-h-[85vh]">
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+        <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
+          <h2 className="text-[1.4em] text-slate-900 border-b-2 border-blue-600 pb-2">
+            {isCoach ? "Student Progress" : "My Progress"}
           </h2>
-          
-          {/* Filter Bar (Placeholder) */}
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
-             <select style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}>
-                <option>2025, Odd Semester</option>
-             </select>
-             <select style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}>
-                <option>All Sessions</option>
-             </select>
-          </div>
 
-          {/* Progress Chart */}
-          <div style={{ paddingRight: '20px' }}>
-            {coursesData.map(course => (
-              <ProgressChartBar
-                key={course.id}
-                title={course.title}
-                code={course.code}
-                progress={course.progress}
+          {!isCoach ? (
+            <>
+              <div className="flex flex-wrap gap-3 mt-5 mb-5">
+                <select
+                  value={selectedYear}
+                  onChange={(e) => {
+                    setSelectedYear(e.target.value);
+                    setSelectedMonth('All');
+                    setSelectedDay('All');
+                  }}
+                  className="p-2 rounded-md border border-slate-300 text-slate-700"
+                >
+                  <option>All</option>
+                  {availableYears.map((year) => (
+                    <option key={year}>{year}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => {
+                    setSelectedMonth(e.target.value);
+                    setSelectedDay('All');
+                  }}
+                  className="p-2 rounded-md border border-slate-300 text-slate-700"
+                >
+                  {months.map((m) => (
+                    <option key={m}>{m}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedDay}
+                  onChange={(e) => setSelectedDay(e.target.value)}
+                  className="p-2 rounded-md border border-slate-300 text-slate-700"
+                >
+                  {availableDays.map((d) => (
+                    <option key={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              {filteredCourses.map((c) => (
+                <ProgressBar key={c.id} title={c.title} code={c.code} progress={c.progress} />
+              ))}
+
+              <p className="text-right text-sm text-slate-600 mt-4">
+                Rata-rata progress: <span className="text-blue-600 font-semibold">{avgProgress}%</span>
+              </p>
+            </>
+          ) : (
+            <div className="mt-5 space-y-4">
+              {studentProgress.length === 0 ? (
+                <p className="text-slate-600">Belum ada data student yang tersedia.</p>
+              ) : (
+                studentProgress.map((student, i) => (
+                  <div key={i} className="border p-3 rounded-lg bg-slate-50">
+                    <p className="font-semibold text-slate-900">{student.name}</p>
+                    <p className="text-sm text-gray-600 mb-1">{student.course}</p>
+                    <ProgressBar title="Progress" code={student.code} progress={student.progress} />
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-8">
+          <div>
+            <h2 className="text-[1.4em] text-slate-900 border-b-2 border-blue-600 pb-2">
+              Upcoming Class
+            </h2>
+            <UpcomingClassCard
+              data={{ ...upcomingClass, onViewSession: () => handleViewSession(upcomingClass) }}
+            />
+            {isCoach && coachUpcomingClasses.map((cls, idx) => (
+              <UpcomingClassCard
+                key={idx}
+                data={{ ...cls, onViewSession: () => handleViewSession(cls) }}
               />
             ))}
           </div>
 
-          <p style={{ fontSize: '0.9em', textAlign: 'right', marginTop: '20px', color: '#6c757d' }}>
-              **<span style={{ color: '#007bff' }}>Progress Kursus</span>** | **<span style={{ color: '#28a745' }}>Progress Anda</span>**
-          </p>
-        </div>
+            
+          <div>
+            <h2 className="text-[1.4em] text-slate-900 border-b-2 border-blue-600 pb-2 mb-4">
+              Timeline
+            </h2>
+            <div className="space-y-4">
+              {!isCoach && timelineData.map((item, index) => (
+                <div key={index} className="border-l-4 border-blue-600 pl-4 pb-3 ml-1">
+                  <p className="text-slate-800 font-semibold">{item.date}</p>
+                  <p className="text-slate-600 text-sm mb-2">{item.course}</p>
+                  <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors duration-200">
+                    Add Submission
+                  </button>
+                </div>
+              ))}
 
-        {/* KOLOM 2: Upcoming Class */}
-        <div>
-          <h2 style={{ fontSize: '1.5em', borderBottom: '2px solid #dc3545', paddingBottom: '10px', marginBottom: '20px', color: '#0b2a45' }}>
-            Upcoming Class
-          </h2>
-          <UpcomingClassCard classData={upcomingClass} />
+                {isCoach && (coachTimeline.length ? coachTimeline : mockCoachTimeline).map((item, idx) => (
+                  <div key={idx} className="border-l-4 border-blue-600 pl-4 pb-3 ml-1 flex flex-col gap-2 bg-slate-50 rounded-md p-2">
+                    <div>
+                      <p className="text-slate-800 font-semibold">{item.date}</p>
+                      <p className="text-slate-600 text-sm mb-1">{item.course}</p>
+                      <p className="text-sm text-gray-700">Submissions: {item.submissions}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditDeadline(item)}
+                        className="px-3 py-1 bg-green-700 text-white text-sm rounded-md hover:bg-green-700 transition-colors duration-200"
+                      >
+                        Edit Deadline
+                      </button>
+                      <button
+                        onClick={() => handleGiveTask(item)}
+                        className="px-3 py-1 bg-blue-800 text-white text-sm rounded-md hover:bg-purple-700 transition-colors duration-200"
+                      >
+                        Beri Tugas
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
         </div>
-
       </div>
-
-      {/* Area Bawah (Information, To Do List, Latest Forum) - Placeholder */}
-       <div style={{ marginTop: '30px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
-          <div style={sectionStyle}><h3 style={{color: '#0b2a45'}}>Information</h3><p style={{color: '#6c757d'}}>Konten Informasi di sini...</p></div>
-          <div style={sectionStyle}><h3 style={{color: '#0b2a45'}}>To Do List</h3><p style={{color: '#6c757d'}}>Konten To Do List di sini...</p></div>
-          <div style={sectionStyle}><h3 style={{color: '#0b2a45'}}>Latest Forum</h3><p style={{color: '#6c757d'}}>Konten Forum di sini...</p></div>
-       </div>
-       
     </div>
   );
-};
-
-export default Dashboard;
+}
