@@ -49,8 +49,6 @@ export default function AdminDashboard() {
   // Profiles
   const [profiles, setProfiles] = useState([]);
 
-
-  
   // Auth check
   useEffect(() => {
     axios
@@ -141,46 +139,52 @@ export default function AdminDashboard() {
 
   const cancelUserEdit = () => {
     setUserEditing(false);
-    setUserForm({ id: null, name: "", email: "", password: "", is_admin: false });
+    setUserForm({
+      id: null,
+      name: "",
+      email: "",
+      password: "",
+      is_admin: false,
+    });
   };
 
   const submitUser = async (e) => {
-  e.preventDefault();
-  try {
-    if (userEditing) {
-      // Update user
-      await axios.put(
-        `http://localhost:5000/edit/${userForm.id}`,
-        {
-          name: userForm.name,
-          email: userForm.email,
-          password: userForm.password,
-          is_admin: userForm.is_admin,
-        },
-        { withCredentials: true }
-      );
-    } else {
-      
-      await axios.post(
-        "http://localhost:5000/users",
-        {
-          name: userForm.name,
-          email: userForm.email,
-          password: userForm.password,
-          is_admin: userForm.is_admin,
-        },
-        { withCredentials: true }
+    e.preventDefault();
+    try {
+      if (userEditing) {
+        // Update user
+        await axios.put(
+          `http://localhost:5000/edit/${userForm.id}`,
+          {
+            name: userForm.name,
+            email: userForm.email,
+            password: userForm.password,
+            is_admin: userForm.is_admin,
+          },
+          { withCredentials: true }
+        );
+      } else {
+        await axios.post(
+          "http://localhost:5000/users",
+          {
+            name: userForm.name,
+            email: userForm.email,
+            password: userForm.password,
+            is_admin: userForm.is_admin,
+          },
+          { withCredentials: true }
+        );
+      }
+
+      cancelUserEdit();
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      alert(
+        "User operation failed: " + (err.response?.data?.message || err.message)
       );
     }
-
-    cancelUserEdit();
-    fetchUsers();
-  } catch (err) {
-    console.error(err);
-    alert("User operation failed: " + (err.response?.data?.message || err.message));
-  }
-};
-
+  };
 
   const deleteUser = async (id) => {
     if (!confirm("Delete this user?")) return;
@@ -198,7 +202,13 @@ export default function AdminDashboard() {
 
   const cancelCourseEdit = () => {
     setCourseEditing(false);
-    setCourseForm({ id: "", title: "", description: "", price: "", oldPrice: "" });
+    setCourseForm({
+      id: "",
+      title: "",
+      description: "",
+      price: "",
+      oldPrice: "",
+    });
   };
 
   const submitCourse = async (e) => {
@@ -209,24 +219,28 @@ export default function AdminDashboard() {
           `http://localhost:5000/courses/${courseForm.id}`,
           courseForm,
           { withCredentials: true }
-        );const data = {
-  id: courseForm.id,
-  title: courseForm.title,
-  description: courseForm.description,
-  price: parseFloat(courseForm.price) || 0,
-  oldPrice: parseFloat(courseForm.oldPrice) || 0,
-};
+        );
+        const data = {
+          id: courseForm.id,
+          title: courseForm.title,
+          description: courseForm.description,
+          price: parseFloat(courseForm.price) || 0,
+          oldPrice: parseFloat(courseForm.oldPrice) || 0,
+        };
 
-if (courseEditing) {
-  await axios.put(`http://localhost:5000/courses/${courseForm.id}`, data, {
-    withCredentials: true,
-  });
-} else {
-  await axios.post("http://localhost:5000/courses", data, {
-    withCredentials: true,
-  });
-}
-
+        if (courseEditing) {
+          await axios.put(
+            `http://localhost:5000/courses/${courseForm.id}`,
+            data,
+            {
+              withCredentials: true,
+            }
+          );
+        } else {
+          await axios.post("http://localhost:5000/courses", data, {
+            withCredentials: true,
+          });
+        }
       } else {
         await axios.post("http://localhost:5000/courses", courseForm, {
           withCredentials: true,
@@ -314,7 +328,7 @@ if (courseEditing) {
               activeTab === "purchases" ? "bg-[#154d71]" : "hover:bg-[#133d5c]"
             }`}
           >
-             Purchases
+            Purchases
           </button>
           <button
             onClick={() => setActiveTab("profiles")}
@@ -322,7 +336,7 @@ if (courseEditing) {
               activeTab === "profiles" ? "bg-[#154d71]" : "hover:bg-[#133d5c]"
             }`}
           >
-             Profiles
+            Profiles
           </button>
           <button
             onClick={() => setActiveTab("coaches")}
@@ -397,7 +411,9 @@ if (courseEditing) {
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                     checked={userForm.is_admin === 1 || userForm.is_admin === true}
+                    checked={
+                      userForm.is_admin === 1 || userForm.is_admin === true
+                    }
                     onChange={(e) =>
                       setUserForm({ ...userForm, is_admin: e.target.checked })
                     }
@@ -476,12 +492,13 @@ if (courseEditing) {
                 onSubmit={submitCourse}
                 className="grid grid-cols-1 md:grid-cols-4 gap-3"
               >
-               <input
+                <input
                   className="border p-2 rounded bg-gray-100 cursor-not-allowed"
                   placeholder="Course ID"
                   value={courseForm.id}
                   onChange={(e) =>
-                    !courseEditing && setCourseForm({ ...courseForm, id: e.target.value })
+                    !courseEditing &&
+                    setCourseForm({ ...courseForm, id: e.target.value })
                   }
                   required={!courseEditing}
                   disabled={courseEditing}
@@ -520,7 +537,10 @@ if (courseEditing) {
                   placeholder="Description"
                   value={courseForm.description}
                   onChange={(e) =>
-                    setCourseForm({ ...courseForm, description: e.target.value })
+                    setCourseForm({
+                      ...courseForm,
+                      description: e.target.value,
+                    })
                   }
                 />
                 <div className="md:col-span-4 text-right">
@@ -605,14 +625,12 @@ if (courseEditing) {
               <tbody>
                 {purchases.map((p) => (
                   <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="border px-4 py-2">
-                      {p.userId}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {p.courseId}
-                    </td>
+                    <td className="border px-4 py-2">{p.userId}</td>
+                    <td className="border px-4 py-2">{p.courseId}</td>
                     <td className="border px-4 py-2">{p.price}</td>
-                    <td className="border px-4 py-2">{formatDate(p.createdAt)}</td>
+                    <td className="border px-4 py-2">
+                      {formatDate(p.createdAt)}
+                    </td>
                     <td className="border px-4 py-2">
                       <button
                         onClick={() => deletePurchase(p.id)}
@@ -664,9 +682,12 @@ if (courseEditing) {
         {/* COACHES */}
         {activeTab === "coaches" && (
           <div className="bg-white p-5 rounded shadow">
-            <h2 className="text-lg font-semibold mb-3">Coaches (coming soon)</h2>
+            <h2 className="text-lg font-semibold mb-3">
+              Coaches (coming soon)
+            </h2>
             <p className="text-gray-600 text-sm">
-              This section will be added later for coach approvals and management.
+              This section will be added later for coach approvals and
+              management.
             </p>
           </div>
         )}
