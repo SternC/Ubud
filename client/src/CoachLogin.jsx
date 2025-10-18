@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Background from '../components/ui/bg';
 
-export default function CoachLogin() {
+export default function CoachApply() {
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
   axios.defaults.withCredentials = true;
@@ -12,32 +12,29 @@ export default function CoachLogin() {
   const fullText = "Welcome, future coach!";
 
   const [value, setValue] = useState({
-    username: '',
-    password: '',
     driveLink: '',
     teachingField: ''
   });
   const [loading, setLoading] = useState(false);
   const [isCardHovered, setIsCardHovered] = useState(false);
 
+  // Redirect if not logged in
   useEffect(() => {
     axios.get("http://localhost:5000/authentication")
-      .then((res) => {
-        if (res.status === 200) {
-          navigate("/profile");
-        }
-      });
-  }, []);
+      .then(res => {
+        if (res.status !== 200) navigate("/login");
+      })
+      .catch(() => navigate("/login"));
+  }, [navigate]);
 
+  // Typing effect
   useEffect(() => {
     let currentIndex = 0;
     const timer = setInterval(() => {
       if (currentIndex <= fullText.length) {
         setDisplayText(fullText.slice(0, currentIndex));
         currentIndex++;
-      } else {
-        clearInterval(timer);
-      }
+      } else clearInterval(timer);
     }, 100);
     return () => clearInterval(timer);
   }, []);
@@ -51,27 +48,25 @@ export default function CoachLogin() {
     setValue({ ...value, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    axios.post('http://localhost:5000/coach-login', value)
-    .then(res => {
-        if (res.status === 201) {
-        showToast("Request submitted! Wait for admin approval.", "success");
-        setTimeout(() => navigate("/login"), 1500);
-        } else if (res.status === 200) {
-        showToast("Login Successful!", "success");
-        setTimeout(() => navigate("/profile"), 100);
-        }
-    })
-    .catch(() => showToast("Login Failed", "error"))
-    .finally(() => setLoading(false));
+    try {
+      const res = await axios.post('http://localhost:5000/coach-apply', value);
+      if (res.status === 201) {
+        showToast(res.data.message, 'success');
+        setTimeout(() => navigate("/profile"), 1500);
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || "Application failed", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logoClasses = `w-35 h-35 bg-white rounded-full flex items-center justify-center transition-transform duration-500 
     ${isCardHovered ? 'scale-125 translate-y-2 rotate-12' : ''}`;
-
   const cardClasses = `bg-white rounded-2xl shadow-lg p-8 border border-gray-200 transform transition-all duration-300`;
 
   return (
@@ -119,26 +114,6 @@ export default function CoachLogin() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
-              type="text"
-              name="username"
-              value={value.username}
-              onChange={handleChange}
-              placeholder="Username"
-              required
-              className="block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300"
-            />
-
-            <input
-              type="password"
-              name="password"
-              value={value.password}
-              onChange={handleChange}
-              placeholder="Password"
-              required
-              className="block w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300"
-            />
-
-            <input
               type="url"
               name="driveLink"
               value={value.driveLink}
@@ -166,19 +141,9 @@ export default function CoachLogin() {
                 transform hover:scale-105 hover:shadow-lg active:scale-95 
                 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Logging in..." : "Submit"}
+              {loading ? "Submitting..." : "Submit Application"}
             </button>
           </form>
-
-          <p className="text-center text-sm text-gray-600 mt-4">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-blue-600 hover:underline transition-all duration-200 hover:text-blue-800 hover:scale-105 inline-block"
-            >
-              Login Here
-            </Link>
-          </p>
 
           {toast && (
             <div

@@ -1,28 +1,36 @@
 import { DataTypes } from "sequelize";
 import db from "../config/database.js";
+import Profile from "./Profile.js";
 
-const Coaches = db.define("Coaches", {
-  username: {
-    type: DataTypes.STRING,
+const Coach = db.define("Coaches", {
+  profileId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    references: {
+      model: 'profiles', // must match Profile tableName
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
   },
   driveLink: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: false
   },
   teachingField: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: false
   },
   status: {
     type: DataTypes.ENUM("pending", "approved", "rejected"),
-    defaultValue: "pending",
-  },
+    defaultValue: "pending"
+  }
+}, {
+  tableName: 'coaches',
+  timestamps: false
 });
+
+// Associations
+Profile.hasOne(Coach, { foreignKey: 'profileId', onDelete: 'CASCADE', hooks: true });
+Coach.belongsTo(Profile, { foreignKey: 'profileId' });
 
 export default Coach;
