@@ -11,6 +11,7 @@ import EditUser from './EditUser.jsx'
 import Hero from './Hero.jsx'
 import Module from './Modul.jsx'
 import CoachLogin from './CoachLogin.jsx';
+import ProtectedRoute from './ProtectedRoute.jsx';
 
 axios.defaults.withCredentials = true;
 
@@ -37,8 +38,21 @@ const routerPath = createBrowserRouter([
   },
   {
     path: "edit/:id",
-    element: <EditUser />,
+     element: (
+      <ProtectedRoute adminOnly={true}>
+        <EditUser />
+      </ProtectedRoute>
+    ),
   },
+  {
+    path: "/profile",
+    element: (
+      <ProtectedRoute>
+        <Module />
+      </ProtectedRoute>
+    ),
+  },
+  
   {
     path: "*",
     element: <NotFound />,

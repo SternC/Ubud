@@ -17,13 +17,21 @@ export default function Login() {
   const [isCardHovered, setIsCardHovered] = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/authentication")
-      .then((res) => {
-        if (res.status === 200){
-          navigate("/profile");
+  axios.get("http://localhost:5000/authentication", { withCredentials: true })
+    .then((res) => {
+      if (res.status === 200) {
+        if (res.data.is_admin ) {
+          navigate("/dashboard");
+        } else {
+          navigate("/profile"); 
         }
-      })
-  }, []);
+      }
+    })
+    .catch(() => {
+   
+    });
+}, []);
+
 
   useEffect(() => {
     let currentIndex = 0;
@@ -48,24 +56,31 @@ export default function Login() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    axios.post('http://localhost:5000/login', value)
-      .then(res => {
-        if (res.status === 200) {
-          showToast("Login Successful!", "success");
-          setTimeout(() => navigate("/profile"), 100);
+  axios.post('http://localhost:5000/login', value, { withCredentials: true })
+    .then(res => {
+      if (res.status === 200) {
+        showToast("Login Successful!", "success");
+
+        
+        if (res.data.is_admin) {
+          setTimeout(() => navigate("/dashboard"), 200);
         } else {
-          showToast("Login Failed", "error");
+          setTimeout(() => navigate("/profile"), 200);
         }
-      })
-      .catch(err => {
-        console.error(err);
+      } else {
         showToast("Login Failed", "error");
-      })
-      .finally(() => setLoading(false));
-  };
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      showToast("Login Failed", "error");
+    })
+    .finally(() => setLoading(false));
+};
+
 
   const logoClasses = `w-35 h-35 bg-white rounded-full flex items-center justify-center transition-transform duration-500 
     ${isCardHovered ? 'scale-125 translate-y-2 rotate-12' : ''}`;

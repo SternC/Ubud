@@ -24,26 +24,48 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { username, password } = req.body;
   try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username and password are required" });
+    }
+
     const user = await User.findOne({ where: { name: username } });
-    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
+  
     const token = jwt.sign(
-      { id: user.id, name: username, is_admin: user.is_admin },
+      { id: user.id, email: user.email },
       "your_jwt_secret",
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
-    res.cookie("token", token, { httpOnly: true });
-    res.status(200).json({ message: "Login successful", token });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+
+
+    res.json({
+      message: "Login successful",
+      name: user.name,
+      email: user.email,
+      is_admin: user.is_admin,
+    });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ message: "Login failed", error: err.message });
   }
 };
+
+
 
 export const logout = (req, res) => {
   res.clearCookie("token");

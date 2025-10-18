@@ -13,7 +13,7 @@ export function Courses() {
     if (!user) return;
 
     axios
-      .get(`http://localhost:5000/api/purchases/${user.id}`, {
+      .get(`http://localhost:5000/purchases/${user.id}`, {
         withCredentials: true,
       })
       .then((res) => setCourses(res.data))

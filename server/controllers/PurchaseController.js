@@ -8,23 +8,21 @@ export const downloadReceipt = async (req, res) => {
   try {
     const { transactionId } = req.params;
 
-    // 1. Ambil data transaksi
     const transaction = await Purchase.findByPk(transactionId);
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
-    // 2. Persiapkan response headers untuk file PDF
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="receipt-${transactionId}.pdf"`);
 
-    // 3. Buat dokumen PDF menggunakan pdfkit
+ 
     const doc = new PDFDocument({ margin: 50 });
 
-    // Pipa (pipe) dokumen PDF langsung ke response stream
     doc.pipe(res);
 
-    // --- Isi Konten PDF ---
+
 
     doc
       .fontSize(25)
@@ -39,7 +37,6 @@ export const downloadReceipt = async (req, res) => {
 
     doc.moveDown();
 
-    // Detail Produk
     doc
       .fontSize(16)
       .text('Detail Produk:', { underline: true });
@@ -56,13 +53,13 @@ export const downloadReceipt = async (req, res) => {
 
     doc.moveDown(2);
 
-    // Footer
+
     doc
       .fontSize(10)
       .fillColor('gray')
       .text('Terima kasih telah berbelanja.', { align: 'center' });
 
-    // --- Akhiri dokumen dan kirim ke browser ---
+  
     doc.end();
 
   } catch (error) {
@@ -70,22 +67,25 @@ export const downloadReceipt = async (req, res) => {
     res.status(500).json({ message: "Error generating PDF receipt" });
   }
 };
-// POST /api/purchase → Buy a course
+
 export const createPurchase = async (req, res) => {
+  console.log("📥 Received purchase request:", req.body);
   try {
     const { userId, courseId } = req.body;
 
-    // Check for duplicates
+    // Prevent duplicates
     const existing = await Purchase.findOne({ where: { userId, courseId } });
     if (existing) {
       return res.status(400).json({ message: "You already own this course" });
     }
 
-    // Get course info
-    const course = await Course.findByPk(courseId);
-    if (!course) return res.status(404).json({ message: "Course not found" });
+    // Find course by string ID
+    const course = await Course.findOne({ where: { id: courseId } });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
 
-    // Create purchase with title and price
+    // Create purchase record
     const purchase = await Purchase.create({
       userId,
       courseId,
@@ -95,38 +95,50 @@ export const createPurchase = async (req, res) => {
 
     res.status(201).json({ message: "Purchase successful", purchase });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating purchase:", error);
     res.status(500).json({ message: "Error creating purchase" });
   }
 };
 
-// GET /api/purchases/:userId → Get all purchased courses
 export const getUserPurchases = async (req, res) => {
   try {
     const { userId } = req.params;
 
     const purchases = await Purchase.findAll({
       where: { userId },
-      attributes: ["id", "courseId", "title", "price", "createdAt"],
+      include: [
+        {
+          model: Course,
+          attributes: ["id", "title", "price"],
+          required: false,
+        },
+      ],
       order: [["createdAt", "DESC"]],
     });
 
     const formatted = purchases.map((p) => ({
       id: p.id,
       courseId: p.courseId,
-      title: p.title,
-      price: p.price,
+      title:
+        (p.Course && p.Course.title) || 
+        p.title ||                      
+        "(Unknown Course)",
+      price:
+        (p.Course && p.Course.price) ||
+        p.price ||
+        0,
       date: new Date(p.createdAt).toLocaleString(),
     }));
 
-    res.json(formatted);
+    res.status(200).json(formatted);
   } catch (error) {
-    console.error(error);
+    console.error(" Error fetching purchases:", error);
     res.status(500).json({ message: "Error fetching purchases" });
   }
 };
 
-// GET /api/transactions/:userId → Get formatted transactions
+
+
 export const getTransactions = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -148,5 +160,40 @@ export const getTransactions = async (req, res) => {
   } catch (error) {
     console.error("Error fetching transactions:", error);
     res.status(500).json({ message: "Error fetching transactions" });
+  }
+};
+
+export const getAllPurchases = async (req, res) => {
+  try {
+    const purchases = await Purchase.findAll({
+      include: [
+        { model: Course, attributes: ["id", "title"] },
+        { model: (await import("../models/User.js")).default, attributes: ["id", "name", "email"] },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json(purchases);
+  } catch (error) {
+    console.error("Error fetching all purchases:", error);
+    res.status(500).json({ message: "Error fetching all purchases" });
+  }
+};
+
+
+export const deletePurchase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const purchase = await Purchase.findByPk(id);
+
+    if (!purchase) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+
+    await purchase.destroy();
+    res.json({ message: "Purchase deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting purchase:", error);
+    res.status(500).json({ message: "Error deleting purchase" });
   }
 };
