@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import db from "../config/database.js";
+import User from './User.js';
 
 const Profile = db.define('Profile', {
   id: {
@@ -27,11 +28,16 @@ const Profile = db.define('Profile', {
   age: DataTypes.STRING,
   interest: DataTypes.STRING,
   skill: DataTypes.STRING,
-  city: DataTypes.STRING
+  city: DataTypes.STRING,
+  is_coach: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
 }, {
   tableName: 'profiles',
   timestamps: false
 });
 
+Profile.belongsTo(User, { foreignKey: "userId" });
 
 export default Profile;

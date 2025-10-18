@@ -49,6 +49,9 @@ export default function AdminDashboard() {
   // Profiles
   const [profiles, setProfiles] = useState([]);
 
+  // Coaches
+  const [coaches, setCoaches] = useState([]);
+
   // Auth check
   useEffect(() => {
     axios
@@ -111,12 +114,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchCoaches = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/coaches", {
+        withCredentials: true,
+      });
+      setCoaches(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     if (auth) {
       fetchUsers();
       fetchCourses();
       fetchPurchases();
       fetchProfiles();
+      fetchCoaches();
     }
   }, [auth]);
 
@@ -682,13 +697,70 @@ export default function AdminDashboard() {
         {/* COACHES */}
         {activeTab === "coaches" && (
           <div className="bg-white p-5 rounded shadow">
-            <h2 className="text-lg font-semibold mb-3">
-              Coaches (coming soon)
-            </h2>
-            <p className="text-gray-600 text-sm">
-              This section will be added later for coach approvals and
-              management.
-            </p>
+            <h2 className="text-lg font-semibold mb-3">Coach Applications</h2>
+            <table className="min-w-full text-left text-sm border">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border px-4 py-2">Name</th>
+                  <th className="border px-4 py-2">Email</th>
+                  <th className="border px-4 py-2">Drive Link</th>
+                  <th className="border px-4 py-2">Field</th>
+                  <th className="border px-4 py-2">Status</th>
+                  <th className="border px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {coaches.map((c) => (
+                  <tr key={c.id} className="hover:bg-gray-50">
+                    <td className="border px-4 py-2">{c.Profile?.name}</td>
+                    <td className="border px-4 py-2">{c.Profile?.email}</td>
+                    <td className="border px-4 py-2">
+                      <a
+                        href={c.driveLink}
+                        target="_blank"
+                        className="text-blue-600 hover:underline"
+                      >
+                        CV/Portfolio
+                      </a>
+                    </td>
+                    <td className="border px-4 py-2">{c.teachingField}</td>
+                    <td className="border px-4 py-2">{c.status}</td>
+                    <td className="border px-4 py-2 space-x-2">
+                      {c.status === "pending" && (
+                        <>
+                          <button
+                            onClick={async () => {
+                              await axios.put(
+                                `http://localhost:5000/coaches/approve/${c.id}`,
+                                {},
+                                { withCredentials: true }
+                              );
+                              fetchCoaches();
+                            }}
+                            className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={async () => {
+                              await axios.put(
+                                `http://localhost:5000/coaches/reject/${c.id}`,
+                                {},
+                                { withCredentials: true }
+                              );
+                              fetchCoaches();
+                            }}
+                            className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

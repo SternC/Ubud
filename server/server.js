@@ -40,12 +40,14 @@ import userRoutes from "./routes/userRoutes.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
+import coachRoutes from "./routes/coachRoutes.js";
 
 app.use(authRoutes);
 app.use(userRoutes);
 app.use("/", courseRoutes);
 app.use("/", purchaseRoutes);
 app.use("/", profileRoutes);
+app.use("/", coachRoutes);
 
 app.listen(5000, () => {
   console.log("🚀 Server running on http://localhost:5000");
