@@ -16,6 +16,14 @@ const Profile = db.define('Profile', {
     },
     onDelete: 'CASCADE'
   },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   age: DataTypes.STRING,
   interest: DataTypes.STRING,
   skill: DataTypes.STRING,
@@ -24,5 +32,6 @@ const Profile = db.define('Profile', {
   tableName: 'profiles',
   timestamps: false
 });
+
 
 export default Profile;
