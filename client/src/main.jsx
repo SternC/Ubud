@@ -8,7 +8,6 @@ import Dashboard from "./Dashboard.jsx";
 import NotFound from "./NotFound.jsx";
 import Register from "./Register.jsx";
 import Login from "./Login.jsx";
-import EditUser from "./EditUser.jsx";
 import Hero from "./Hero.jsx";
 import Module from "./Modul.jsx";
 import CoachLogin from "./CoachLogin.jsx";
@@ -48,14 +47,6 @@ const routerPath = createBrowserRouter([
       <PublicRoute>
         <Login />
       </PublicRoute>
-    ),
-  },
-  {
-    path: "/edit/:id",
-    element: (
-      <ProtectedRoute adminOnly={true}>
-        <EditUser />
-      </ProtectedRoute>
     ),
   },
   {
