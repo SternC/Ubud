@@ -1,54 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Background from '../components/ui/bg';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Login() {
   const [toast, setToast] = useState(null);
-  const navigate = useNavigate();
-
-  axios.defaults.withCredentials = true;
-
-  const [displayText, setDisplayText] = useState("");
-  const fullText = "Let's get you in";
-
-  const [value, setValue] = useState({ username: '', password: '' });
+  const [value, setValue] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [isCardHovered, setIsCardHovered] = useState(false);
+  const [displayText, setDisplayText] = useState("Let's get you in");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-  axios.get("http://localhost:5000/authentication", { withCredentials: true })
-    .then((res) => {
-      if (res.status === 200) {
-        if (res.data.is_admin ) {
-          navigate("/dashboard");
-        } else {
-          navigate("/profile"); 
-        }
-      }
-    })
-    .catch(() => {
-   
-    });
-}, []);
-
-
-  useEffect(() => {
-    let currentIndex = 0;
-    const timer = setInterval(() => {
-      if (currentIndex <= fullText.length) {
-        setDisplayText(fullText.slice(0, currentIndex));
-        currentIndex++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 100);
-    return () => clearInterval(timer);
-  }, []);
-
-    const showToast = (message, type) => {
+  const showToast = (message, type) => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000); 
+    setTimeout(() => setToast(null), 3000);
   };
 
   const handleChange = (e) => {
@@ -56,131 +20,75 @@ export default function Login() {
   };
 
   const handleSubmit = (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  axios.post('http://localhost:5000/login', value, { withCredentials: true })
-    .then(res => {
-      if (res.status === 200) {
-        showToast("Login Successful!", "success");
-
-        
-        if (res.data.is_admin) {
-          setTimeout(() => navigate("/dashboard"), 200);
+    axios
+      .post("http://localhost:5000/login", value, { withCredentials: true })
+      .then((res) => {
+        if (res.status === 200) {
+          showToast("Login Successful!", "success");
+          setTimeout(() => {
+            navigate(res.data.is_admin ? "/dashboard" : "/profile");
+          }, 500);
         } else {
-          setTimeout(() => navigate("/profile"), 200);
+          showToast("Login Failed", "error");
         }
-      } else {
-        showToast("Login Failed", "error");
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      showToast("Login Failed", "error");
-    })
-    .finally(() => setLoading(false));
-};
-
+      })
+      .catch(() => showToast("Login Failed", "error"))
+      .finally(() => setLoading(false));
+  };
 
   const logoClasses = `w-35 h-35 bg-white rounded-full flex items-center justify-center transition-transform duration-500 
-    ${isCardHovered ? 'scale-125 translate-y-2 rotate-12' : ''}`;
+    ${isCardHovered ? "scale-125 translate-y-2 rotate-12" : ""}`;
 
   const cardClasses = `bg-white rounded-2xl shadow-lg p-8 border border-gray-200 transform transition-all duration-300`;
 
-
   return (
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba]">
-        <div className="fixed inset-0 z-0 pointer-events-none">
-      </div>
-
-
-         <div className="w-full max-w-md relative z-10">
-        
-        <div 
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba]">
+      <div className="w-full max-w-md relative z-10">
+        <div
           className={cardClasses}
           onMouseEnter={() => setIsCardHovered(true)}
           onMouseLeave={() => setIsCardHovered(false)}
         >
           <div className="text-center mb-6">
-            {/* Logo */}
-            <div className={`w-44 h-44 mx-auto mb-4 rounded-full flex items-center justify-center transform transition-all duration-500
-              ${isCardHovered ? 'scale-110 rotate-6 translate-y-1' : ''}`}>
+            <div className="w-44 h-44 mx-auto mb-4 rounded-full flex items-center justify-center transform transition-all duration-500">
               <div className={logoClasses}>
                 <img src="/logo.png" alt="Ubud Logo" className="w-full h-full object-contain" />
               </div>
             </div>
 
-            <h1 className="text-2xl font-bold text-gray-800 mb-2 transition-colors duration-300 hover:text-blue-600 cursor-default">
-              Hi Buddy!
-            </h1>
-            <p className="text-gray-600 cursor-default min-h-[24px]">
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Hi Buddy!</h1>
+            <p className="text-gray-600 min-h-[24px]">
               {displayText}
               <span className="animate-pulse">|</span>
             </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            {/* Username */}
-            <div className="relative group">
-              <input
-                id="username"
-                type="text"
-                name="username"
-                value={value.username}
-                onChange={handleChange}
-                placeholder="Username"
-                required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 
-                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
-                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
-                  transform focus:scale-105 placeholder-transparent"
-              />
-              <label 
-                htmlFor="username"
-                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:px-1 peer-valid:px-1"
-              >
-                Username
-              </label>
-            </div>
-
-            {/* Password */}
-            <div className="relative group mt-6">
-              <input
-                id="password"
-                type="password"
-                name="password"
-                value={value.password}
-                onChange={handleChange}
-                placeholder="Password"
-                required
-                className="peer block w-full rounded-lg border border-gray-300 p-3 
-                  focus:ring-4 focus:ring-blue-200 focus:border-blue-400 
-                  transition-all duration-300 hover:border-blue-300 hover:shadow-md 
-                  transform focus:scale-105 placeholder-transparent"
-              />
-              <label 
-                htmlFor="password"
-                className="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-300
-                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
-                  peer-focus:-top-5 peer-focus:left-0 peer-focus:text-xs peer-focus:text-blue-600
-                  peer-valid:-top-5 peer-valid:left-0 peer-valid:text-xs peer-valid:text-gray-600
-                  peer-focus:px-1 peer-valid:px-1"
-              >
-                Password
-              </label>
-            </div>
-
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={value.username}
+              onChange={handleChange}
+              required
+              className="w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={value.password}
+              onChange={handleChange}
+              required
+              className="w-full rounded-lg border border-gray-300 p-3 focus:ring-4 focus:ring-blue-200"
+            />
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-4 rounded-lg 
-                hover:from-blue-600 hover:to-blue-800 transition-all duration-300 
-                transform hover:scale-105 hover:shadow-lg active:scale-95 
-                font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-4 rounded-lg font-semibold disabled:opacity-50"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
@@ -188,34 +96,21 @@ export default function Login() {
 
           <p className="text-center text-sm text-gray-600 mt-4">
             Don’t have an account?{" "}
-            <Link
-              to="/register"
-              className="text-blue-600 hover:underline transition-all duration-200 hover:text-blue-800 hover:scale-105 inline-block"
-            >
+            <Link to="/register" className="text-blue-600 hover:underline">
               Register here
             </Link>
-            <p className="text-center text-sm text-gray-600 mt-2">
-            Want to teach?{" "}
-              <Link
-                to="/coach-login"
-                className="text-blue-600 hover:underline transition-all duration-200 hover:text-blue-800 hover:scale-105 inline-block"
-              >
-                Login as Coach
-              </Link>
-            </p>
           </p>
-                {toast && (
+        </div>
+      </div>
+
+      {toast && (
         <div
           className={`fixed top-10 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-2xl shadow-xl text-white font-medium text-lg
-            animate-fadeIn z-50
-            ${toast.type === "success" ? "bg-gradient-to-r from-green-400 to-green-600" : "bg-gradient-to-r from-red-400 to-red-600"}`}
+            ${toast.type === "success" ? "bg-green-600" : "bg-red-600"}`}
         >
           {toast.message}
         </div>
       )}
-        </div>
-      </div>
-
-        </div>
+    </div>
   );
 }

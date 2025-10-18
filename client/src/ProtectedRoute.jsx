@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
@@ -19,13 +18,15 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
 
   if (loading) return <p className="p-8">Loading...</p>;
 
+  // Not logged in → redirect to login
   if (!user) return <Navigate to="/login" replace />;
 
- 
-  if (adminOnly && user.is_admin) return <Navigate to="/profile" replace />;
+  // If route is admin-only but user is not admin → block access
+  if (adminOnly && !user.is_admin) return <Navigate to="/profile" replace />;
 
-  
+  // If route is user-only but user is admin → redirect to admin dashboard
   if (!adminOnly && user.is_admin) return <Navigate to="/dashboard" replace />;
 
+  // Otherwise, allowed
   return children;
 }

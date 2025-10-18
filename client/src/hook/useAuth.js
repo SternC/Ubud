@@ -8,8 +8,14 @@ export default function useAuth() {
   useEffect(() => {
     axios
       .get("http://localhost:5000/authentication", { withCredentials: true })
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
+      .then((res) => {
+        if (res.status === 200) {
+          setUser(res.data); // { username, is_admin, ... }
+        }
+      })
+      .catch(() => {
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 

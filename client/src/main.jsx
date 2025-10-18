@@ -1,17 +1,19 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import axios from 'axios'
-import './index.css'
-import Dashboard from './Dashboard.jsx'
-import NotFound from './NotFound.jsx'
-import Register from './Register.jsx'
-import Login from './Login.jsx'
-import EditUser from './EditUser.jsx'
-import Hero from './Hero.jsx'
-import Module from './Modul.jsx'
-import CoachLogin from './CoachLogin.jsx';
-import ProtectedRoute from './ProtectedRoute.jsx';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import axios from "axios";
+import "./index.css";
+
+import Dashboard from "./Dashboard.jsx";
+import NotFound from "./NotFound.jsx";
+import Register from "./Register.jsx";
+import Login from "./Login.jsx";
+import EditUser from "./EditUser.jsx";
+import Hero from "./Hero.jsx";
+import Module from "./Modul.jsx";
+import CoachLogin from "./CoachLogin.jsx";
+import ProtectedRoute from "./ProtectedRoute.jsx";
+import PublicRoute from "./PublicRoute.jsx";
 
 axios.defaults.withCredentials = true;
 
@@ -26,19 +28,31 @@ const routerPath = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute adminOnly={true}>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/register",
-    element: <Register />,
+    element: (
+      <PublicRoute>
+        <Register />
+      </PublicRoute>
+    ),
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
   },
   {
-    path: "edit/:id",
-     element: (
+    path: "/edit/:id",
+    element: (
       <ProtectedRoute adminOnly={true}>
         <EditUser />
       </ProtectedRoute>
@@ -52,19 +66,14 @@ const routerPath = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  
   {
     path: "*",
     element: <NotFound />,
   },
-  {
-    path: "/profile",
-    element: <Module />,
-  }
 ]);
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={routerPath} />
-  </StrictMode>,
-)
+  </StrictMode>
+);
