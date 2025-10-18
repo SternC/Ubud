@@ -1,4 +1,3 @@
-// components/ProfileCard.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -13,6 +12,7 @@ export default function ProfileCard() {
     skill: "",
     city: "",
   });
+  const [role, setRole] = useState("student");
 
   axios.defaults.withCredentials = true;
 
@@ -23,6 +23,17 @@ export default function ProfileCard() {
         if (res.status === 200) {
           axios.get("http://localhost:5000/profile").then((resProfile) => {
             setProfile(resProfile.data);
+            axios
+              .get("http://localhost:5000/coaches")
+              .then((resCoach) => {
+                const coach = resCoach.data.find(
+                  (c) => c.profileId === resProfile.data.id
+                );
+                if (coach && coach.status === "approved") {
+                  setRole("coach");
+                }
+              })
+              .catch(() => setRole("student"));
           });
         }
       })
@@ -60,9 +71,7 @@ export default function ProfileCard() {
           <h2 className="text-xl font-bold text-[#6D94C5]">
             {profile.name || "Name"}
           </h2>
-          <h3 className="text-sm text-gray-600">
-            student
-          </h3>
+          <h3 className="text-sm text-gray-600">{role}</h3>
           <p className="text-gray-600 text-lg">{profile.email || "-"}</p>
         </div>
 

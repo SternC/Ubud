@@ -23,7 +23,7 @@ const Coach = db.define("Coaches", {
   status: {
     type: DataTypes.ENUM("pending", "approved", "rejected"),
     defaultValue: "pending"
-  }
+  },
 }, {
   tableName: 'coaches',
   timestamps: false

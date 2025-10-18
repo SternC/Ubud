@@ -1,68 +1,123 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import useAuth from "../../src/hook/useAuth";
 import Folder from "../ui/folder";
 
 export function Courses() {
-  const { user, loading: userLoading } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [newCourse, setNewCourse] = useState({
+    title: "",
+    description: "",
+    price: 0,
+    oldPrice: 0,
+  });
 
   useEffect(() => {
-    if (!user) return;
-
     axios
-      .get(`http://localhost:5000/purchases/${user.id}`, {
-        withCredentials: true,
-      })
+      .get("http://localhost:5000/courses", { withCredentials: true })
       .then((res) => setCourses(res.data))
-      .catch((err) => {
-        console.error("Error fetching purchased courses:", err);
-        setError("Failed to load your courses.");
-      })
+      .catch(console.error)
       .finally(() => setLoading(false));
-  }, [user]);
+  }, []);
 
-  if (loading || userLoading)
-    return <p className="p-8 text-center text-gray-500">Loading your courses...</p>;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewCourse((prev) => ({ ...prev, [name]: name === "price" || name === "oldPrice" ? parseFloat(value) || 0 : value }));
+  };
 
-  if (!user)
-    return (
-      <p className="p-8 text-center text-red-600">
-        Please log in to view your courses.
-      </p>
-    );
+  const handleSaveCourse = () => {
+    axios
+      .post("http://localhost:5000/courses", newCourse, { withCredentials: true })
+      .then((res) => {
+        setCourses((prev) => [...prev, res.data.course]);
+        setShowModal(false);
+        setNewCourse({ title: "", description: "", price: 0, oldPrice: 0 });
+      })
+      .catch((err) => {
+        alert("Failed to create course: " + (err.response?.data?.message || err.message));
+      });
+  };
 
-  if (error)
-    return (
-      <p className="p-8 text-center text-red-600">
-        {error || "Something went wrong."}
-      </p>
-    );
-
-  if (courses.length === 0)
-    return (
-      <p className="p-8 text-center text-gray-500">
-        You haven’t purchased any courses yet.
-      </p>
-    );
+  if (loading) return <p className="p-8 text-center text-gray-500">Loading courses...</p>;
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="p-4 min-h-[85vh] bg-gray-50">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setShowModal(true)}
+          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-sm sm:text-base rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Create Course
+        </button>
+      </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Create New Course</h2>
+            <input
+              type="text"
+              name="title"
+              placeholder="Title"
+              value={newCourse.title}
+              onChange={handleInputChange}
+              className="p-2 border rounded-md w-full mb-2"
+            />
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={newCourse.description}
+              onChange={handleInputChange}
+              className="p-2 border rounded-md w-full mb-2 resize-none"
+            />
+            <input
+              type="number"
+              name="price"
+              placeholder="Price"
+              value={newCourse.price}
+              onChange={handleInputChange}
+              className="p-2 border rounded-md w-full mb-2"
+            />
+            <input
+              type="number"
+              name="oldPrice"
+              placeholder="Old Price"
+              value={newCourse.oldPrice}
+              onChange={handleInputChange}
+              className="p-2 border rounded-md w-full mb-2"
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveCourse}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {courses.map((course) => (
           <div
             key={course.id}
-            className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+            className="flex flex-col items-center p-3 rounded-lg cursor-pointer transition-shadow"
           >
-            <Folder size={1.2} color="#4a9fe8" items={[]} />
-            <div className="mt-6">
-              <h3 className="text-sm md:text-base font-semibold text-foreground leading-tight">
-                {course.title}
-              </h3>
-            </div>
+            <Folder size={1} color="#4a9fe8" items={[]} />
+            <h3 className="mt-2 font-semibold text-center text-xs sm:text-sm md:text-base">
+              {course.title}
+            </h3>
+            <p className="text-[0.7rem] sm:text-xs text-gray-500 text-center line-clamp-2">
+              {course.description}
+            </p>
           </div>
         ))}
       </div>
