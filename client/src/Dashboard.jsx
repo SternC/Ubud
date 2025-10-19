@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./api";
 import {
   Menu,
   X,
@@ -54,8 +54,8 @@ export default function AdminDashboard() {
 
   // Auth check
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/authentication", { withCredentials: true })
+    api
+      .get("/authentication", { withCredentials: true })
       .then((res) => {
         if (res.status === 200) {
           setAuth(true);
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
   // Fetch data
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/users", {
+      const res = await api.get("/users", {
         withCredentials: true,
       });
       setUsers(res.data || []);
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/courses", {
+      const res = await api.get("/courses", {
         withCredentials: true,
       });
       setCourses(res.data || []);
@@ -94,7 +94,7 @@ export default function AdminDashboard() {
 
   const fetchPurchases = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/purchases", {
+      const res = await api.get("/purchases", {
         withCredentials: true,
       });
       setPurchases(res.data || []);
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
 
   const fetchProfiles = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/profiles", {
+      const res = await api.get("/profiles", {
         withCredentials: true,
       });
       setProfiles(res.data || []);
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
 
   const fetchCoaches = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/coaches", {
+      const res = await api.get("/coaches", {
         withCredentials: true,
       });
       setCoaches(res.data || []);
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
   }, [auth]);
 
   const handleLogout = async () => {
-    await axios.get("http://localhost:5000/logout", { withCredentials: true });
+    await api.get("/logout", { withCredentials: true });
     navigate("/login");
   };
 
@@ -168,8 +168,8 @@ export default function AdminDashboard() {
     try {
       if (userEditing) {
         // Update user
-        await axios.put(
-          `http://localhost:5000/edit/${userForm.id}`,
+        await api.put(
+          `/edit/${userForm.id}`,
           {
             name: userForm.name,
             email: userForm.email,
@@ -179,8 +179,8 @@ export default function AdminDashboard() {
           { withCredentials: true }
         );
       } else {
-        await axios.post(
-          "http://localhost:5000/users",
+        await api.post(
+          "/users",
           {
             name: userForm.name,
             email: userForm.email,
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
 
   const deleteUser = async (id) => {
     if (!confirm("Delete this user?")) return;
-    await axios.delete(`http://localhost:5000/users/${id}`, {
+    await api.delete(`/users/${id}`, {
       withCredentials: true,
     });
     fetchUsers();
@@ -230,8 +230,8 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       if (courseEditing) {
-        await axios.put(
-          `http://localhost:5000/courses/${courseForm.id}`,
+        await api.put(
+          `/courses/${courseForm.id}`,
           courseForm,
           { withCredentials: true }
         );
@@ -244,20 +244,20 @@ export default function AdminDashboard() {
         };
 
         if (courseEditing) {
-          await axios.put(
-            `http://localhost:5000/courses/${courseForm.id}`,
+          await api.put(
+            `/courses/${courseForm.id}`,
             data,
             {
               withCredentials: true,
             }
           );
         } else {
-          await axios.post("http://localhost:5000/courses", data, {
+          await api.post("/courses", data, {
             withCredentials: true,
           });
         }
       } else {
-        await axios.post("http://localhost:5000/courses", courseForm, {
+        await api.post("/courses", courseForm, {
           withCredentials: true,
         });
       }
@@ -270,7 +270,7 @@ export default function AdminDashboard() {
 
   const deleteCourse = async (id) => {
     if (!confirm("Delete this course?")) return;
-    await axios.delete(`http://localhost:5000/courses/${id}`, {
+    await api.delete(`/courses/${id}`, {
       withCredentials: true,
     });
     fetchCourses();
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
   // PURCHASES
   const deletePurchase = async (id) => {
     if (!confirm("Delete this purchase record?")) return;
-    await axios.delete(`http://localhost:5000/purchases/${id}`, {
+    await api.delete(`/purchases/${id}`, {
       withCredentials: true,
     });
     fetchPurchases();

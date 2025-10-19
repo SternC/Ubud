@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, Settings, LogOut } from "lucide-react"; 
-import axios from "axios";
 import { Courses } from "../components/section/Courses";
 import { Coachdeck } from "../components/section/Coachdeck";
 import ProfileCard from "../components/section/Card";
 import BuyCourse from "../components/section/BuyCourse";
 import TransactionHistory from "../components/section/Transaction";
 import Dashboard from "../components/section/dashboard";
+import api from "./api";
 
 export default function Module() {
   const [activePage, setActivePage] = useState("Dashboard");
@@ -17,13 +17,13 @@ export default function Module() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await axios.get("http://localhost:5000/logout", { withCredentials: true });
+        await api.get("/logout", { withCredentials: true });
     navigate("/login");
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/profile", { withCredentials: true })
+    api
+      .get("/profile", { withCredentials: true })
       .then((res) => {
         if (res.data && res.data.isAdmin === 1) setIsAdmin(true);
         if (res.data && res.data.is_coach) setIsCoach(true);

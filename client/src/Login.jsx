@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "./api";
 
 export default function Login() {
   const [toast, setToast] = useState(null);
@@ -23,8 +23,8 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    axios
-      .post("http://localhost:5000/login", value, { withCredentials: true })
+    api
+      .post("/login", value, { withCredentials: true })
       .then((res) => {
         if (res.status === 200) {
           showToast("Login Successful!", "success");

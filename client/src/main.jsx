@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import axios from "axios";
+import api from "./api";
 import "./index.css";
 
 import Dashboard from "./Dashboard.jsx";
@@ -14,7 +14,7 @@ import CoachLogin from "./CoachLogin.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 
-axios.defaults.withCredentials = true;
+api.defaults.withCredentials = true;
 
 const routerPath = createBrowserRouter([
   {
