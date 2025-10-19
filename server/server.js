@@ -44,12 +44,12 @@ import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import coachRoutes from "./routes/coachRoutes.js";
 
-app.use(authRoutes);
-app.use(userRoutes);
-app.use("/", courseRoutes);
-app.use("/", purchaseRoutes);
-app.use("/", profileRoutes);
-app.use("/", coachRoutes);
+app.use("/api", authRoutes);
+app.use("/api", userRoutes);
+app.use("/api", courseRoutes);
+app.use("/api", purchaseRoutes);
+app.use("/api", profileRoutes);
+app.use("/api", coachRoutes);
 
 app.listen(5000, () => {
   console.log("🚀 Server running on http://localhost:5000");
