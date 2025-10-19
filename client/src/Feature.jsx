@@ -1,92 +1,62 @@
-import { BookOpen, Award, Users, Lightbulb } from "lucide-react";
+const featuresData = [
+  {
+    title: "100+ Course Materials",
+    description: "Access a vast library with over 100 in-depth course materials, ranging from beginner fundamentals to advanced expertise.",
+    color: "text-white-400",
+  },
+  {
+    title: "Personal Coaching Sessions",
+    description: "Receive exclusive virtual one-on-one guidance from expert coaches to maximize your potential and achievement.",
+    color: "text-white-300", 
+  },
+  {
+    title: "Secure & Fast Transactions",
+    description: "Enjoy an easy, transparent, and secure process for course purchase and payment with various available options.",
+    color: "text-white-400", 
+  },
+  {
+    title: "Instant 24/7 Access",
+    description: "Start learning anytime, anywhere. All content is available instantly after registration with no time restrictions.",
+    color: "text-white-400", 
+  },
+];
 
-
-export default function Features() {
+export default function Feature() {
   return (
-    <section 
-        id="features" 
-        className="relative py-20 text-[#004179] "
-      >
-
+    <section id="features" className="py-30 text-white bg-transparent"> 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2
-          className="text-4xl sm:text-5xl font-bold mb-4 animate-fade-in-up"
-          
-        >
-          Why Us ?
+        
+        <h2 className="text-4xl text-[#004179] sm:text-5xl font-extrabold mb-4 animate-fade-in-up">
+          Why Choose Us?
         </h2>
-        <p
-          className="text-lg sm:text-xl mb-12 max-w-2xl mx-auto animate-fade-in-up animate-delay-200"
-          
-        >
-          We are here to transform your learning experience. Discover features designed to help you reach your full potential.
+        <p className="text-lg sm:text-xl mb-12 max-w-3xl mx-auto text-[#004179] animate-fade-in-up animate-delay-200">
+          We offer a unique combination of high quality materials and personalized support that will drive your success.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {featuresData.map((feature, index) => (
+            <div
+              key={index}
+              className={`
+                p-6 rounded-2xl 
+                bg-white/10
+                
+                shadow-xl shadow-black/30 
+                
+                border border-white/20
 
-
-          {/* Fitur 1: Pembelajaran Personal */}
-          <div className="bg-[#FFFBDE] p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in-up animate-delay-400">
-            <div className="mb-4 text-[#154D71]">
-              <BookOpen className="w-12 h-12 mx-auto" />
-            </div>
-            <h3
-              className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-             
+                text-left animate-slide-in-up animate-delay-${400 + index * 200}
+              `}
             >
-              Personalized Learning
-            </h3>
-            <p className="text-gray-600">
-              Curriculum tailored to your learning style and pace, ensuring every material is absorbed optimally.
-            </p>
-          </div>
-
-
-          {/* Fitur 2: Sertifikasi & Penghargaan */}
-          <div className="bg-[#FFFBDE] p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in-up animate-delay-500">
-            <div className="mb-4 text-[#154D71]">
-              <Award className="w-12 h-12 mx-auto" />
+              
+              <h3 className={`text-xl text-[#004179] font-bold mb-3 ${feature.color}`}>
+                {feature.title}
+              </h3>
+              <p className="text-[#004179]">
+                {feature.description}
+              </p>
             </div>
-            <h3
-              className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-            >
-              Certification & Awards
-            </h3>
-            <p className="text-gray-600" >
-              Achieve official certificates and awards for every accomplishment. Prove your skills and enhance your academic profile.
-            </p>
-          </div>
-
-
-          {/* Fitur 3: Komunitas Belajar */}
-          <div className="bg-[#FFFBDE] p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in-up animate-delay-600">
-            <div className="mb-4 text-[#154D71]">
-              <Users className="w-12 h-12 mx-auto" />
-            </div>
-            <h3
-              className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-            >
-              Study Group
-            </h3>
-            <p className="text-gray-600">
-              Join a supportive and active community. Discuss, share, and grow with peers.
-            </p>
-          </div>
-
-          {/* Fitur 4: Kuis Interaktif */}
-          <div className="bg-[#FFFBDE] p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in-up animate-delay-700">
-            <div className="mb-4 text-[#154D71]">
-              <Lightbulb className="w-12 h-12 mx-auto" />
-            </div>
-            <h3
-              className="text-2xl font-bold mb-2 text-[#1c6ea4]"
-            >
-              Interactive Quiz
-            </h3>
-            <p className="text-gray-600">
-              Test your knowledge with fun, interactive quizzes that adapt to your learning progress.
-            </p>
-          </div>
+          ))}
         </div>
       </div>
     </section>
