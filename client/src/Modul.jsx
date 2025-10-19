@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, Settings, LogOut } from "lucide-react"; 
+import { Menu, X, Settings, LogOut } from "lucide-react";
 import { Courses } from "../components/section/Courses";
 import { Coachdeck } from "../components/section/Coachdeck";
 import ProfileCard from "../components/section/Card";
@@ -18,7 +18,7 @@ export default function Module() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-        await api.get("/logout", { withCredentials: true });
+    await api.get("/logout", { withCredentials: true });
     navigate("/login");
   };
 
@@ -47,7 +47,7 @@ export default function Module() {
         return <TransactionHistory />;
       case "Dashboard":
         return <Dashboard />;
-        case "Assessment": 
+      case "Assessment":
         return <Assessment isCoach={isCoach} />;
       default:
         return null;
@@ -62,7 +62,11 @@ export default function Module() {
           <span className="font-bold text-lg">Ubud</span>
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {sidebarOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
 
@@ -88,7 +92,8 @@ export default function Module() {
               "Transaction",
               "Buy Course",
             ].map((page) => {
-              if ((page === "Coach" || page === "Buy Course") && isCoach) return null;
+              if ((page === "Coach" || page === "Buy Course") && isCoach)
+                return null;
               return (
                 <button
                   key={page}
@@ -132,7 +137,9 @@ export default function Module() {
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-0 mt-16 lg:mt-0">
         <div className="bg-white shadow-lg rounded-xl p-6 h-full">
-          <h1 className="text-2xl font-bold mb-4 text-[#004179]">{activePage}</h1>
+          <h1 className="text-2xl font-bold mb-4 text-[#004179]">
+            {activePage}
+          </h1>
           {renderContent()}
         </div>
       </main>

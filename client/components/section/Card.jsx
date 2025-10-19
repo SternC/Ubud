@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../src/api.jsx";
 
 export default function ProfileCard() {
   const [flipped, setFlipped] = useState(false);
@@ -14,17 +14,15 @@ export default function ProfileCard() {
   });
   const [role, setRole] = useState("student");
 
-  axios.defaults.withCredentials = true;
-
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/authentication")
+    api
+      .get("/authentication")
       .then((res) => {
         if (res.status === 200) {
-          axios.get("http://localhost:5000/profile").then((resProfile) => {
+          api.get("/profile").then((resProfile) => {
             setProfile(resProfile.data);
-            axios
-              .get("http://localhost:5000/coaches")
+            api
+              .get("/coaches")
               .then((resCoach) => {
                 const coach = resCoach.data.find(
                   (c) => c.profileId === resProfile.data.id
@@ -46,8 +44,8 @@ export default function ProfileCard() {
 
   const handleSave = (e) => {
     e.preventDefault();
-    axios
-      .put("http://localhost:5000/profile", profile)
+    api
+      .put("/profile", profile)
       .then((res) => {
         if (res.status === 200) setIsEditing(false);
       })

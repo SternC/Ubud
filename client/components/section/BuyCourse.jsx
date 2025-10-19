@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../src/api.jsx";
 import useAuth from "../../src/hook/useAuth";
 
 export default function BuyCourse() {
@@ -9,8 +9,8 @@ export default function BuyCourse() {
   const { user, loading: userLoading } = useAuth();
 
   useEffect(() => {
-    axios
-    .get("http://localhost:5000/courses", { withCredentials: true })
+    api
+      .get("/courses", { withCredentials: true })
       .then((res) => setCourses(res.data))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -25,8 +25,8 @@ export default function BuyCourse() {
     try {
       console.log("🛒 Buying:", { userId: user.id, courseId });
 
-      const res = await axios.post(
-        "http://localhost:5000/api/purchase",
+      const res = await api.post(
+        "/purchase",
         { userId: user.id, courseId },
         { withCredentials: true }
       );

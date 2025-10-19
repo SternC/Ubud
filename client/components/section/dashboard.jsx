@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../src/api.jsx';
 
 const coursesData = [
   { id: 1, title: 'Pengenalan React dan Komponen', code: 'REACT101', progress: 75, status: 'In Progress', date: '2025-02-10' },
@@ -74,20 +74,19 @@ export default function Dashboard() {
   const [coachTimeline, setCoachTimeline] = useState([]);
 
   useEffect(() => {
-    axios.defaults.withCredentials = true;
-    axios.get("http://localhost:5000/profile")
+    api.get("/profile")
       .then((res) => {
         setIsCoach(res.data.is_coach);
         if (res.data.is_coach) {
-          axios.get("http://localhost:5000/students-progress")
+          api.get("/students-progress")
             .then((resp) => setStudentProgress(resp.data))
             .catch(() => setStudentProgress([]));
 
-          axios.get("http://localhost:5000/upcoming-classes")
+          api.get("/upcoming-classes")
             .then((resp) => setCoachUpcomingClasses(resp.data))
             .catch(() => setCoachUpcomingClasses([]));
 
-          axios.get("http://localhost:5000/timeline")
+          api.get("/timeline")
             .then((resp) => setCoachTimeline(resp.data))
             .catch(() => setCoachTimeline([]));
         }
