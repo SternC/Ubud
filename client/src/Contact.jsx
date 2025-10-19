@@ -1,127 +1,71 @@
 import { Mail, Phone, MapPin } from "lucide-react";
-import { Button } from "../components/ui/button";
 
 export default function Contact() {
   return (
-    <section id="contact" className="py-20 text-[#004179] ">  
+    <footer id="contact" className="py-10 text-[#004179]">  
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2
-          className="text-4xl sm:text-5xl font-bold mb-4 animate-fade-in-up"
-        
+
+        <h3
+          className="text-3xl sm:text-4xl font-bold mb-3 animate-fade-in-up"
         >
-          Contact Us
-        </h2>
+          Get In Touch
+        </h3>
         <p
-          className="text-lg sm:text-xl mb-12 max-w-2xl mx-auto animate-fade-in-up animate-delay-200"
-          
+          className="text-md sm:text-lg mb-8 max-w-2xl mx-auto animate-fade-in-up animate-delay-200"
         >
-          Have questions? We're here to help!
+          Contact us using the information below
         </p>
 
-        <div className="flex flex-col md:flex-row gap-12 items-center">
-          {/* Sisi Kiri: Informasi Kontak */}
-          <div className="w-full md:w-1/2 space-y-8 text-left animate-slide-in-left animate-delay-400">
-            <div className="flex items-center space-x-4">
-              <Mail className="w-8 h-8 flex-shrink-0" />
+        <div className="flex flex-col md:flex-row justify-center gap-6 md:gap-16 items-start text-left">
+          
+          <div className="space-y-4 animate-fade-in-up animate-delay-400">
+            <div className="flex items-start space-x-3">
+              <Mail className="w-6 h-6 flex-shrink-0 mt-1" />
               <div>
-                <h4 className="text-xl font-bold" >
+                <h4 className="text-lg font-bold">
                   Email
                 </h4>
-                <a href="mailto:info@ubud.com" className="text-lg hover:underline transition-colors duration-300" >
+                <a href="mailto:info@ubud.com" className="text-md hover:underline transition-colors duration-300">
                   @UBUD.com
                 </a>
               </div>
             </div>
-
-            <div className="flex items-center space-x-4">
-              <Phone className="w-8 h-8 flex-shrink-0" />
+          </div>
+          
+          <div className="space-y-4 animate-fade-in-up animate-delay-500">
+            <div className="flex items-start space-x-3">
+              <Phone className="w-6 h-6 flex-shrink-0 mt-1" />
               <div>
-                <h4 className="text-xl font-bold" >
+                <h4 className="text-lg font-bold">
                   Phone
                 </h4>
-                <p className="text-lg" >
+                <p className="text-md">
                   +62 0815 1000 3535
                 </p>
               </div>
             </div>
+          </div>
 
-            <div className="flex items-center space-x-4">
-              <MapPin className="w-8 h-8 flex-shrink-0" />
+          <div className="space-y-4 animate-fade-in-up animate-delay-600">
+            <div className="flex items-start space-x-3">
+              <MapPin className="w-6 h-6 flex-shrink-0 mt-1" />
               <div>
-                <h4 className="text-xl font-bold" >
+                <h4 className="text-lg font-bold">
                   Address
                 </h4>
-                <p className="text-lg" >
+                <p className="text-md">
                   St. Jakarta No. 88, Indonesia
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Sisi Kanan: Formulir Kontak */}
-          <div className="w-full md:w-1/2 p-8 rounded-2xl shadow-2xl bg-white text-gray-800 animate-slide-in-right animate-delay-600">
-            <h3
-              className="text-3xl font-bold mb-6 text-[#1c6ea4]"
-              
-            >
-              Send Us a Message
-            </h3>
-            <form className="space-y-6">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium mb-2 text-left"
-              
-                >
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-[#1c6ea4] focus:outline-none transition-colors"
-                  placeholder="Masukkan nama Anda"
-                 
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-2 text-left"
-                >
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-[#1c6ea4] focus:outline-none transition-colors"
-                  placeholder="Masukkan email Anda"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium mb-2 text-left"
-                >
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  rows="4"
-                  className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-[#1c6ea4] focus:outline-none transition-colors"
-                  placeholder="Tulis pesan Anda di sini"
-                ></textarea>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-[#1c6ea4] text-[#ffffff] px-6 py-3 text-lg font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] hover:bg-[#154D71]"
-              
-              >
-                Send Message
-              </Button>
-            </form>
-          </div>
+          
         </div>
+        
       </div>
-    </section>
+      <div className="mt-8 pt-4 border-t border-gray-300 text-center text-sm text-white">
+          &copy; {new Date().getFullYear()} UBUD. All rights reserved.
+      </div>
+    </footer>
   );
 }

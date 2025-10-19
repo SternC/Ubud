@@ -8,6 +8,32 @@ export default function TransactionHistory() {
   const [loading, setLoading] = useState(true);
   const [totalIncome, setTotalIncome] = useState(0);
 
+const handleDownloadReceipt = (tx) => {
+
+    axios
+      .get(`http://localhost:5000/api/transactions/download-receipt/${tx.id}`, { 
+        withCredentials: true,
+        responseType: 'blob', 
+      })
+      .then((response) => {
+        const file = new Blob([response.data], { type: 'application/pdf' });
+        const fileURL = URL.createObjectURL(file);
+
+        const link = document.createElement('a');
+        link.href = fileURL;
+        link.setAttribute('download', `receipt-${tx.id}-${tx.courseTitle.replace(/\s/g, '_')}.pdf`);
+        document.body.appendChild(link);
+        
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(fileURL);
+      })
+      .catch((err) => {
+        console.error("Error downloading receipt:", err);
+        alert("Gagal mengunduh bukti pembelian. Pastikan server berjalan dan API endpoint sudah benar.");
+      });
+  };
+
   useEffect(() => {
     if (!user) return;
 
@@ -66,6 +92,7 @@ export default function TransactionHistory() {
     );
   }
 
+  //(Tampilan Pelajar)
   return (
     <main className="min-h-[85vh] bg-gray-50 p-6">
       <div className="mx-auto max-w-4xl">
@@ -78,10 +105,17 @@ export default function TransactionHistory() {
                 <p className="text-gray-600">Price: ${Number(tx.price).toFixed(2)}</p>
                 <p className="text-sm text-gray-500">Date: {new Date(tx.date).toLocaleDateString('id-ID')}</p>
               </div>
+              
+              <button 
+                onClick={() => handleDownloadReceipt(tx)}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150"
+              >
+                Download Receipt
+              </button>
             </div>
           ))}
         </div>
       </div>
     </main>
   );
-}
+} 

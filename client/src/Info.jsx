@@ -3,7 +3,7 @@ import { Sparkles, GraduationCap, Users, Heart } from "lucide-react";
 
 export default function Info() {
   return (
-    <section id="info" className="py-20 text-[#004179] "> 
+    <section id="info" className="py-30 text-[#004179] "> 
                      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">

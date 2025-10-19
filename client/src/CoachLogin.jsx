@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Background from '../components/ui/bg';
 
 export default function CoachApply() {
   const [toast, setToast] = useState(null);
@@ -53,7 +52,7 @@ export default function CoachApply() {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/coach-apply', value);
+      const res = await axios.post('http://localhost:5000/co  ach-apply', value);
       if (res.status === 201) {
         showToast(res.data.message, 'success');
         setTimeout(() => navigate("/profile"), 1500);
@@ -71,25 +70,6 @@ export default function CoachApply() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba]">
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <Background
-          colors={["#60e7ce", "#b2fdfb"]}
-          mouseForce={10}
-          cursorSize={1000}
-          isViscous={false}
-          viscous={10}
-          iterationsViscous={10}
-          iterationsPoisson={5}
-          resolution={0.5}
-          isBounce={false}
-          autoDemo={true}
-          autoSpeed={1}
-          autoIntensity={0.5}
-          takeoverDuration={0.1}
-          autoResumeDelay={0}
-          autoRampDuration={0.6}
-        />
-      </div>
 
       <div className="w-full max-w-md relative z-10">
         <div
