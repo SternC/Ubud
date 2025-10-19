@@ -1,65 +1,160 @@
 import Purchase from "../models/Purchase.js";
 import Course from "../models/Course.js";
 import PDFDocument from 'pdfkit';
+import User from "../models/User.js";
 
 
+function drawLine(doc, y, color = '#aaaaaa') {
+    doc.strokeColor(color)
+       .lineWidth(1)
+       .moveTo(50, y)
+       .lineTo(550, y)
+       .stroke();
+}
 
 export const downloadReceipt = async (req, res) => {
   try {
     const { transactionId } = req.params;
 
-    const transaction = await Purchase.findByPk(transactionId);
+    const transaction = await Purchase.findByPk(transactionId, {
+        include: [{ 
+            model: User, 
+            attributes: ['name', 'email'], 
+        }] 
+    });
+    
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
+  
+    const { id, title, price, createdAt, User: userData } = transaction;
+    const numericPrice = Number(price);
+    const formattedPrice = numericPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 });
+    const formattedDate = new Date(createdAt).toLocaleDateString('id-ID', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+    
+    const recipientName = userData ? userData.name : "Nama Pelanggan"; 
+    const recipientEmail = userData ? userData.email : "Email Pelanggan"; 
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="receipt-${transactionId}.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="receipt-${id}.pdf"`);
 
- 
     const doc = new PDFDocument({ margin: 50 });
+
+    doc.on('error', (err) => {
+        console.error('PDF Document Error - Stream Failed:', err);
+        if (!res.headersSent) {
+             res.status(500).send('Error generating PDF content.');
+        } else {
+             res.end();
+        }
+    });
 
     doc.pipe(res);
 
+    //HEADER
+    doc.fontSize(28)
+       .fillColor('#333')
+       .text('INVOICE', 50, 60); 
 
-
-    doc
-      .fontSize(25)
-      .text('INVOICE / BUKTI PEMBELIAN', { align: 'center' });
-
-    doc.moveDown();
-
-    doc
-      .fontSize(12)
-      .text(`Transaction ID: ${transaction.id}`, { continued: true })
-      .text(`Date: ${new Date(transaction.createdAt).toLocaleDateString()}`, { align: 'right' });
-
-    doc.moveDown();
-
-    doc
-      .fontSize(16)
-      .text('Detail Produk:', { underline: true });
-    
     doc.moveDown(0.5);
+    doc.fontSize(10)
+       .text(`INVOICE # ${id}`, 50, doc.y);
+    doc.text(`Date: ${formattedDate}`, 50, doc.y);
+    doc.text('Status: Paid', 50, doc.y);
 
-    doc
-      .fontSize(12)
-      .text(`Course Title: ${transaction.title}`);
+    doc.rect(380, 50, 170, 40).fillAndStroke('#2980b9', '#2980b9');
+    doc.fillColor('#ffffff')
+       .fontSize(10)
+       .text('TOTAL PAID', 390, 55, { width: 150, align: 'right' });
+    doc.fontSize(16)
+       .text(formattedPrice, 390, 70, { width: 150, align: 'right' });
 
-    doc
-      .fontSize(12)
-      .text(`Price: $${Number(transaction.price).toFixed(2)}`);
-
-    doc.moveDown(2);
+    doc.fillColor('#000000'); 
+    doc.moveDown(4);
 
 
-    doc
-      .fontSize(10)
-      .fillColor('gray')
-      .text('Terima kasih telah berbelanja.', { align: 'center' });
+    //Information
+    const detailY = doc.y;
 
+    doc.fontSize(12).fillColor('#333').text('TO:', 50, detailY);
+    doc.fontSize(10).fillColor('#555').text(recipientName, 50, detailY + 15);
+    doc.text(`Email: ${recipientEmail}`, 50, detailY + 30); 
+
+    doc.moveDown(4);
+    drawLine(doc, doc.y, '#cccccc'); 
+    doc.moveDown(1);
+
+
+    //Product Detail
+    const tableTop = doc.y;
+    const col1 = 50;  // Details
+    const col2 = 275; // Price
+    const col3 = 370; // Quantity
+    const col4 = 465; // Total
+    const colWidths = {
+        harga: 65,
+        kuantitas: 40,
+        total: 65
+    };
+    const headerHeight = 20;
+
+    doc.rect(50, tableTop, 500, headerHeight).fill('#2c3e50');
+    doc.fillColor('#ffffff')
+       .fontSize(9)
+       .text('Details', col1 + 5, tableTop + 6)
+       .text('Price', col2, tableTop + 6, { width: colWidths.harga, align: 'right' })
+       .text('Quantity', col3, tableTop + 6, { width: colWidths.kuantitas, align: 'right' })
+       .text('Total', col4, tableTop + 6, { width: colWidths.total, align: 'right' });
+    
   
+    const contentTop = tableTop + headerHeight;
+    const rowHeight = 20;
+    
+    doc.rect(50, contentTop, 500, rowHeight).fill('#f9f9f9');
+    doc.fillColor('#000000')
+       .fontSize(9)
+       .text(title, col1 + 5, contentTop + 5) 
+       .text(formattedPrice, col2, contentTop + 5, { width: colWidths.harga, align: 'right' }) 
+       .text('1', col3, contentTop + 5, { width: colWidths.kuantitas, align: 'right' })
+       .text(formattedPrice, col4, contentTop + 5, { width: colWidths.total, align: 'right' }); 
+
+    doc.moveDown(3);
+
+
+    //Summary
+    const summaryY = doc.y;
+    const summaryX = 400;
+    const summaryWidth = 150;
+
+    doc.fontSize(10).fillColor('#555');
+    
+    doc.text('Sub Total:', summaryX, summaryY, { continued: true })
+       .text(formattedPrice, summaryX - 15, summaryY, { width: summaryWidth, align: 'right' });
+
+    doc.text('Tax (0%):', summaryX, summaryY + 15, { continued: true })
+       .text('$ 0', summaryX - 15, summaryY + 15, { width: summaryWidth, align: 'right' });
+    
+    doc.rect(summaryX, summaryY + 30, summaryWidth,20).fill('#2980b9');
+    doc.fillColor('#ffffff')
+       .fontSize(12)
+       .text('TOTAL:', summaryX, summaryY + 35, { continued: true })
+       .text(formattedPrice, summaryX - 15, summaryY + 35, { width: summaryWidth, align: 'right' });
+
+    
+    doc.moveDown(3);
+
+    // Notes
+    doc.fillColor('#000')
+       .fontSize(10)
+       .text('THANK YOU', 450, doc.y, { align: 'right' });
+    
+    doc.moveDown(2);
+    doc.fillColor('#555')
+       .text('Notes: This receipt is valid without a signature. Keep it for your reference.', 50, doc.y);
+
     doc.end();
 
   } catch (error) {
@@ -73,19 +168,14 @@ export const createPurchase = async (req, res) => {
   try {
     const { userId, courseId } = req.body;
 
-    // Prevent duplicates
     const existing = await Purchase.findOne({ where: { userId, courseId } });
     if (existing) {
       return res.status(400).json({ message: "You already own this course" });
     }
-
-    // Find course by string ID
     const course = await Course.findOne({ where: { id: courseId } });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
-
-    // Create purchase record
     const purchase = await Purchase.create({
       userId,
       courseId,
