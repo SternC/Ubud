@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import Background from '../components/ui/bg';
+import api from "./api";
 
 export default function CoachApply() {
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
-  axios.defaults.withCredentials = true;
+  api.defaults.withCredentials = true;
 
   const [displayText, setDisplayText] = useState("");
   const fullText = "Welcome, future coach!";
@@ -19,7 +20,7 @@ export default function CoachApply() {
 
   // Redirect if not logged in
   useEffect(() => {
-    axios.get("http://localhost:5000/authentication")
+    api.get("/authentication")
       .then(res => {
         if (res.status !== 200) navigate("/login");
       })
@@ -52,7 +53,7 @@ export default function CoachApply() {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/co  ach-apply', value);
+      const res = await api.post('/coach-apply', value);
       if (res.status === 201) {
         showToast(res.data.message, 'success');
         setTimeout(() => navigate("/profile"), 1500);

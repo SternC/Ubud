@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import axios from "axios";
+import api from "./api";
 
 export default function PublicRoute({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/authentication", { withCredentials: true })
+    api
+      .get("/authentication", { withCredentials: true })
       .then((res) => setUser(res.data))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
@@ -16,7 +16,6 @@ export default function PublicRoute({ children }) {
 
   if (loading) return <p className="p-8">Loading...</p>;
 
-  // ✅ If user is logged in, redirect them
   if (user) {
     return user.is_admin ? (
       <Navigate to="/dashboard" replace />
@@ -25,6 +24,5 @@ export default function PublicRoute({ children }) {
     );
   }
 
-  // ✅ If no user logged in, show the public page
   return children;
 }

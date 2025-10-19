@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "./api";
 
 export default function Register() {
   const [toast, setToast] = useState(null);
@@ -26,8 +26,8 @@ export default function Register() {
     }
 
     setLoading(true);
-    axios
-      .post("http://localhost:5000/register", value)
+    api
+      .post("/register", value)
       .then((res) => {
         if (res.status === 201) {
           showToast("Registration Successful", "success");
