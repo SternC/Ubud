@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../src/api.jsx";
 import Folder from "../ui/folder";
 
 export function Courses() {
@@ -14,8 +14,8 @@ export function Courses() {
   });
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/courses", { withCredentials: true })
+    api
+      .get("/courses", { withCredentials: true })
       .then((res) => setCourses(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -27,8 +27,8 @@ export function Courses() {
   };
 
   const handleSaveCourse = () => {
-    axios
-      .post("http://localhost:5000/courses", newCourse, { withCredentials: true })
+    api
+      .post("/courses", newCourse, { withCredentials: true })
       .then((res) => {
         setCourses((prev) => [...prev, res.data.course]);
         setShowModal(false);
