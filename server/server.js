@@ -9,7 +9,7 @@ dotenv.config();
 import User from "./models/User.js";
 import Course from "./models/Course.js";
 import Purchase from "./models/Purchase.js";
-import Coach from "./models/coach.js"; 
+
 
 
 Purchase.belongsTo(User, { foreignKey: "userId" });
@@ -23,7 +23,7 @@ try {
   console.log("✅ Database connected");
 
   await sequelize.sync({alter: true}); 
-  console.log("📦 Models synced");
+  console.log(" Models synced");
 } catch (err) {
   console.error("❌ Database connection error:", err);
 }

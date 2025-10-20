@@ -418,3 +418,42 @@ export const downloadPurchaseReport = async (req, res) => {
     }
   }
 };
+
+export const getCoachTransactions = async (req, res) => {
+  try {
+    const { profileId, is_coach } = req.user;
+
+    if (!is_coach) {
+      return res.status(403).json({ message: "Only coaches can access this data" });
+    }
+
+    const purchases = await Purchase.findAll({
+      include: [
+        {
+          model: Course,
+          where: { coachId: profileId },
+          attributes: ["id", "title", "price"],
+        },
+        {
+          model: User,
+          attributes: ["id", "name", "email"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    const formatted = purchases.map((p) => ({
+      id: p.id,
+      studentName: p.User?.name || "Unknown",
+      studentEmail: p.User?.email || "Unknown",
+      courseTitle: p.Course?.title || "Unknown",
+      price: p.Course?.price || 0,
+      date: new Date(p.createdAt).toLocaleString(),
+    }));
+
+    res.json(formatted);
+  } catch (error) {
+    console.error("Error fetching coach transactions:", error);
+    res.status(500).json({ message: "Error fetching coach transactions" });
+  }
+};

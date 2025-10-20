@@ -7,6 +7,8 @@ import ProfileCard from "../components/section/Card";
 import BuyCourse from "../components/section/BuyCourse";
 import TransactionHistory from "../components/section/Transaction";
 import Dashboard from "../components/section/dashboard";
+import CoachTransactions from "../components/section/coachTransaction";
+
 import api from "./api";
 
 export default function Module() {
@@ -43,7 +45,7 @@ export default function Module() {
       case "Buy Course":
         return <BuyCourse />;
       case "Transaction":
-        return <TransactionHistory />;
+        return isCoach? <CoachTransactions /> : <TransactionHistory />;
       case "Dashboard":
         return <Dashboard />;
       default:
