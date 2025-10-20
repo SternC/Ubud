@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import api from "../../src/api.jsx";
 import Folder from "../ui/folder";
 import api from "../../src/api";
 
