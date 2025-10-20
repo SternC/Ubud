@@ -25,8 +25,8 @@ const handleBuy = async (courseId) => {
   try {
     console.log("🛒 Buying:", { userId: user.id, courseId });
 
-    const res = await axios.post(
-      "http://localhost:5000/api/purchase",
+    const res = await api.post(
+      "/purchase",
       { userId: user.id, courseId },
       { withCredentials: true }
     );
