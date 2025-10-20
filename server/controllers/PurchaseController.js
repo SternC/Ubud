@@ -59,7 +59,7 @@ export const downloadReceipt = async (req, res) => {
     //HEADER
     const logoPath = path.resolve("../client/public/logo.png");
     if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 50, 45, { width: 70 });
+      doc.image(logoPath, 50, 15, { width: 40 });
     }
     doc.fontSize(28)
        .fillColor('#333')
@@ -158,8 +158,7 @@ export const downloadReceipt = async (req, res) => {
        .text('THANK YOU', 450, doc.y, { align: 'right' });
     
     doc.moveDown(2);
-    doc.fillColor('#555')
-       .text('Notes: This receipt is valid without a signature. Keep it for your reference.', 50, doc.y);
+   
 
     doc.end();
 
