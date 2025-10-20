@@ -106,3 +106,15 @@ export const rejectCoach = async (req, res) => {
   }
 };
 
+export const getCoaches = async (req, res) => {
+  try {
+    const coaches = await Profile.findAll({
+      where: { is_coach: true },
+      order: [["userId", "ASC"]],
+    });
+    res.json(coaches);
+  } catch (err) {
+    console.error("Get coaches error:", err);
+    res.status(500).json({ error: "Failed to fetch coaches" });
+  }
+};

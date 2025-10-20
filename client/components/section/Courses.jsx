@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Folder from "../ui/folder";
 import api from "../../src/api";
-import axios from "axios";
 
 export function Courses() {
   const [courses, setCourses] = useState([]);
