@@ -55,7 +55,7 @@ export default function Module() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#ffffe8]">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#e0f0fd]">
       <div className="lg:hidden flex items-center justify-between bg-gradient-to-tr from-[#0b2a45] to-[#1f4c7b] text-white p-4">
         <div className="flex items-center space-x-2">
           <img src="/logo.png" alt="Ubud Logo" className="w-10 h-8" />

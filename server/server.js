@@ -9,6 +9,8 @@ dotenv.config();
 import User from "./models/User.js";
 import Course from "./models/Course.js";
 import Purchase from "./models/Purchase.js";
+import Coach from "./models/coach.js"; 
+
 
 Purchase.belongsTo(User, { foreignKey: "userId" });
 Purchase.belongsTo(Course, { foreignKey: "courseId", targetKey: "id" });
@@ -44,12 +46,16 @@ import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import coachRoutes from "./routes/coachRoutes.js";
 
+
+
+
+
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", purchaseRoutes);
 app.use("/api", profileRoutes);
-app.use("/api", coachRoutes);
+app.use("/api", coachRoutes); 
 
 app.listen(5000, () => {
   console.log("🚀 Server running on http://localhost:5000");
