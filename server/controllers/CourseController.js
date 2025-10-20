@@ -1,15 +1,25 @@
 // controllers/courseController.js
 import Course from "../models/Course.js";
+import Purchase from "../models/Purchase.js";
 
 export const getCourses = async (req, res) => {
   try {
-    const courses = await Course.findAll();
+    const { profileId, is_coach } = req.user;
+
+    let courses;
+    if (is_coach) {
+      courses = await Course.findAll({ where: { coachId: profileId } });
+    } else {
+      courses = await Course.findAll(); // normal users see all courses
+    }
+
     res.json(courses);
   } catch (err) {
     console.error("Get courses error:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 export const getCourseById = async (req, res) => {
@@ -26,12 +36,24 @@ export const getCourseById = async (req, res) => {
 export const createCourse = async (req, res) => {
   try {
     const { title, description, price, oldPrice } = req.body;
+    const { profileId, is_coach } = req.user; // assuming verifyToken adds user to req
+
+    if (!is_coach) {
+      return res.status(403).json({ message: "Only coaches can create courses" });
+    }
 
     if (!title || price === undefined) {
       return res.status(400).json({ message: "Title and price are required" });
     }
 
-    const newCourse = await Course.create({ title, description, price, oldPrice });
+    const newCourse = await Course.create({
+      title,
+      description,
+      price,
+      oldPrice,
+      coachId: profileId, // assign course to coach
+    });
+
     res.status(201).json({ message: "Course created successfully", course: newCourse });
   } catch (err) {
     console.error("Create course error:", err);
@@ -42,10 +64,15 @@ export const createCourse = async (req, res) => {
 
 export const updateCourse = async (req, res) => {
   try {
+    const { profileId, is_coach } = req.user;
     const { title, description, price, oldPrice } = req.body;
-    const course = await Course.findByPk(req.params.id);
 
+    const course = await Course.findByPk(req.params.id);
     if (!course) return res.status(404).json({ message: "Course not found" });
+
+    if (is_coach && course.coachId !== profileId) {
+      return res.status(403).json({ message: "You cannot edit this course" });
+    }
 
     course.title = title ?? course.title;
     course.description = description ?? course.description;
@@ -60,16 +87,40 @@ export const updateCourse = async (req, res) => {
   }
 };
 
-
 export const deleteCourse = async (req, res) => {
   try {
+    const { profileId, is_coach } = req.user;
+
     const course = await Course.findByPk(req.params.id);
     if (!course) return res.status(404).json({ message: "Course not found" });
+
+    if (is_coach && course.coachId !== profileId) {
+      return res.status(403).json({ message: "You cannot delete this course" });
+    }
 
     await course.destroy();
     res.json({ message: "Course deleted successfully" });
   } catch (err) {
     console.error("Delete course error:", err);
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const getPurchasedCourses = async (req, res) => {
+  try {
+    const userId = req.user.id; // from verifyToken middleware
+
+    const purchases = await Purchase.findAll({
+      where: { userId },
+      include: [{ model: Course }],
+    });
+
+    // map to just course info
+    const courses = purchases.map(p => p.Course);
+
+    res.json(courses);
+  } catch (err) {
+    console.error("Get purchased courses error:", err);
+    res.status(500).json({ message: err.message });
   }
 };

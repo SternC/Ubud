@@ -35,28 +35,29 @@ export const login = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+    if (!validPassword) return res.status(400).json({ message: "Invalid credentials" });
 
-  
+    const profile = await Profile.findOne({ where: { userId: user.id } });
+    if (!profile) return res.status(404).json({ message: "Profile not found" });
+
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      {
+        id: user.id,
+        email: user.email,
+        profileId: profile.id,
+        is_coach: profile.is_coach,
+      },
       "your_jwt_secret",
       { expiresIn: "1d" }
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-    });
-
+    res.cookie("token", token, { httpOnly: true, secure: false, sameSite: "lax" });
 
     res.json({
       message: "Login successful",
-      name: user.name,
-      email: user.email,
+      name: profile.name,
+      email: profile.email,
+      is_coach: profile.is_coach,
       is_admin: user.is_admin,
     });
   } catch (err) {
@@ -64,7 +65,6 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Login failed", error: err.message });
   }
 };
-
 
 
 export const logout = (req, res) => {
