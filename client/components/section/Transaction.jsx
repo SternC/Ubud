@@ -59,40 +59,9 @@ const handleDownloadReceipt = (tx) => {
   if (!user) return <p className="p-8 text-red-600">Please log in to view transactions.</p>;
   if (transactions.length === 0) return <p className="p-8">No transactions yet.</p>;
 
-  if (user.is_coach) {
-    return (
-      <main className="min-h-screen bg-gray-50 p-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-3xl font-bold mb-6">Student Payments</h1>
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2 border">Student</th>
-                <th className="p-2 border">Course</th>
-                <th className="p-2 border">Price</th>
-                <th className="p-2 border">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((tx) => (
-                <tr key={tx.id} className="bg-white border-b">
-                  <td className="p-2 border">{tx.username}</td>
-                  <td className="p-2 border">{tx.courseTitle}</td>
-                  <td className="p-2 border">${Number(tx.price).toFixed(2)}</td>
-                  <td className="p-2 border">{tx.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mt-4 text-right font-semibold text-lg">
-            Total Income: ${totalIncome.toFixed(2)}
-          </div>
-        </div>
-      </main>
-    );
-  }
 
-  //(Tampilan Pelajar)
+
+
   return (
     <main className="min-h-[85vh] bg-gray-50 p-6">
       <div className="mx-auto max-w-4xl">
@@ -103,8 +72,8 @@ const handleDownloadReceipt = (tx) => {
               <div>
                 <h2 className="font-semibold">{tx.courseTitle}</h2>
                 <p className="text-gray-600">Price: ${Number(tx.price).toFixed(2)}</p>
-                <p className="text-sm text-gray-500">Date: {new Date(tx.date).toLocaleDateString('id-ID')}</p>
-              </div>
+                <p className="text-sm text-gray-500">Date: {tx.date}</p>
+          </div>
               
               <button 
                 onClick={() => handleDownloadReceipt(tx)}
