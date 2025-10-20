@@ -45,8 +45,8 @@ export default function Login() {
   const cardClasses = `bg-white rounded-2xl shadow-lg p-8 border border-gray-200 transform transition-all duration-300`;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba]">
-      <div className="w-full max-w-md relative z-10">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#8cecff] to-[#03597b]">
+      <div className="w-72 sm:w-80 md:w-96 max-w-md relative z-10">
         <div
           className={cardClasses}
           onMouseEnter={() => setIsCardHovered(true)}

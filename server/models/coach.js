@@ -7,7 +7,7 @@ const Coach = db.define("Coaches", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'profiles', // must match Profile tableName
+      model: 'profiles', 
       key: 'id'
     },
     onDelete: 'CASCADE'

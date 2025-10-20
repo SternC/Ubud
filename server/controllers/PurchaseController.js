@@ -2,6 +2,8 @@ import Purchase from "../models/Purchase.js";
 import Course from "../models/Course.js";
 import PDFDocument from 'pdfkit';
 import User from "../models/User.js";
+import path from "path";
+import fs from "fs";
 
 
 function drawLine(doc, y, color = '#aaaaaa') {
@@ -55,6 +57,10 @@ export const downloadReceipt = async (req, res) => {
     doc.pipe(res);
 
     //HEADER
+    const logoPath = path.resolve("../client/public/logo.png");
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 50, 45, { width: 70 });
+    }
     doc.fontSize(28)
        .fillColor('#333')
        .text('INVOICE', 50, 60); 
@@ -92,8 +98,8 @@ export const downloadReceipt = async (req, res) => {
     const tableTop = doc.y;
     const col1 = 50;  // Details
     const col2 = 275; // Price
-    const col3 = 370; // Quantity
-    const col4 = 465; // Total
+    const col3 = 370; 
+    const col4 = 465; 
     const colWidths = {
         harga: 65,
         kuantitas: 40,
@@ -285,5 +291,130 @@ export const deletePurchase = async (req, res) => {
   } catch (error) {
     console.error("Error deleting purchase:", error);
     res.status(500).json({ message: "Error deleting purchase" });
+  }
+};
+
+export const downloadPurchaseReport = async (req, res) => {
+  try {
+    // Fetch all purchase data
+    const purchases = await Purchase.findAll({
+      include: [
+        { model: User, attributes: ["name", "email"] },
+        { model: Course, attributes: ["title", "price"] },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!purchases.length) {
+      return res.status(404).json({ message: "No purchases found." });
+    }
+
+    
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=purchase-report.pdf"
+    );
+
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    doc.pipe(res);
+
+    // 🧾 HEADER
+    const logoPath = path.resolve("../client/public/logo.png");
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 50, 45, { width: 70 });
+    }
+
+    doc
+      .fontSize(22)
+      .fillColor("#1A1A1A")
+      .text("Purchase Report", 50, 55, { align: "center" });
+    doc
+      .fontSize(10)
+      .fillColor("#777")
+      .text(`Generated on: ${new Date().toLocaleString()}`, 50, 85, {align:"center"});
+
+    doc.moveDown(2);
+    doc.strokeColor("#cccccc").lineWidth(1).moveTo(50, 110).lineTo(550, 110).stroke();
+    doc.moveDown(1.5);
+
+    // 🧍 TABLE HEADER
+    const tableTop = 130;
+    const columnWidths = { id: 40, user: 120, email: 140, course: 130, price: 60, date: 80 };
+    const headerHeight = 25;
+
+    doc
+      .rect(50, tableTop, 500, headerHeight)
+      .fill("#2C3E50")
+      .fillColor("#FFFFFF")
+      .fontSize(10)
+      .text("ID", 55, tableTop + 8)
+      .text("User", 95, tableTop + 8)
+      .text("Email", 200, tableTop + 8)
+      .text("Course", 340, tableTop + 8)
+      .text("Price", 470, tableTop + 8, { width: 50, align: "right" });
+
+    // 🧾 TABLE BODY
+    let y = tableTop + headerHeight;
+    let totalRevenue = 0;
+
+    purchases.forEach((purchase, index) => {
+      const isEven = index % 2 === 0;
+      const fillColor = isEven ? "#F9F9F9" : "#FFFFFF";
+
+      doc
+        .rect(50, y, 500, 25)
+        .fill(fillColor)
+        .fillColor("#000000")
+        .fontSize(9)
+        .text(purchase.id.toString(), 55, y + 8)
+        .text(purchase.User?.name || "N/A", 95, y + 8)
+        .text(purchase.User?.email || "N/A", 200, y + 8)
+        .text(purchase.Course?.title || purchase.title, 340, y + 8)
+        .text(`$${purchase.price.toFixed(2)}`, 470, y + 8, {
+          width: 50,
+          align: "right",
+        });
+
+      y += 25;
+      totalRevenue += purchase.price;
+
+      if (y > 720) {
+        doc.addPage();
+        y = 50;
+      }
+    });
+
+   
+    doc.moveTo(50, y + 10).lineTo(550, y + 10).strokeColor("#cccccc").stroke();
+    doc.moveDown(1);
+
+    doc
+      .fontSize(12)
+      .fillColor("#2C3E50")
+      .text("Summary", 50, y + 25)
+      .moveDown(0.5)
+      .fontSize(10)
+      .fillColor("#555")
+      .text(`Total Purchases: ${purchases.length}`, 50, doc.y)
+      .text(`Total Revenue: $${totalRevenue.toFixed(2)}`, 50, doc.y + 15);
+
+    doc.moveDown(2);
+    doc
+      .fontSize(10)
+      .fillColor("#999")
+      .text(
+        "This report is restricted for internal use only.",
+        50,
+        doc.y,
+        { align: "center" }
+      );
+
+    doc.end();
+  } catch (error) {
+    console.error("❌ Error generating purchase report:", error);
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Error generating purchase report" });
+    }
   }
 };
