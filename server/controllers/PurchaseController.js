@@ -58,12 +58,13 @@ export const downloadReceipt = async (req, res) => {
 
     //HEADER
     const logoPath = path.resolve("../client/public/logo.png");
+
     if (fs.existsSync(logoPath)) {
       doc.image(logoPath, 50, 15, { width: 40 });
+      doc.fontSize(28)
+        .fillColor("#333")
+        .text("INVOICE", 100, 25);
     }
-    doc.fontSize(28)
-       .fillColor('#333')
-       .text('INVOICE', 50, 60); 
 
     doc.moveDown(0.5);
     doc.fontSize(10)
@@ -71,7 +72,7 @@ export const downloadReceipt = async (req, res) => {
     doc.text(`Date: ${formattedDate}`, 50, doc.y);
     doc.text('Status: Paid', 50, doc.y);
 
-    doc.rect(380, 50, 170, 40).fillAndStroke('#2980b9', '#2980b9');
+    doc.rect(380, 50, 170, 40).fillAndStroke('#1f4c7b', '#1f4c7b');
     doc.fillColor('#ffffff')
        .fontSize(10)
        .text('TOTAL PAID', 390, 55, { width: 150, align: 'right' });
@@ -107,7 +108,7 @@ export const downloadReceipt = async (req, res) => {
     };
     const headerHeight = 20;
 
-    doc.rect(50, tableTop, 500, headerHeight).fill('#2c3e50');
+    doc.rect(50, tableTop, 500, headerHeight).fill('#0b2a45');
     doc.fillColor('#ffffff')
        .fontSize(9)
        .text('Details', col1 + 5, tableTop + 6)
@@ -143,7 +144,7 @@ export const downloadReceipt = async (req, res) => {
     doc.text('Tax (0%):', summaryX, summaryY + 15, { continued: true })
        .text('$ 0', summaryX - 15, summaryY + 15, { width: summaryWidth, align: 'right' });
     
-    doc.rect(summaryX, summaryY + 30, summaryWidth,20).fill('#2980b9');
+    doc.rect(summaryX, summaryY + 30, summaryWidth,20).fill('#1f4c7b');
     doc.fillColor('#ffffff')
        .fontSize(12)
        .text('TOTAL:', summaryX, summaryY + 35, { continued: true })
