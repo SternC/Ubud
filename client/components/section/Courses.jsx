@@ -39,7 +39,7 @@ export function Courses() {
 
   useEffect(() => {
   const updateCourses = () => {
-    axios.get("http://localhost:5000/courses", { withCredentials: true })
+    api.get("/courses")
       .then((res) => {
         const purchased = JSON.parse(localStorage.getItem("purchasedCourses")) || [];
         const filtered = res.data.filter((c) => purchased.includes(c.id));
@@ -66,8 +66,8 @@ export function Courses() {
 
   const handleSaveCourse = () => {
     if (editCourseId) {
-      axios
-        .put(`http://localhost:5000/courses/${editCourseId}`, newCourse, {
+      api
+        .put(`/courses/${editCourseId}`, newCourse, {
           withCredentials: true,
         })
         .then((res) => {
@@ -84,8 +84,8 @@ export function Courses() {
           alert("Failed to update course: " + (err.response?.data?.message || err.message))
         );
     } else {
-      axios
-        .post("http://localhost:5000/courses", newCourse, {
+      api
+        .post("/courses", newCourse, {
           withCredentials: true,
         })
         .then((res) => {
