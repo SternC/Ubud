@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Profile from "../models/Profile.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const salt = 10;
 
@@ -47,8 +49,8 @@ export const login = async (req, res) => {
         profileId: profile.id,
         is_coach: profile.is_coach,
       },
-      "your_jwt_secret",
-      { expiresIn: "1d" }
+      process.env.SECRET_TOKEN,
+      { expiresIn: "15m" }
     );
 
     res.cookie("token", token, { httpOnly: true, secure: false, sameSite: "lax" });
