@@ -2,11 +2,15 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import sequelize from "./config/database.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 import User from "./models/User.js";
 import Course from "./models/Course.js";
 import Purchase from "./models/Purchase.js";
+import Coach from "./models/coach.js"; 
+
 
 Purchase.belongsTo(User, { foreignKey: "userId" });
 Purchase.belongsTo(Course, { foreignKey: "courseId", targetKey: "id" });
@@ -27,7 +31,7 @@ try {
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.CLIENT_URL,
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
@@ -42,12 +46,16 @@ import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import coachRoutes from "./routes/coachRoutes.js";
 
-app.use(authRoutes);
-app.use(userRoutes);
-app.use("/", courseRoutes);
-app.use("/", purchaseRoutes);
-app.use("/", profileRoutes);
-app.use("/", coachRoutes);
+
+
+
+
+app.use("/api", authRoutes);
+app.use("/api", userRoutes);
+app.use("/api", courseRoutes);
+app.use("/api", purchaseRoutes);
+app.use("/api", profileRoutes);
+app.use("/api", coachRoutes); 
 
 app.listen(5000, () => {
   console.log("🚀 Server running on http://localhost:5000");

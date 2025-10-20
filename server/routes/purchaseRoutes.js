@@ -1,5 +1,6 @@
 import express from "express";
-import { createPurchase, getUserPurchases, getTransactions, downloadReceipt,getAllPurchases,deletePurchase} from "../controllers/PurchaseController.js"; 
+import { createPurchase, getUserPurchases, getTransactions, downloadReceipt,getAllPurchases,deletePurchase, downloadPurchaseReport} from "../controllers/PurchaseController.js"; 
+import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.post("/api/purchase", (req, res, next) => {
   next();
 }, createPurchase);
 
-
+router.get("/purchases/download-report", downloadPurchaseReport);
 router.get("/purchases/:userId", getUserPurchases);
 router.get("/transactions/:userId", getTransactions);
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "./api";
 
 export default function Register() {
   const [toast, setToast] = useState(null);
@@ -26,8 +26,8 @@ export default function Register() {
     }
 
     setLoading(true);
-    axios
-      .post("http://localhost:5000/register", value)
+    api
+      .post("/register", value)
       .then((res) => {
         if (res.status === 201) {
           showToast("Registration Successful", "success");
@@ -41,8 +41,8 @@ export default function Register() {
   const logoClasses = "w-full h-full";
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#fff1da] via-[#8cecff] to-[#0486ba]">
-      <div className="w-full max-w-md">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#8cecff] to-[#03597b]">
+       <div className="w-72 sm:w-80 md:w-96 max-w-md">
         <div
           className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200"
           onMouseEnter={() => setIsCardHovered(true)}

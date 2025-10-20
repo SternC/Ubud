@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../src/api.jsx";
 import useAuth from "../../src/hook/useAuth";
 
 export default function TransactionHistory() {
@@ -10,8 +10,8 @@ export default function TransactionHistory() {
 
 const handleDownloadReceipt = (tx) => {
 
-    axios
-      .get(`http://localhost:5000/api/transactions/download-receipt/${tx.id}`, { 
+    api
+      .get(`/transactions/download-receipt/${tx.id}`, { 
         withCredentials: true,
         responseType: 'blob', 
       })
@@ -38,10 +38,10 @@ const handleDownloadReceipt = (tx) => {
     if (!user) return;
 
     const url = user.is_coach
-      ? `http://localhost:5000/transactions/coach/${user.id}`
-      : `http://localhost:5000/transactions/${user.id}`;
+      ? `/transactions/coach/${user.id}`
+      : `/transactions/${user.id}`;
 
-    axios
+    api
       .get(url, { withCredentials: true })
       .then((res) => {
         setTransactions(res.data);

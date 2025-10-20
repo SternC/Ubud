@@ -5,7 +5,7 @@ import {
   createCourse,
   updateCourse,
   deleteCourse,
-} from "../controllers/courseController.js";
+} from "../controllers/CourseController.js";
 import { verifyToken } from "../middleware/authMiddleware.js"; 
 
 const router = express.Router();

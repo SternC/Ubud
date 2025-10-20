@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, Settings, LogOut } from "lucide-react"; 
-import axios from "axios";
+import { Menu, X, Settings, LogOut } from "lucide-react";
 import { Courses } from "../components/section/Courses";
 import { Coachdeck } from "../components/section/Coachdeck";
 import ProfileCard from "../components/section/Card";
 import BuyCourse from "../components/section/BuyCourse";
 import TransactionHistory from "../components/section/Transaction";
 import Dashboard from "../components/section/dashboard";
+import api from "./api";
 
 export default function Module() {
   const [activePage, setActivePage] = useState("Dashboard");
@@ -17,13 +17,13 @@ export default function Module() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await axios.get("http://localhost:5000/logout", { withCredentials: true });
+    await api.get("/logout", { withCredentials: true });
     navigate("/login");
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/profile", { withCredentials: true })
+    api
+      .get("/profile", { withCredentials: true })
       .then((res) => {
         if (res.data && res.data.isAdmin === 1) setIsAdmin(true);
         if (res.data && res.data.is_coach) setIsCoach(true);
@@ -52,14 +52,18 @@ export default function Module() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#ffffe8]">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#e0f0fd]">
       <div className="lg:hidden flex items-center justify-between bg-gradient-to-tr from-[#0b2a45] to-[#1f4c7b] text-white p-4">
         <div className="flex items-center space-x-2">
           <img src="/logo.png" alt="Ubud Logo" className="w-10 h-8" />
           <span className="font-bold text-lg">Ubud</span>
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {sidebarOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
 
@@ -79,14 +83,12 @@ export default function Module() {
             {[
               "Dashboard",
               "Courses",
-              "Forum",
-              "Assessment",
-              "Schedule",
               "Coach",
               "Transaction",
               "Buy Course",
             ].map((page) => {
-              if ((page === "Coach" || page === "Buy Course") && isCoach) return null;
+              if ((page === "Coach" || page === "Buy Course") && isCoach)
+                return null;
               return (
                 <button
                   key={page}
@@ -130,7 +132,9 @@ export default function Module() {
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-0 mt-16 lg:mt-0">
         <div className="bg-white shadow-lg rounded-xl p-6 h-full">
-          <h1 className="text-2xl font-bold mb-4 text-[#004179]">{activePage}</h1>
+          <h1 className="text-2xl font-bold mb-4 text-[#004179]">
+            {activePage}
+          </h1>
           {renderContent()}
         </div>
       </main>

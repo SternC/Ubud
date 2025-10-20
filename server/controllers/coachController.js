@@ -106,3 +106,20 @@ export const rejectCoach = async (req, res) => {
   }
 };
 
+export const getApprovedCoaches = async (req, res) => {
+  try {
+    const approvedCoaches = await Profile.findAll({
+      where: {
+        is_coach: true 
+      },
+      // Pilih hanya kolom yang ingin ditampilkan ke student
+      attributes: ["userId", "name", "email", "age", "interest", "skill", "city"], 
+    });
+
+    res.json(approvedCoaches);
+  } catch (err) {
+    console.error("Error fetching approved coaches:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./api";
+
+
 import {
   Menu,
   X,
@@ -46,6 +48,28 @@ export default function AdminDashboard() {
   // Purchases
   const [purchases, setPurchases] = useState([]);
 
+  const handleDownloadReport = () => {
+  api
+    .get(`/purchases/download-report?t=${Date.now()}`, {
+      withCredentials: true,
+      responseType: "blob",
+    })
+    .then((res) => {
+      const file = new Blob([res.data], { type: "application/pdf" });
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "purchase-report.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    })
+    .catch((err) => console.error("Error downloading report:", err));
+};
+
+
+
   // Profiles
   const [profiles, setProfiles] = useState([]);
 
@@ -54,8 +78,8 @@ export default function AdminDashboard() {
 
   // Auth check
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/authentication", { withCredentials: true })
+    api
+      .get("/authentication", { withCredentials: true })
       .then((res) => {
         if (res.status === 200) {
           setAuth(true);
@@ -72,7 +96,7 @@ export default function AdminDashboard() {
   // Fetch data
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/users", {
+      const res = await api.get("/users", {
         withCredentials: true,
       });
       setUsers(res.data || []);
@@ -83,7 +107,7 @@ export default function AdminDashboard() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/courses", {
+      const res = await api.get("/courses", {
         withCredentials: true,
       });
       setCourses(res.data || []);
@@ -94,7 +118,7 @@ export default function AdminDashboard() {
 
   const fetchPurchases = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/purchases", {
+      const res = await api.get("/purchases", {
         withCredentials: true,
       });
       setPurchases(res.data || []);
@@ -105,7 +129,7 @@ export default function AdminDashboard() {
 
   const fetchProfiles = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/profiles", {
+      const res = await api.get("/profiles", {
         withCredentials: true,
       });
       setProfiles(res.data || []);
@@ -114,14 +138,94 @@ export default function AdminDashboard() {
     }
   };
 
+  const [search, setSearch] = useState("");
+  const [allUsers, setAllUsers] = useState([]);
+  const [allProfiles, setAllProfiles] = useState([]);
+  const [allCoaches, setAllCoaches] = useState([]);
+
   const fetchCoaches = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/coaches", {
+      const res = await api.get("/coaches", {
         withCredentials: true,
       });
       setCoaches(res.data || []);
+   
+      setAllCoaches(res.data || []);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+
+  useEffect(() => {
+    if (search === "") {
+      setAllUsers(users);
+    }
+  }, [users, search]);
+
+  useEffect(() => {
+    if (search === "") {
+      setAllProfiles(profiles);
+    }
+  }, [profiles, search]);
+
+  useEffect(() => {
+    if (search === "") {
+      setAllCoaches(coaches);
+    }
+  }, [coaches, search]);
+
+  useEffect(() => {
+    setSearch("");
+  
+    setUsers(allUsers);
+    setProfiles(allProfiles);
+    setCoaches(allCoaches);
+  }, [activeTab]); 
+
+
+  const handleSearchChange = (value) => {
+    const q = (value || "").trim().toLowerCase();
+    setSearch(value);
+
+    if (q === "") {
+  
+      setUsers(allUsers);
+      setProfiles(allProfiles);
+      setCoaches(allCoaches);
+      return;
+    }
+
+    if (activeTab === "users") {
+      setUsers(
+        (allUsers || []).filter(
+          (u) =>
+            (u?.name || "").toLowerCase().includes(q) ||
+            (u?.email || "").toLowerCase().includes(q)
+        )
+      );
+    } else if (activeTab === "profiles") {
+      setProfiles(
+        (allProfiles || []).filter(
+          (p) =>
+            (p?.name || "").toLowerCase().includes(q) ||
+            (p?.email || "").toLowerCase().includes(q) ||
+            (String(p?.age || "") || "").toLowerCase().includes(q) ||
+            (p?.skill || "").toLowerCase().includes(q) ||
+            (p?.interest || "").toLowerCase().includes(q) ||
+            (p?.city || "").toLowerCase().includes(q)
+        )
+      );
+    } else if (activeTab === "coaches") {
+      setCoaches(
+        (allCoaches || []).filter(
+          (c) =>
+            (c?.Profile?.name || "").toLowerCase().includes(q) ||
+            (c?.Profile?.email || "").toLowerCase().includes(q) ||
+            (c?.teachingField || "").toLowerCase().includes(q) ||
+            (c?.status || "").toLowerCase().includes(q)
+        )
+      );
     }
   };
 
@@ -136,7 +240,7 @@ export default function AdminDashboard() {
   }, [auth]);
 
   const handleLogout = async () => {
-    await axios.get("http://localhost:5000/logout", { withCredentials: true });
+    await api.get("/logout", { withCredentials: true });
     navigate("/login");
   };
 
@@ -168,8 +272,8 @@ export default function AdminDashboard() {
     try {
       if (userEditing) {
         // Update user
-        await axios.put(
-          `http://localhost:5000/edit/${userForm.id}`,
+        await api.put(
+          `/edit/${userForm.id}`,
           {
             name: userForm.name,
             email: userForm.email,
@@ -179,8 +283,8 @@ export default function AdminDashboard() {
           { withCredentials: true }
         );
       } else {
-        await axios.post(
-          "http://localhost:5000/users",
+        await api.post(
+          "/users",
           {
             name: userForm.name,
             email: userForm.email,
@@ -203,7 +307,7 @@ export default function AdminDashboard() {
 
   const deleteUser = async (id) => {
     if (!confirm("Delete this user?")) return;
-    await axios.delete(`http://localhost:5000/users/${id}`, {
+    await api.delete(`/users/${id}`, {
       withCredentials: true,
     });
     fetchUsers();
@@ -230,11 +334,9 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       if (courseEditing) {
-        await axios.put(
-          `http://localhost:5000/courses/${courseForm.id}`,
-          courseForm,
-          { withCredentials: true }
-        );
+        await api.put(`/courses/${courseForm.id}`, courseForm, {
+          withCredentials: true,
+        });
         const data = {
           id: courseForm.id,
           title: courseForm.title,
@@ -244,20 +346,16 @@ export default function AdminDashboard() {
         };
 
         if (courseEditing) {
-          await axios.put(
-            `http://localhost:5000/courses/${courseForm.id}`,
-            data,
-            {
-              withCredentials: true,
-            }
-          );
+          await api.put(`/courses/${courseForm.id}`, data, {
+            withCredentials: true,
+          });
         } else {
-          await axios.post("http://localhost:5000/courses", data, {
+          await api.post("/courses", data, {
             withCredentials: true,
           });
         }
       } else {
-        await axios.post("http://localhost:5000/courses", courseForm, {
+        await api.post("/courses", courseForm, {
           withCredentials: true,
         });
       }
@@ -270,7 +368,7 @@ export default function AdminDashboard() {
 
   const deleteCourse = async (id) => {
     if (!confirm("Delete this course?")) return;
-    await axios.delete(`http://localhost:5000/courses/${id}`, {
+    await api.delete(`/courses/${id}`, {
       withCredentials: true,
     });
     fetchCourses();
@@ -279,7 +377,7 @@ export default function AdminDashboard() {
   // PURCHASES
   const deletePurchase = async (id) => {
     if (!confirm("Delete this purchase record?")) return;
-    await axios.delete(`http://localhost:5000/purchases/${id}`, {
+    await api.delete(`/purchases/${id}`, {
       withCredentials: true,
     });
     fetchPurchases();
@@ -306,13 +404,15 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#f8fafc]">
+   <div className="min-h-screen flex bg-[#f8fafc] relative">
       {/* Sidebar */}
       <aside
-        className={`bg-gradient-to-b from-[#0b2a45] to-[#1f4c7b] text-white w-64 p-6 flex flex-col transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
-      >
+          className={`fixed lg:relative top-0 left-0 h-screen bg-gradient-to-b from-[#0b2a45] to-[#1f4c7b] 
+          text-white w-64 p-6 flex flex-col transition-transform duration-300 z-20 
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        >
+
+
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Admin Panel</h2>
           <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
@@ -372,7 +472,8 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main */}
-      <div className="flex-1 p-6">
+     <div className="flex-1 p-6 lg:ml-6 transition-all duration-300">
+
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="lg:hidden mb-4 p-2 border rounded"
@@ -456,7 +557,32 @@ export default function AdminDashboard() {
             </div>
 
             <div className="bg-white p-5 rounded shadow">
-              <h3 className="font-semibold mb-3">Users</h3>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 gap-3">
+                <h3 className="font-semibold mb-0">Users</h3>
+                <div className="w-full md:w-1/3 relative">
+                  <input
+                    type="text"
+                    placeholder="Search users by name or email..."
+                    value={search}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className="border p-2 pl-8 rounded w-full"
+                  />
+                  <svg
+                    className="absolute left-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"
+                    />
+                  </svg>
+                </div>
+              </div>
               <table className="min-w-full text-left text-sm border">
                 <thead className="bg-gray-100">
                   <tr>
@@ -467,29 +593,40 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50">
-                      <td className="border px-4 py-2">{u.name}</td>
-                      <td className="border px-4 py-2">{u.email}</td>
-                      <td className="border px-4 py-2">
-                        {u.is_admin ? "Yes" : "No"}
-                      </td>
-                      <td className="border px-4 py-2">
-                        <button
-                          onClick={() => startEditUser(u)}
-                          className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => deleteUser(u.id)}
-                          className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                  {users.length > 0 ? (
+                    users.map((u) => (
+                      <tr key={u.id} className="hover:bg-gray-50">
+                        <td className="border px-4 py-2">{u.name}</td>
+                        <td className="border px-4 py-2">{u.email}</td>
+                        <td className="border px-4 py-2">
+                          {u.is_admin ? "Yes" : "No"}
+                        </td>
+                        <td className="border px-4 py-2">
+                          <button
+                            onClick={() => startEditUser(u)}
+                            className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => deleteUser(u.id)}
+                            className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center py-4 text-gray-500"
+                      >
+                        No matching users found.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -627,6 +764,14 @@ export default function AdminDashboard() {
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
               <ShoppingCart /> Purchases
             </h2>
+            <div className="flex justify-end mb-4">
+            <button
+              onClick={handleDownloadReport}
+              className="bg-[#0b2a45] text-white px-4 py-2 rounded hover:bg-[#0a1f30]"
+            >
+            Download Report
+            </button>
+          </div>
             <table className="min-w-full text-left text-sm border">
               <thead className="bg-gray-100">
                 <tr>
@@ -664,7 +809,33 @@ export default function AdminDashboard() {
         {/* PROFILES (read-only) */}
         {activeTab === "profiles" && (
           <div className="bg-white p-5 rounded shadow">
-            <h2 className="text-lg font-semibold mb-3">User Profiles</h2>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 gap-3">
+              <h2 className="text-lg font-semibold mb-0">User Profiles</h2>
+              <div className="w-full md:w-1/3 relative">
+                <input
+                  type="text"
+                  placeholder="Search profiles..."
+                  value={search}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="border p-2 pl-8 rounded w-full"
+                />
+                <svg
+                  className="absolute left-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"
+                  />
+                </svg>
+              </div>
+            </div>
+
             <table className="min-w-full text-left text-sm border">
               <thead className="bg-gray-100">
                 <tr>
@@ -678,17 +849,25 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {profiles.map((p) => (
-                  <tr key={p.userId} className="hover:bg-gray-50">
-                    <td className="border px-4 py-2">{p.userId}</td>
-                    <td className="border px-4 py-2">{p.name}</td>
-                    <td className="border px-4 py-2">{p.email}</td>
-                    <td className="border px-4 py-2">{p.age}</td>
-                    <td className="border px-4 py-2">{p.skill}</td>
-                    <td className="border px-4 py-2">{p.interest}</td>
-                    <td className="border px-4 py-2">{p.city}</td>
+                {profiles.length > 0 ? (
+                  profiles.map((p) => (
+                    <tr key={p.userId} className="hover:bg-gray-50">
+                      <td className="border px-4 py-2">{p.userId}</td>
+                      <td className="border px-4 py-2">{p.name}</td>
+                      <td className="border px-4 py-2">{p.email}</td>
+                      <td className="border px-4 py-2">{p.age}</td>
+                      <td className="border px-4 py-2">{p.skill}</td>
+                      <td className="border px-4 py-2">{p.interest}</td>
+                      <td className="border px-4 py-2">{p.city}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center py-4 text-gray-500">
+                      No matching profiles found.
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -697,7 +876,32 @@ export default function AdminDashboard() {
         {/* COACHES */}
         {activeTab === "coaches" && (
           <div className="bg-white p-5 rounded shadow">
-            <h2 className="text-lg font-semibold mb-3">Coach Applications</h2>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 gap-3">
+              <h2 className="text-lg font-semibold mb-0">Coach Application</h2>
+              <div className="w-full md:w-1/3 relative">
+                <input
+                  type="text"
+                  placeholder="Search profiles..."
+                  value={search}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="border p-2 pl-8 rounded w-full"
+                />
+                <svg
+                  className="absolute left-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"
+                  />
+                </svg>
+              </div>
+            </div>
             <table className="min-w-full text-left text-sm border">
               <thead className="bg-gray-100">
                 <tr>
@@ -730,11 +934,7 @@ export default function AdminDashboard() {
                         <>
                           <button
                             onClick={async () => {
-                              await axios.put(
-                                `http://localhost:5000/coaches/approve/${c.id}`,
-                                {},
-                                { withCredentials: true }
-                              );
+                              await api.put(`coaches/approve/${c.id}`, {});
                               fetchCoaches();
                             }}
                             className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
@@ -743,11 +943,7 @@ export default function AdminDashboard() {
                           </button>
                           <button
                             onClick={async () => {
-                              await axios.put(
-                                `http://localhost:5000/coaches/reject/${c.id}`,
-                                {},
-                                { withCredentials: true }
-                              );
+                              await api.put(`coaches/reject/${c.id}`, {});
                               fetchCoaches();
                             }}
                             className="p-1 bg-red-500 text-white rounded hover:bg-red-600"

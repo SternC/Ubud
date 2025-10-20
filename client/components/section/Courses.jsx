@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Folder from "../ui/folder";
+// Menggunakan 'api' sebagai pengganti axios/axiosInstance
+import api from "../../src/api"; 
 
 export function Courses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  // [user] tidak digunakan, bisa dihapus, tapi saya biarkan
+  const [user, setUser] = useState(null); 
+  // State untuk status coach
+  const [isCoach, setIsCoach] = useState(false); 
+  const [editCourseId, setEditCourseId] = useState(null);
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
@@ -13,30 +19,109 @@ export function Courses() {
     oldPrice: 0,
   });
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/courses", { withCredentials: true })
-      .then((res) => setCourses(res.data))
+  // Fungsi untuk mengambil daftar kursus
+  const fetchCourses = () => {
+    // Menggunakan 'api' (yang seharusnya sudah dikonfigurasi dengan baseURL)
+    api
+      .get("/courses", { withCredentials: true })
+      .then((res) => {
+        // Logika untuk memfilter kursus yang dibeli (jika diperlukan)
+        const purchased = JSON.parse(localStorage.getItem("purchasedCourses")) || [];
+        const allCourses = res.data;
+
+        // Jika Anda hanya ingin menampilkan kursus yang sudah dibeli (seperti di useEffect ke-3 Anda):
+        // const filteredCourses = allCourses.filter((c) => purchased.includes(c.id));
+        // setCourses(filteredCourses);
+
+        // Jika Anda ingin menampilkan SEMUA kursus:
+        setCourses(allCourses);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
+  };
+
+  // 1. Mengambil data kursus saat komponen dimuat
+  useEffect(() => {
+    fetchCourses();
+    // Menambahkan listener untuk pembaruan dari localStorage
+    window.addEventListener("storage", fetchCourses);
+    return () => window.removeEventListener("storage", fetchCourses);
   }, []);
+
+  // 2. Mengambil status pengguna (coach)
+  useEffect(() => {
+    api
+      .get("/profile", { withCredentials: true })
+      .then((res) => {
+        // Hati-hati: setIsAdmin belum didefinisikan. Saya hapus, kecuali Anda menambahkannya.
+        // if (res.data && res.data.isAdmin === 1) setIsAdmin(true); 
+        
+        // Memeriksa status coach (nilai 1 sering digunakan untuk boolean di DB)
+        if (res.data && (res.data.is_coach === 1 || res.data.is_coach === true)) {
+          setIsCoach(true);
+        } else {
+          setIsCoach(false);
+        }
+        setUser(res.data || null);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch profile:", error);
+        setIsCoach(false);
+        setUser(null);
+      });
+  }, []);
+  
+  // Menghapus useEffect ke-3 yang duplikat
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewCourse((prev) => ({ ...prev, [name]: name === "price" || name === "oldPrice" ? parseFloat(value) || 0 : value }));
+    setNewCourse((prev) => ({
+      ...prev,
+      [name]:
+        name === "price" || name === "oldPrice"
+          ? parseFloat(value) || 0
+          : value,
+    }));
   };
 
   const handleSaveCourse = () => {
-    axios
-      .post("http://localhost:5000/courses", newCourse, { withCredentials: true })
+    // Menggunakan 'api'
+    const request = editCourseId
+      ? api.put(`/courses/${editCourseId}`, newCourse, { withCredentials: true })
+      : api.post("/courses", newCourse, { withCredentials: true });
+
+    request
       .then((res) => {
-        setCourses((prev) => [...prev, res.data.course]);
+        if (editCourseId) {
+          setCourses((prev) =>
+            prev.map((c) =>
+              c.id === editCourseId ? { ...c, ...res.data.course } : c
+            )
+          );
+        } else {
+          setCourses((prev) => [...prev, res.data.course]);
+        }
         setShowModal(false);
         setNewCourse({ title: "", description: "", price: 0, oldPrice: 0 });
+        setEditCourseId(null);
       })
-      .catch((err) => {
-        alert("Failed to create course: " + (err.response?.data?.message || err.message));
-      });
+      .catch((err) =>
+        alert(
+          `Failed to ${editCourseId ? "update" : "create"} course: ` +
+          (err.response?.data?.message || err.message)
+        )
+      );
+  };
+
+  const handleEdit = (course) => {
+    setNewCourse({
+      title: course.title,
+      description: course.description,
+      price: course.price,
+      oldPrice: course.oldPrice,
+    });
+    setEditCourseId(course.id);
+    setShowModal(true);
   };
 
   if (loading) return <p className="p-8 text-center text-gray-500">Loading courses...</p>;
@@ -44,59 +129,74 @@ export function Courses() {
   return (
     <div className="p-4 min-h-[85vh] bg-gray-50">
       <div className="flex justify-end mb-4">
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-sm sm:text-base rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Create Course
-        </button>
+        {/* Perbaikan #3: Terapkan kondisi isCoach untuk menampilkan tombol */}
+        {isCoach && (
+          <button
+            onClick={() => {
+              setEditCourseId(null); // Pastikan mode buat baru
+              setNewCourse({ title: "", description: "", price: 0, oldPrice: 0 }); // Reset form
+              setShowModal(true);
+            }}
+            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-sm sm:text-base rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Create Course
+          </button>
+        )}
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Create New Course</h2>
+        // ... (Modal Content)
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 animate-[fadeIn_0.3s_ease-out]">
+          <div className="bg-gradient-to-br from-white to-gray-100 p-6 rounded-2xl w-full max-w-md shadow-2xl border border-gray-200">
+            <div className="flex justify-center mb-4">
+              <img src="/logo.png" alt="Logo" className="w-16 h-16 object-contain drop-shadow-md" />
+            </div>
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+              {editCourseId ? "Update Course" : "Create New Course"}
+            </h2>
             <input
               type="text"
               name="title"
-              placeholder="Title"
+              placeholder="Course Title"
               value={newCourse.title}
               onChange={handleInputChange}
-              className="p-2 border rounded-md w-full mb-2"
+              className="p-3 border border-gray-300 rounded-lg w-full mb-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
             <textarea
               name="description"
-              placeholder="Description"
+              placeholder="Course Description"
               value={newCourse.description}
               onChange={handleInputChange}
-              className="p-2 border rounded-md w-full mb-2 resize-none"
+              className="p-3 border border-gray-300 rounded-lg w-full mb-3 resize-none focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
-            <input
-              type="number"
-              name="price"
-              placeholder="Price"
-              value={newCourse.price}
-              onChange={handleInputChange}
-              className="p-2 border rounded-md w-full mb-2"
-            />
-            <input
-              type="number"
-              name="oldPrice"
-              placeholder="Old Price"
-              value={newCourse.oldPrice}
-              onChange={handleInputChange}
-              className="p-2 border rounded-md w-full mb-2"
-            />
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={newCourse.price}
+                onChange={handleInputChange}
+                className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+              <input
+                type="number"
+                name="oldPrice"
+                placeholder="Old Price"
+                value={newCourse.oldPrice}
+                onChange={handleInputChange}
+                className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                className="px-5 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveCourse}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
               >
                 Save
               </button>
@@ -118,6 +218,15 @@ export function Courses() {
             <p className="text-[0.7rem] sm:text-xs text-gray-500 text-center line-clamp-2">
               {course.description}
             </p>
+            {/* Tombol Update juga menggunakan isCoach */}
+            {isCoach && (
+              <button
+                onClick={() => handleEdit(course)}
+                className="mt-2 px-3 py-1 bg-blue-900 font-semibold text-white text-xs rounded-md hover:bg-blue-700"
+              >
+                Update
+              </button>
+            )}
           </div>
         ))}
       </div>
