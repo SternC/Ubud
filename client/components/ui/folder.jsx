@@ -55,7 +55,7 @@ const Folder = ({ color = "#0b2a45", size = 1, items = [], className = "" }) => 
   return (
     <div style={scaleStyle} className={className}>
       <div
-        className="group relative transition-all duration-200 ease-in cursor-pointer"
+        className="group relative transition-all duration-200 ease-in cursor-pointer p-4"
         style={{
           ...folderStyle,
           transform: open ? "translateY(-8px)" : undefined,

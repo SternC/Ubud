@@ -16,25 +16,35 @@ export default function BuyCourse() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleBuy = async (courseId) => {
-    if (!user) {
-      setMessage("Please log in to purchase a course.");
-      return;
-    }
+const handleBuy = async (courseId) => {
+  if (!user) {
+    setMessage("Please log in to purchase a course.");
+    return;
+  }
 
-    try {
-      console.log("🛒 Buying:", { userId: user.id, courseId });
+  try {
+    console.log("🛒 Buying:", { userId: user.id, courseId });
 
-      const res = await api.post(
-        "/purchase",
-        { userId: user.id, courseId },
-        { withCredentials: true }
-      );
-      setMessage(res.data.message);
-    } catch (err) {
-      setMessage(err.response?.data?.message || "Purchase failed");
+    const res = await axios.post(
+      "http://localhost:5000/api/purchase",
+      { userId: user.id, courseId },
+      { withCredentials: true }
+    );
+
+    setMessage(res.data.message);
+
+    const purchased = JSON.parse(localStorage.getItem("purchasedCourses")) || [];
+    if (!purchased.includes(courseId)) {
+      purchased.push(courseId);
+      localStorage.setItem("purchasedCourses", JSON.stringify(purchased));
+      window.dispatchEvent(new Event("storage")); 
+
     }
-  };
+  } catch (err) {
+    setMessage(err.response?.data?.message || "Purchase failed");
+  }
+};
+
 
   if (loading || userLoading) return <p className="p-8">Loading...</p>;
 
