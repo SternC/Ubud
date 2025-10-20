@@ -52,7 +52,7 @@ export default function CoachApply() {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/co  ach-apply', value);
+      const res = await axios.post('http://localhost:5000/coach-apply', value);
       if (res.status === 201) {
         showToast(res.data.message, 'success');
         setTimeout(() => navigate("/profile"), 1500);
