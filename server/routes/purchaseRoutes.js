@@ -4,8 +4,8 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/api/purchase", (req, res, next) => {
-  console.log("🔥 /api/purchase route hit");
+router.post("/purchase", (req, res, next) => {
+  console.log("🔥 /purchase route hit");
   next();
 }, createPurchase);
 
