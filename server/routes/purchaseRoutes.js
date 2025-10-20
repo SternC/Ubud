@@ -13,7 +13,7 @@ router.get("/purchases/download-report", downloadPurchaseReport);
 router.get("/purchases/:userId", getUserPurchases);
 router.get("/transactions/:userId", getTransactions);
 
-router.get("/api/transactions/download-receipt/:transactionId", downloadReceipt);
+router.get("/transactions/download-receipt/:transactionId", downloadReceipt);
 router.delete("/purchases/:id", deletePurchase);
 router.get("/purchases", getAllPurchases);
 export default router;
