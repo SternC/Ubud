@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Profile from "../models/Profile.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const salt = 10;
 
@@ -47,8 +49,8 @@ export const login = async (req, res) => {
         profileId: profile.id,
         is_coach: profile.is_coach,
       },
-      "your_jwt_secret",
-      { expiresIn: "1d" }
+      process.env.SECRET_TOKEN,
+      { expiresIn: "15m" }
     );
 
     res.cookie("token", token, { httpOnly: true, secure: false, sameSite: "lax" });
@@ -77,7 +79,7 @@ export const authentication = async (req, res) => {
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ error: "No token provided" });
 
-    const decoded = jwt.verify(token, "your_jwt_secret");
+    const decoded = jwt.verify(token, process.env.SECRET_TOKEN);
 
     const user = await User.findByPk(decoded.id, {
       attributes: ["id", "name", "email", "is_admin"],

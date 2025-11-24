@@ -79,7 +79,7 @@ const Navbar = () => {
 
       {/* Menu Mobile (Hanya Tampil di Layar Kecil Ketika isMenuOpen TRUE) */}
       <div 
-        className={`md:hidden absolute top-full left-0 right-0 p-4 bg-white/90 backdrop-blur-sm shadow-xl transition-all duration-300 ease-in-out transform rounded-xl border border-gray-200${
+        className={`md:hidden absolute top-full left2 right-0 p-4 bg-white/90 backdrop-blur-sm shadow-xl transition-all duration-300 ease-in-out transform rounded-xl border border-gray-200${
           isMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
         }`}
       >

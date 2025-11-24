@@ -58,19 +58,22 @@ import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import coachRoutes from "./routes/coachRoutes.js";
 import subcourseRoutes from "./routes/subcourseRoutes.js";
+import appointmentRoutes from './routes/appointmentRoutes.js';
+import availabilityRoutes from './routes/availabilityRoutes.js';
+
+
+
+
+
 app.use("/api", subcourseRoutes);
-
-
-
-
-
-
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", purchaseRoutes);
 app.use("/api", profileRoutes);
-app.use("/api", coachRoutes); 
+app.use("/api", coachRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 
 
