@@ -45,6 +45,8 @@ import courseRoutes from "./routes/courseRoutes.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import coachRoutes from "./routes/coachRoutes.js";
+import appointmentRoutes from './routes/appointmentRoutes.js';
+import availabilityRoutes from './routes/availabilityRoutes.js';
 
 
 
@@ -55,7 +57,9 @@ app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", purchaseRoutes);
 app.use("/api", profileRoutes);
-app.use("/api", coachRoutes); 
+app.use("/api", coachRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 app.listen(5000, () => {
   console.log("🚀 Server running on http://localhost:5000");

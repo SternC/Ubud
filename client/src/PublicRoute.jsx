@@ -7,11 +7,30 @@ export default function PublicRoute({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api
-      .get("/authentication", { withCredentials: true })
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    let isMounted = true;
+
+    const checkAuth = async () => {
+      try {
+        const res = await api.get("/authentication", { withCredentials: true });
+        if (isMounted) {
+          setUser(res.data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (loading) return <p className="p-8">Loading...</p>;
@@ -23,6 +42,7 @@ export default function PublicRoute({ children }) {
       <Navigate to="/profile" replace />
     );
   }
+
 
   return children;
 }
