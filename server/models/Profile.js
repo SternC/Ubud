@@ -1,43 +1,34 @@
 import { DataTypes } from 'sequelize';
-import db from "../config/database.js";
-import User from './User.js';
+import db from '../config/database.js'; // ← GANTI IMPORT
 
 const Profile = db.define('Profile', {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.INTEGER, // ← UBAH KE INTEGER (match dengan database)
     autoIncrement: true,
     primaryKey: true
   },
   userId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id'
-    },
-    onDelete: 'CASCADE'
-  },
-  name: {
-    type: DataTypes.STRING,
     allowNull: false
   },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false
+  bio: {
+    type: DataTypes.TEXT,
+    allowNull: true
   },
-  age: DataTypes.STRING,
-  interest: DataTypes.STRING,
-  skill: DataTypes.STRING,
-  city: DataTypes.STRING,
-  is_coach: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+  profilePicture: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  address: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, {
-  tableName: 'profiles',
-  timestamps: false
+  timestamps: true
 });
-
-Profile.belongsTo(User, { foreignKey: "userId" });
 
 export default Profile;
