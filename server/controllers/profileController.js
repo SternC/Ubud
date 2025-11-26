@@ -1,8 +1,11 @@
-import Profile from "../models/Profile.js";
+
+import models from "../models/index.js";
+const { Profile } = models;
 
 
 export const getProfiles = async (req, res) => {
   try {
+
     const profiles = await Profile.findAll({ order: [["userId", "ASC"]] });
     res.json(profiles);
   } catch (err) {
@@ -49,4 +52,19 @@ export const deleteProfile = async (req, res) => {
     console.error("Delete profile error:", err);
     res.status(500).json({ error: "Failed to delete profile" });
   }
+};
+export const getMyProfile = async (req, res) => {
+  const id = req.user.id;
+  const profile = await Profile.findOne({ where: { userId: id } });
+  if (!profile) return res.status(404).json({ message: "Profile not found" });
+  res.json(profile);
+};
+
+export const updateMyProfile = async (req, res) => {
+  const id = req.user.id;
+  const profile = await Profile.findOne({ where: { userId: id } });
+  if (!profile) return res.status(404).json({ message: "Profile not found" });
+  
+  await profile.update(req.body);
+  res.json({ message: "Profile updated", profile });
 };

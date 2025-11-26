@@ -1,26 +1,13 @@
-import express from "express";
-import { verifyToken } from "../middleware/authMiddleware.js";
-import { uploadCourseMaterial } from "../controllers/CourseController.js";
-import {
-  getCourses,
-  getCourseById,
-  createCourse,
-  updateCourse,
-  deleteCourse,
-  getPurchasedCourses
-} from "../controllers/CourseController.js";
 
+import express from "express";
+import { createCourse, getCourse, listCourses } from "../controllers/CourseController.js";
+import {authMiddleware} from "../middleware/authMiddleware.js";
+import { requireRole } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.get("/courses", verifyToken, getCourses);
-router.get("/courses/purchased", verifyToken, getPurchasedCourses); // move this above :id
-router.get("/courses/:id", verifyToken, getCourseById);
-router.post("/courses", verifyToken, createCourse);
-router.put("/courses/:id", verifyToken, updateCourse);
-router.delete("/courses/:id", verifyToken, deleteCourse);
-
-
-
+router.post("/", authMiddleware, requireRole("coach"), createCourse);
+router.get("/", listCourses);
+router.get("/:id", getCourse);
 
 export default router;

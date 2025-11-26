@@ -1,160 +1,51 @@
 
-import Course from "../models/Course.js";
-import Purchase from "../models/Purchase.js";
-
-export const getCourses = async (req, res) => {
-  try {
-    const { profileId, is_coach } = req.user;
-
-    let courses;
-    if (is_coach) {
-      courses = await Course.findAll({ where: { coachId: profileId } });
-    } else {
-      courses = await Course.findAll(); // normal users see all courses
-    }
-
-    res.json(courses);
-  } catch (err) {
-    console.error("Get courses error:", err);
-    res.status(500).json({ error: err.message });
-  }
-};
-
-
-
-export const getCourseById = async (req, res) => {
-  try {
-    const course = await Course.findByPk(req.params.id);
-    if (!course) return res.status(404).json({ message: "Course not found" });
-    res.json(course);
-  } catch (err) {
-    console.error("Get course by ID error:", err);
-    res.status(500).json({ error: err.message });
-  }
-};
+import models from "../models/index.js";
+const { Course, Coach } = models;
 
 export const createCourse = async (req, res) => {
   try {
-    const { title, description, price, oldPrice } = req.body;
-    const { profileId, is_coach } = req.user; // assuming verifyToken adds user to req
+    const profile = req.profile;
+    if (!profile) return res.status(401).json({ error: "Profile required" });
+    if (profile.role !== "coach") return res.status(403).json({ error: "Only coaches can create courses" });
 
-    if (!is_coach) {
-      return res.status(403).json({ message: "Only coaches can create courses" });
-    }
+    const coach = await Coach.findOne({ where: { profileId: profile.id } });
+    if (!coach) return res.status(400).json({ error: "Coach record not found" });
 
-    if (!title || price === undefined) {
-      return res.status(400).json({ message: "Title and price are required" });
-    }
-
-    const newCourse = await Course.create({
+    const { title, description, price, old_price, material_url } = req.body;
+    const course = await Course.create({
+      coachId: coach.id,
       title,
       description,
-      price,
-      oldPrice,
-      coachId: profileId, // assign course to coach
+      price: price || null,
+      oldPrice: old_price || null,
+      materialUrl: material_url || null
     });
 
-    res.status(201).json({ message: "Course created successfully", course: newCourse });
+    res.status(201).json({ message: "Course created", course });
   } catch (err) {
-    console.error("Create course error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("createCourse err", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
-
-export const updateCourse = async (req, res) => {
+export const listCourses = async (req, res) => {
   try {
-    const { profileId, is_coach } = req.user;
-    const { title, description, price, oldPrice } = req.body;
-
-    const course = await Course.findByPk(req.params.id);
-    if (!course) return res.status(404).json({ message: "Course not found" });
-
-    if (is_coach && course.coachId !== profileId) {
-      return res.status(403).json({ message: "You cannot edit this course" });
-    }
-
-    course.title = title ?? course.title;
-    course.description = description ?? course.description;
-    course.price = price ?? course.price;
-    course.oldPrice = oldPrice ?? course.oldPrice;
-
-    await course.save();
-    res.json({ message: "Course updated successfully", course });
+    const courses = await Course.findAll({ order: [["createdAt", "DESC"]] });
+    res.json({ courses });
   } catch (err) {
-    console.error("Update course error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("listCourses err", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
-export const deleteCourse = async (req, res) => {
+export const getCourse = async (req, res) => {
   try {
-    const { profileId, is_coach } = req.user;
-
-    const course = await Course.findByPk(req.params.id);
-    if (!course) return res.status(404).json({ message: "Course not found" });
-
-    if (is_coach && course.coachId !== profileId) {
-      return res.status(403).json({ message: "You cannot delete this course" });
-    }
-
-    await course.destroy();
-    res.json({ message: "Course deleted successfully" });
+    const { id } = req.params;
+    const course = await Course.findByPk(id);
+    if (!course) return res.status(404).json({ error: "Course not found" });
+    res.json({ course });
   } catch (err) {
-    console.error("Delete course error:", err);
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const getPurchasedCourses = async (req, res) => {
-  try {
-    const userId = req.user.id; 
-
-    const purchases = await Purchase.findAll({
-      where: { userId },
-      include: [{ model: Course }],
-    });
-
-  
-    const courses = purchases.map(p => p.Course);
-
-    res.json(courses);
-  } catch (err) {
-    console.error("Get purchased courses error:", err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
-export const uploadCourseMaterial = async (req, res) => {
-  try {
-    const courseId = req.params.id;
-  
-    const user = req.user;
-
-    const course = await Course.findOne({ where: { id: courseId } });
-    if (!course) return res.status(404).json({ message: "Course not found" });
-
-    const isAdmin = Boolean(user.is_admin);
-    const isOwner = user.id === course.coachId || user.id === course.userId; 
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Forbidden: cannot upload to this course" });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-
-    const materialUrl = `/uploads/${req.file.filename}`;
-    course.materialUrl = materialUrl;
-    await course.save();
-
-    return res.status(200).json({
-      message: "Material uploaded successfully",
-      materialUrl,
-    });
-  } catch (err) {
-    console.error("Upload error:", err);
-    return res.status(500).json({ message: "Server error uploading material" });
+    console.error("getCourse err", err);
+    res.status(500).json({ error: "Server error" });
   }
 };

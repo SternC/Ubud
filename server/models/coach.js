@@ -1,36 +1,27 @@
 import { DataTypes } from "sequelize";
 import db from "../config/database.js";
-import Profile from "./Profile.js";
 
-const Coach = db.define("Coaches", {
-  profileId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'profiles', 
-      key: 'id'
+const Coach = db.define(
+  "Coach",
+  {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    profile_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      references: { model: "profiles", key: "id" }
     },
-    onDelete: 'CASCADE'
+    teaching_field: { type: DataTypes.STRING(255), allowNull: true },
+    drive_link: { type: DataTypes.STRING(1024), allowNull: true },
+    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
   },
-  driveLink: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  teachingField: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  status: {
-    type: DataTypes.ENUM("pending", "approved", "rejected"),
-    defaultValue: "pending"
-  },
-}, {
-  tableName: 'coaches',
-  timestamps: false
-});
-
-// Associations
-Profile.hasOne(Coach, { foreignKey: 'profileId', onDelete: 'CASCADE', hooks: true });
-Coach.belongsTo(Profile, { foreignKey: 'profileId' });
+  {
+    tableName: "coaches",
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at"
+  }
+);
 
 export default Coach;

@@ -1,11 +1,12 @@
 
 import express from "express";
-import { createCoachProfile } from "../controllers/coachController.js";
+import { createAvailability, listAvailabilities } from "../controllers/availabilityController.js";
 import {authMiddleware} from "../middleware/authMiddleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.post("/create", authMiddleware, requireRole(["coach","admin"]), createCoachProfile);
+router.post("/", authMiddleware, requireRole("coach"), createAvailability);
+router.get("/", listAvailabilities);
 
 export default router;

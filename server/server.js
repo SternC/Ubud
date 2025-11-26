@@ -1,79 +1,56 @@
+// server/server.js
 import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import sequelize from "./config/database.js";
 import dotenv from "dotenv";
-import path from "path";
 dotenv.config();
+import models, { db } from "./models/index.js";
 
-
-import User from "./models/User.js";
-import Course from "./models/Course.js";
-import Purchase from "./models/Purchase.js";
-import Subcourse from "./models/Subcourse.js";
-import Material from "./models/Material.js";
-import Comment from "./models/Comment.js";
-
-
-
-
-Purchase.belongsTo(User, { foreignKey: "userId" });
-Purchase.belongsTo(Course, { foreignKey: "courseId", targetKey: "id" });
-Course.hasMany(Purchase, { foreignKey: "courseId", sourceKey: "id" });
-Purchase.belongsTo(Course, { foreignKey: "courseId", targetKey: "id" });
-Subcourse.hasMany(Material, { foreignKey: "subcourseId" });
-Material.belongsTo(Subcourse, { foreignKey: "subcourseId" });
-Material.hasMany(Comment, { foreignKey: "materialId" });
-Comment.belongsTo(Material, { foreignKey: "materialId" });
-
-
-
-try {
-  await sequelize.authenticate();
-  console.log("✅ Database connected");
-
- await sequelize.sync();
-
-  console.log(" Models synced");
-} catch (err) {
-  console.error("❌ Database connection error:", err);
-}
-
-const app = express();
-
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-}));
-app.use(express.json());
-app.use(cookieParser());
-const __dirname = process.cwd();
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+// routes
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import courseRoutes from "./routes/courseRoutes.js";
-import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
+import coachApplicationRoutes from "./routes/coachApplicationRoutes.js";
 import coachRoutes from "./routes/coachRoutes.js";
+import courseRoutes from "./routes/courseRoutes.js";
 import subcourseRoutes from "./routes/subcourseRoutes.js";
-app.use("/api", subcourseRoutes);
+import materialRoutes from "./routes/materialRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
+import purchaseRoutes from "./routes/purchaseRoutes.js";
+import availabilityRoutes from "./routes/availabilityRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
 
+const app = express();
+app.use(express.json());
 
+// mount routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/profiles", profileRoutes);
+app.use("/api/coach-applications", coachApplicationRoutes);
+app.use("/api/coaches", coachRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/subcourses", subcourseRoutes);
+app.use("/api/materials", materialRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/purchases", purchaseRoutes);
+app.use("/api/availabilities", availabilityRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
+// health
+app.get("/health", (req, res) => res.json({ ok: true }));
 
+// Sync DB and start
+const PORT = process.env.PORT || 3000;
 
-
-app.use("/api", authRoutes);
-app.use("/api", userRoutes);
-app.use("/api", courseRoutes);
-app.use("/api", purchaseRoutes);
-app.use("/api", profileRoutes);
-app.use("/api", coachRoutes); 
-
-
-
-app.listen(5000, () => {
-  console.log("🚀 Server running on http://localhost:5000");
-});
+(async () => {
+  try {
+    await db.authenticate();
+    console.log("DB connection OK");
+    // For development only: sync; in production use migrations.
+    await db.sync({ alter: true });
+    console.log("DB synced");
+    app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+  } catch (err) {
+    console.error("Unable to start server:", err);
+    process.exit(1);
+  }
+})();

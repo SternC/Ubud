@@ -1,15 +1,38 @@
 import express from "express";
-import { getUsers, deleteUser, getUserById, updateUser, getUserProfile, updateUserProfile,createUser } from "../controllers/userController.js";
-import { verifyToken } from "../middleware/authMiddleware.js";
+import {
+  getUsers,
+  getUserById,
+  deleteUser,
+  updateUser,
+  createUser,
+  getUserProfile,
+  updateUserProfile
+} from "../controllers/userController.js";
+
+import { authMiddleware } from "../middleware/authMiddleware.js";
+
 
 const router = express.Router();
 
-router.get("/users", getUsers);
-router.get("/edit/:id", getUserById);
-router.put("/edit/:id", verifyToken, updateUser);
-router.delete("/users/:id", verifyToken, deleteUser);
-router.get("/profile", verifyToken, getUserProfile);
-router.put("/profile", verifyToken, updateUserProfile);
-router.post("/users", verifyToken, createUser);
+// Admin: get all users
+router.get("/", authMiddleware, getUsers);
+
+// Admin: create user
+router.post("/", authMiddleware, createUser);
+
+// Admin: get user by id
+router.get("/:id", authMiddleware, getUserById);
+
+// Admin: update user
+router.put("/:id", authMiddleware, updateUser);
+
+// Admin: delete user
+router.delete("/:id", authMiddleware,    deleteUser);
+
+// Logged-in user: get own profile
+router.get("/me/profile", authMiddleware, getUserProfile);
+
+// Logged-in user: update own profile
+router.put("/me/profile", authMiddleware, updateUserProfile);
 
 export default router;

@@ -1,11 +1,13 @@
-import User from "../models/User.js";
-import Profile from "../models/Profile.js";
+
+import models from "../models/index.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+const { User, Profile } = models;
+
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.findAll({ attributes: ["id", "name", "email","is_admin"] });
+    const users = await User.findAll({ attributes: ["id", "name", "email", "is_admin"] });
     res.status(200).json(users);
   } catch (err) {
     console.error("Error fetching users:", err);
@@ -13,9 +15,10 @@ export const getUsers = async (req, res) => {
   }
 };
 
+
 export const deleteUser = async (req, res) => {
   const { id } = req.params;
-  const requesterId = req.user.id;
+  const requesterId = req.user?.id;
 
   try {
     const user = await User.findByPk(id);
@@ -23,8 +26,13 @@ export const deleteUser = async (req, res) => {
 
     await User.destroy({ where: { id } });
 
-    if (parseInt(id) === requesterId) {
-      res.clearCookie("token", { httpOnly: true, sameSite: "strict", secure: true });
+    
+    if (parseInt(id, 10) === requesterId) {
+      try {
+        res.clearCookie("token", { httpOnly: true, sameSite: "strict", secure: true });
+      } catch (e) {
+     
+      }
     }
 
     res.status(200).json({ message: "User deleted successfully" });
@@ -46,9 +54,10 @@ export const getUserById = async (req, res) => {
   }
 };
 
+
 export const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, is_admin } = req.body; 
+  const { name, email, is_admin } = req.body;
 
   try {
     const user = await User.findOne({ where: { id } });
@@ -56,7 +65,7 @@ export const updateUser = async (req, res) => {
 
     user.name = name ?? user.name;
     user.email = email ?? user.email;
-    user.is_admin = is_admin !== undefined ? is_admin : user.is_admin; 
+    user.is_admin = is_admin !== undefined ? is_admin : user.is_admin;
     await user.save();
 
     res.status(200).json({ message: "User updated successfully" });
@@ -68,81 +77,71 @@ export const updateUser = async (req, res) => {
 
 
 export const getUserProfile = async (req, res) => {
-    const { id } = req.user;
-
-    try {
-        const profile = await Profile.findOne({where: {userId: id}});
-        if (!profile) {
-            return res.status(404).json({error: "Profile not found"});
-        }
-
-        res.status(200).json(profile);
-   } catch (err) {
-       console.error("Error fetching user profile:", err);
-       res.status(500).json({ error: "Server error" });
-   }
-}
+  const id = req.user?.id;
+  try {
+    const profile = await Profile.findOne({ where: { userId: id } });
+    if (!profile) return res.status(404).json({ error: "Profile not found" });
+    res.status(200).json(profile);
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 export const updateUserProfile = async (req, res) => {
-    const { id } = req.user;
-    const { name, email, age, interest, skill, city } = req.body;
+  const id = req.user?.id;
+  const { name, email, age, interest, skill, city } = req.body;
 
-    try {
-      const profile = await Profile.findOne({ where: { userId: id } });
-      if (!profile) {
-          return res.status(404).json({ error: "Profile not found" });
-      }
+  try {
+    const profile = await Profile.findOne({ where: { userId: id } });
+    if (!profile) return res.status(404).json({ error: "Profile not found" });
 
-      profile.name = name;
-      profile.email = email;
-      profile.age = age;
-      profile.interest = interest;
-      profile.skill = skill;
-      profile.city = city;
+    profile.name = name ?? profile.name;
+    profile.email = email ?? profile.email;
+    profile.age = age ?? profile.age;
+    profile.interest = interest ?? profile.interest;
+    profile.skill = skill ?? profile.skill;
+    profile.city = city ?? profile.city;
 
-      await profile.save();
-      res.status(200).json({ message: "Profile updated successfully" });
-    } catch (err) {
-      console.error("Error updating user profile:", err);
-      res.status(500).json({ error: "Server error" });
-    }
-}
+    await profile.save();
+    res.status(200).json({ message: "Profile updated successfully", profile });
+  } catch (err) {
+    console.error("Error updating user profile:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 
 export const createUser = async (req, res) => {
   try {
-    const token = req.cookies.token;
+    const tokenFromCookie = req.cookies?.token;
+    const authHeader = req.headers.authorization;
+    const token = tokenFromCookie || (authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
     if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-    const decoded = jwt.verify(token, "your_jwt_secret");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "change_this_secret");
     const admin = await User.findByPk(decoded.id);
 
-    if (!admin.is_admin) {
+    if (!admin?.is_admin) {
       return res.status(403).json({ message: "Access denied: Admins only" });
     }
 
     const { name, email, password, is_admin } = req.body;
-    if (!name || !email || !password)
-      return res.status(400).json({ message: "Missing required fields" });
+    if (!name || !email || !password) return res.status(400).json({ message: "Missing required fields" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
-      is_admin: is_admin ? 1 : 0,
+      is_admin: is_admin ? 1 : 0
     });
 
     await Profile.create({ userId: newUser.id, email, name: name });
 
     res.status(201).json({
       message: "User created successfully",
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        is_admin: newUser.is_admin,
-      },
+      user: { id: newUser.id, name: newUser.name, email: newUser.email, is_admin: newUser.is_admin }
     });
   } catch (err) {
     console.error("Create user error:", err);

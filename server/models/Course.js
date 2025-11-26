@@ -1,45 +1,29 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
-import Profile from "./Profile.js";
-import { v4 as uuidv4 } from "uuid";
+import db from "../config/database.js";
 
-const Course = sequelize.define(
+const Course = db.define(
   "Course",
   {
-    id: {
-      type: DataTypes.STRING,
-      primaryKey: true,
-      defaultValue: () => uuidv4(), // fixed
-    },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    description: DataTypes.TEXT,
-    price: DataTypes.FLOAT,
-    oldPrice: DataTypes.FLOAT,
-    coachId: {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    coach_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "profiles",
-        key: "id",
-      },
-      onDelete: "CASCADE",
+      references: { model: "coaches", key: "id" }
     },
-    materialUrl: {
-    type: DataTypes.STRING,
-    allowNull: true,
-},
-
+    title: { type: DataTypes.STRING(255), allowNull: false },
+    description: { type: DataTypes.TEXT, allowNull: true },
+    price: { type: DataTypes.DECIMAL(12, 2), allowNull: true },
+    old_price: { type: DataTypes.DECIMAL(12, 2), allowNull: true },
+    material_url: { type: DataTypes.STRING(1024), allowNull: true },
+    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
   },
   {
     tableName: "courses",
     timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at"
   }
 );
-
-Course.belongsTo(Profile, { foreignKey: "coachId" });
-Profile.hasMany(Course, { foreignKey: "coachId" });
 
 export default Course;
