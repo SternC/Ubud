@@ -27,6 +27,11 @@ const Course = sequelize.define(
       },
       onDelete: "CASCADE",
     },
+    materialUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+},
+
   },
   {
     tableName: "courses",

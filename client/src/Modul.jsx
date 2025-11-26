@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, Settings, LogOut } from "lucide-react";
-import { Courses } from "../components/section/Courses";
+import  Courses from "../components/section/Courses";
 import { Coachdeck } from "../components/section/Coachdeck";
 import ProfileCard from "../components/section/Card";
 import BuyCourse from "../components/section/BuyCourse";

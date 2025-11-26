@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Folder from "../ui/folder";
-import api from "../../src/api";
+import api from "../../src/api.jsx";
+import SubcoursePopup from "./SubcoursePopup.jsx";
+
 
 export function Courses() {
   const [courses, setCourses] = useState([]);
@@ -16,7 +18,26 @@ export function Courses() {
     oldPrice: 0,
   });
 
-  // Fetch logged-in profile
+  const [showFolderPopup, setShowFolderPopup] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  const [showSubcourseModal, setShowSubcourseModal] = useState(false);
+  const [activeCourse, setActiveCourse] = useState(null);
+
+  const openFolderPopup = (course) => {
+    setSelectedCourse(course);
+    setShowFolderPopup(true);
+  };
+
+  const handlePaperClick = (paperItem, index) => {
+  if (index === 0) {
+
+    setActiveCourse(selectedCourse);
+    setShowSubcourseModal(true);
+  }
+};
+
+
   useEffect(() => {
     api
       .get("/profile", { withCredentials: true })
@@ -29,23 +50,18 @@ export function Courses() {
       .catch(() => setIsCoach(false));
   }, []);
 
-  // Fetch courses once profile is loaded
   useEffect(() => {
     if (!user) return;
-
     const fetchCourses = async () => {
       setLoading(true);
       try {
         const url = isCoach ? "/courses" : "/courses/purchased";
         const res = await api.get(url, { withCredentials: true });
         setCourses(res.data);
-      } catch (err) {
-        console.error("Fetch courses error:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchCourses();
   }, [user, isCoach]);
 
@@ -53,10 +69,7 @@ export function Courses() {
     const { name, value } = e.target;
     setNewCourse((prev) => ({
       ...prev,
-      [name]:
-        name === "price" || name === "oldPrice"
-          ? parseFloat(value) || 0
-          : value,
+      [name]: name === "price" || name === "oldPrice" ? parseFloat(value) || 0 : value,
     }));
   };
 
@@ -72,31 +85,17 @@ export function Courses() {
         .put(`/courses/${editCourseId}`, newCourse, { withCredentials: true })
         .then((res) => {
           setCourses((prev) =>
-            prev.map((c) =>
-              c.id === editCourseId ? { ...c, ...res.data.course } : c
-            )
+            prev.map((c) => (c.id === editCourseId ? { ...c, ...res.data.course } : c))
           );
           resetModal();
-        })
-        .catch((err) =>
-          alert(
-            "Failed to update course: " +
-              (err.response?.data?.message || err.message)
-          )
-        );
+        });
     } else {
       api
         .post("/courses", newCourse, { withCredentials: true })
         .then((res) => {
           setCourses((prev) => [...prev, res.data.course]);
           resetModal();
-        })
-        .catch((err) =>
-          alert(
-            "Failed to create course: " +
-              (err.response?.data?.message || err.message)
-          )
-        );
+        });
     }
   };
 
@@ -116,30 +115,21 @@ export function Courses() {
 
   return (
     <div className="p-4 min-h-[85vh] bg-gray-50">
-      {/* Create Course Button */}
       {isCoach && (
         <div className="flex justify-end mb-4">
           <button
             onClick={() => setShowModal(true)}
-            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-sm sm:text-base rounded-md hover:bg-blue-700 transition-colors"
+            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white rounded-md"
           >
             Create Course
           </button>
         </div>
       )}
 
-      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 animate-[fadeIn_0.3s_ease-out]">
-          <div className="bg-gradient-to-br from-white to-gray-100 p-6 rounded-2xl w-full max-w-md shadow-2xl border border-gray-200">
-            <div className="flex justify-center mb-4">
-              <img
-                src="/logo.png"
-                alt="Logo"
-                className="w-16 h-16 object-contain drop-shadow-md"
-              />
-            </div>
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
+            <h2 className="text-2xl font-bold text-center mb-4">
               {editCourseId ? "Update Course" : "Create New Course"}
             </h2>
             <input
@@ -148,14 +138,14 @@ export function Courses() {
               placeholder="Course Title"
               value={newCourse.title}
               onChange={handleInputChange}
-              className="p-3 border border-gray-300 rounded-lg w-full mb-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              className="p-3 border rounded-lg w-full mb-3"
             />
             <textarea
               name="description"
               placeholder="Course Description"
               value={newCourse.description}
               onChange={handleInputChange}
-              className="p-3 border border-gray-300 rounded-lg w-full mb-3 resize-none focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              className="p-3 border rounded-lg w-full mb-3"
             />
             <div className="grid grid-cols-2 gap-3">
               <input
@@ -164,7 +154,7 @@ export function Courses() {
                 placeholder="Price"
                 value={newCourse.price}
                 onChange={handleInputChange}
-                className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="p-3 border rounded-lg w-full"
               />
               <input
                 type="number"
@@ -172,19 +162,19 @@ export function Courses() {
                 placeholder="Old Price"
                 value={newCourse.oldPrice}
                 onChange={handleInputChange}
-                className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="p-3 border rounded-lg w-full"
               />
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={resetModal}
-                className="px-5 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all"
+                className="px-5 py-2 bg-gray-300 rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveCourse}
-                className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
+                className="px-5 py-2 bg-blue-600 text-white rounded-lg"
               >
                 Save
               </button>
@@ -193,24 +183,24 @@ export function Courses() {
         </div>
       )}
 
-      {/* Courses Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {courses.map((course) => (
-          <div
-            key={course.id}
-            className="flex flex-col items-center p-3 rounded-lg cursor-pointer transition-shadow"
-          >
-            <Folder size={1} color="#4a9fe8" items={[]} />
-            <h3 className="mt-2 font-semibold text-center text-xs sm:text-sm md:text-base">
-              {course.title}
-            </h3>
-            <p className="text-[0.7rem] sm:text-xs text-gray-500 text-center line-clamp-2">
-              {course.description}
-            </p>
-            {isCoach && course.coachId === user.id && (
+          <div key={course.id} className="flex flex-col items-center p-3">
+            <div onClick={() => openFolderPopup(course)}>
+              <Folder
+                size={1}
+                color="#4a9fe8"
+                items={[{ chapter: "Subcourses" }, { chapter: "Materials" }]}
+                onPaperSelect={handlePaperClick}
+              />
+            </div>
+            <h3 className="mt-2 font-semibold text-center text-sm">{course.title}</h3>
+            <p className="text-xs text-gray-500 text-center">{course.description}</p>
+
+            {isCoach && course.coachId === user?.id && (
               <button
                 onClick={() => handleEdit(course)}
-                className="mt-2 px-3 py-1 bg-blue-900 font-semibold text-white text-xs rounded-md hover:bg-blue-700"
+                className="mt-2 px-3 py-1 bg-blue-900 text-white text-xs rounded-md"
               >
                 Update
               </button>
@@ -218,6 +208,19 @@ export function Courses() {
           </div>
         ))}
       </div>
+
+      {showSubcourseModal && activeCourse && (
+        <SubcoursePopup
+          course={activeCourse}
+          onClose={() => {
+            setShowSubcourseModal(false);
+            setActiveCourse(null);
+          }}
+          user={user}
+        />
+      )}
     </div>
   );
 }
+
+export default Courses;
