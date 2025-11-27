@@ -1,13 +1,13 @@
-import express from 'express';
-import appointmentController from '../controllers/appointmentController.js';
-import { verifyToken } from '../middleware/authMiddleware.js';
+import express from "express";
+import { verifyToken } from "../middleware/authMiddleware.js";
+import { bookAppointment, getMyAppointments } from "../controllers/appointmentController.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
+// Student booking jadwal (Butuh Login)
+router.post("/", verifyToken, bookAppointment);
 
-router.post('/', appointmentController.createAppointment);
-router.get('/my-appointments', appointmentController.getUserAppointments);
-router.put('/:appointmentId/status', appointmentController.updateAppointmentStatus);
+// Student melihat jadwal saya (Butuh Login)
+router.get("/my-appointments", verifyToken, getMyAppointments);
 
 export default router;

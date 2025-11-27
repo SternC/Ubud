@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
-import Profile from "./Profile.js";
+import Coaches from "./coach.js";
 import { v4 as uuidv4 } from "uuid";
 
 const Course = sequelize.define(
@@ -9,7 +9,7 @@ const Course = sequelize.define(
     id: {
       type: DataTypes.STRING,
       primaryKey: true,
-      defaultValue: () => uuidv4(), // fixed
+      defaultValue: () => uuidv4(),
     },
     title: {
       type: DataTypes.STRING,
@@ -22,16 +22,15 @@ const Course = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "profiles",
+        model: "coaches",
         key: "id",
       },
       onDelete: "CASCADE",
     },
     materialUrl: {
-    type: DataTypes.STRING,
-    allowNull: true,
-},
-
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: "courses",
@@ -39,7 +38,7 @@ const Course = sequelize.define(
   }
 );
 
-Course.belongsTo(Profile, { foreignKey: "coachId" });
-Profile.hasMany(Course, { foreignKey: "coachId" });
+Course.belongsTo(Coaches, { foreignKey: "coachId" });
+Coaches.hasMany(Course, { foreignKey: "coachId" });
 
 export default Course;

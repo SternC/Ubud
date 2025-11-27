@@ -1,120 +1,54 @@
-import { Availability, User, Course } from '../models/index.js';
+import Availability from "../models/availability.js";
+import Coaches from "../models/coach.js";
+import Profile from "../models/Profile.js";
 
-const availabilityController = {
-  createAvailability: async (req, res) => {
-    try {
-      const coachId = req.user.id;
-      const { date, startTime, endTime, maxStudents, price } = req.body;
+// Coach menambahkan jadwal availability
+export const addAvailability = async (req, res) => {
+  const { date, time } = req.body;
+  const userId = req.user.id; // Dari verifyToken middleware
 
-      // Cek apakah user adalah coach
-      if (req.user.role !== 'coach') {
-        return res.status(403).json({
-          success: false,
-          message: 'Only coaches can create availability'
-        });
-      }
-
-      const availability = await Availability.create({
-        coachId,
-        date,
-        startTime,
-        endTime,
-        maxStudents,
-        price
-      });
-
-      res.status(201).json({
-        success: true,
-        data: availability
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
+  try {
+    // 1. Cari Profile user ini
+    const profile = await Profile.findOne({ where: { userId } });
+    if (!profile || !profile.is_coach) {
+      return res.status(403).json({ message: "Access denied. Only coaches can set availability." });
     }
-  },
 
-  getCoachAvailability: async (req, res) => {
-    try {
-      const coachId = req.params.coachId || req.user.id;
+    // 2. Cari ID Coach berdasarkan Profile ID
+    const coach = await Coaches.findOne({ where: { profileId: profile.id } });
+    if (!coach) return res.status(404).json({ message: "Coach record not found." });
 
-      const availability = await Availability.findAll({
-        where: { coachId },
-        order: [['date', 'ASC'], ['startTime', 'ASC']]
-      });
+    // 3. Buat Availability
+    const newSlot = await Availability.create({
+      coachId: coach.id,
+      date,
+      time,
+      status: "available",
+    });
 
-      res.json({
-        success: true,
-        data: availability
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  updateAvailability: async (req, res) => {
-    try {
-      const { availabilityId } = req.params;
-      const coachId = req.user.id;
-
-      const availability = await Availability.findOne({
-        where: { id: availabilityId, coachId }
-      });
-
-      if (!availability) {
-        return res.status(404).json({
-          success: false,
-          message: 'Availability not found'
-        });
-      }
-
-      await availability.update(req.body);
-
-      res.json({
-        success: true,
-        data: availability
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  deleteAvailability: async (req, res) => {
-    try {
-      const { availabilityId } = req.params;
-      const coachId = req.user.id;
-
-      const availability = await Availability.findOne({
-        where: { id: availabilityId, coachId }
-      });
-
-      if (!availability) {
-        return res.status(404).json({
-          success: false,
-          message: 'Availability not found'
-        });
-      }
-
-      await availability.destroy();
-
-      res.json({
-        success: true,
-        message: 'Availability deleted successfully'
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
+    res.status(201).json({ message: "Availability added", data: newSlot });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export default availabilityController;
+// Student (atau Public) melihat jadwal coach tertentu
+export const getCoachAvailability = async (req, res) => {
+  const { coachId } = req.params;
+
+  try {
+    const slots = await Availability.findAll({
+      where: {
+        coachId,
+        status: "available", // Hanya tampilkan yang belum di-book
+      },
+      order: [["date", "ASC"], ["time", "ASC"]],
+    });
+
+    res.json(slots);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

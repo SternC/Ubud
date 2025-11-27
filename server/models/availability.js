@@ -1,42 +1,36 @@
-import { DataTypes } from 'sequelize';
-import db from '../config/database.js';
+import { DataTypes } from "sequelize";
+import sequelize from "../config/database.js"; // Sesuaikan path config database kamu
+import Coaches from "./coach.js";
 
-const Availability = db.define('Availability', {
+const Availability = sequelize.define("Availability", {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
   },
   coachId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: Coaches,
+      key: "id",
+    },
   },
   date: {
-    type: DataTypes.DATEONLY,
-    allowNull: false
+    type: DataTypes.DATEONLY, // Format YYYY-MM-DD
+    allowNull: false,
   },
-  startTime: {
-    type: DataTypes.TIME,
-    allowNull: false
+  time: {
+    type: DataTypes.TIME, // Format HH:MM:SS
+    allowNull: false,
   },
-  endTime: {
-    type: DataTypes.TIME,
-    allowNull: false
+  status: {
+    type: DataTypes.ENUM("available", "booked"),
+    defaultValue: "available",
   },
-  isAvailable: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  },
-  maxStudents: {
-    type: DataTypes.INTEGER,
-    defaultValue: 1
-  },
-  price: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false
-  }
-}, {
-  timestamps: true
 });
+
+// Relasi akan kita set di index.js atau server.js, tapi definisikan di sini juga baik
+Availability.belongsTo(Coaches, { foreignKey: "coachId" });
 
 export default Availability;

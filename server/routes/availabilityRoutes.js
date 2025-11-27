@@ -1,15 +1,13 @@
-import express from 'express';
-import availabilityController from '../controllers/availabilityController.js';
-import { verifyToken } from '../middleware/authMiddleware.js';
+import express from "express";
+import { verifyToken } from "../middleware/authMiddleware.js"; // Sesuaikan path middleware
+import { addAvailability, getCoachAvailability } from "../controllers/availabilityController.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
+// Coach menambah jadwal (Butuh Login)
+router.post("/", verifyToken, addAvailability);
 
-// Routes
-router.post('/', availabilityController.createAvailability);
-router.get('/coach/:coachId', availabilityController.getCoachAvailability);
-router.put('/:availabilityId', availabilityController.updateAvailability);
-router.delete('/:availabilityId', availabilityController.deleteAvailability);
+// Public melihat jadwal coach (Tidak harus login, atau terserah logicmu)
+router.get("/:coachId", getCoachAvailability);
 
 export default router;

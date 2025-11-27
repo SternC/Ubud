@@ -13,6 +13,9 @@ import Purchase from "./models/Purchase.js";
 import Subcourse from "./models/Subcourse.js";
 import Material from "./models/Material.js";
 import Comment from "./models/Comment.js";
+import Coaches from "./models/coach.js";
+import Availability from "./models/availability.js";
+import Appointment from "./models/appointment.js";
 
 
 
@@ -25,6 +28,12 @@ Subcourse.hasMany(Material, { foreignKey: "subcourseId" });
 Material.belongsTo(Subcourse, { foreignKey: "subcourseId" });
 Material.hasMany(Comment, { foreignKey: "materialId" });
 Comment.belongsTo(Material, { foreignKey: "materialId" });
+Coaches.hasMany(Availability, { foreignKey: "coachId" });
+Availability.belongsTo(Coaches, { foreignKey: "coachId" });
+
+Appointment.belongsTo(User, { as: "student", foreignKey: "studentId" });
+Appointment.belongsTo(Coaches, { as: "coach", foreignKey: "coachId" });
+Appointment.belongsTo(Availability, { foreignKey: "availabilityId" });
 
 
 
@@ -58,6 +67,8 @@ import purchaseRoutes from "./routes/purchaseRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import coachRoutes from "./routes/coachRoutes.js";
 import subcourseRoutes from "./routes/subcourseRoutes.js";
+import availabilityRoutes from "./routes/availabilityRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
 app.use("/api", subcourseRoutes);
 
 
@@ -70,9 +81,9 @@ app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", purchaseRoutes);
 app.use("/api", profileRoutes);
-app.use("/api", coachRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/availability', availabilityRoutes);
+app.use("/api", coachRoutes); 
+app.use("/api/availability", availabilityRoutes); 
+app.use("/api/appointments", appointmentRoutes);
 
 
 

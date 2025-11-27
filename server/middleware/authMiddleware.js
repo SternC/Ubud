@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import dotenv from "dotenv";
-dotenv.config();
 
 export const verifyToken = async (req, res, next) => {
   const token = req.cookies.token;
@@ -10,7 +8,7 @@ export const verifyToken = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.SECRET_TOKEN);
+    const decoded = jwt.verify(token, "your_jwt_secret");
 
     const user = await User.findByPk(decoded.id);
     if (!user) {

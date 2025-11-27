@@ -1,25 +1,47 @@
 
 import Course from "../models/Course.js";
 import Purchase from "../models/Purchase.js";
+import Coaches from "../models/coach.js";
 
 export const getCourses = async (req, res) => {
   try {
     const { profileId, is_coach } = req.user;
 
     let courses;
+
     if (is_coach) {
-      courses = await Course.findAll({ where: { coachId: profileId } });
-    } else {
-      courses = await Course.findAll(); // normal users see all courses
+      const coach = await Coaches.findOne({ where: { profileId } });
+
+      courses = await Course.findAll({ where: { coachId: coach.id } });
+
+      return res.json(
+        courses.map(c => ({
+          ...c.toJSON(),
+          coachId: coach.id
+        }))
+      );
     }
 
-    res.json(courses);
+    courses = await Course.findAll({
+      include: [
+        {
+          model: Coaches,
+          attributes: ["id"]
+        }
+      ]
+    });
+
+    return res.json(
+      courses.map(c => ({
+        ...c.toJSON(),
+        coachId: c.Coach?.id ?? c.coachId
+      }))
+    );
   } catch (err) {
     console.error("Get courses error:", err);
     res.status(500).json({ error: err.message });
   }
 };
-
 
 
 export const getCourseById = async (req, res) => {
@@ -36,7 +58,7 @@ export const getCourseById = async (req, res) => {
 export const createCourse = async (req, res) => {
   try {
     const { title, description, price, oldPrice } = req.body;
-    const { profileId, is_coach } = req.user; // assuming verifyToken adds user to req
+    const { id, profileId, is_coach } = req.user; // assuming verifyToken adds user to req
 
     if (!is_coach) {
       return res.status(403).json({ message: "Only coaches can create courses" });
@@ -45,13 +67,15 @@ export const createCourse = async (req, res) => {
     if (!title || price === undefined) {
       return res.status(400).json({ message: "Title and price are required" });
     }
+    
+    const coach = await Coaches.findOne({ where: { profileId } });
 
     const newCourse = await Course.create({
       title,
       description,
       price,
       oldPrice,
-      coachId: profileId, // assign course to coach
+      coachId: coach.id,
     });
 
     res.status(201).json({ message: "Course created successfully", course: newCourse });
@@ -108,15 +132,20 @@ export const deleteCourse = async (req, res) => {
 
 export const getPurchasedCourses = async (req, res) => {
   try {
-    const userId = req.user.id; 
+    const userId = req.user.id;
 
     const purchases = await Purchase.findAll({
       where: { userId },
-      include: [{ model: Course }],
+      include: [{
+        model: Course,
+        include: [{ model: Coaches, attributes: ["id"] }]
+      }]
     });
 
-  
-    const courses = purchases.map(p => p.Course);
+    const courses = purchases.map(p => ({
+      ...p.Course.toJSON(),
+      coachId: p.Course.Coach?.id ?? p.Course.coachId
+    }));
 
     res.json(courses);
   } catch (err) {
@@ -124,6 +153,7 @@ export const getPurchasedCourses = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 export const uploadCourseMaterial = async (req, res) => {
   try {

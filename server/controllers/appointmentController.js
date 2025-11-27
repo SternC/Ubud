@@ -1,161 +1,58 @@
-import { Appointment, Availability, User, Course, Purchase } from '../models/index.js';
+import Appointment from "../models/appointment.js";
+import Availability from "../models/availability.js";
+import Coaches from "../models/coach.js";
+import Profile from "../models/Profile.js";
+import User from "../models/User.js";
 
-const appointmentController = {
-  createAppointment: async (req, res) => {
-    try {
-      const studentId = req.user.id;
-      const { availabilityId, courseId, notes } = req.body;
+// Student melakukan booking
+export const bookAppointment = async (req, res) => {
+  const { availabilityId } = req.body;
+  const userId = req.user.id; // Student ID (User ID)
 
-      // Cek apakah user adalah student
-      if (req.user.role !== 'student') {
-        return res.status(403).json({
-          success: false,
-          message: 'Only students can create appointments'
-        });
-      }
+  try {
+    // 1. Cek apakah slot availability valid dan masih available
+    const slot = await Availability.findByPk(availabilityId);
+    
+    if (!slot) return res.status(404).json({ message: "Slot not found" });
+    if (slot.status === "booked") return res.status(400).json({ message: "Slot already booked" });
 
-      // Cek availability
-      const availability = await Availability.findByPk(availabilityId);
-      if (!availability) {
-        return res.status(404).json({
-          success: false,
-          message: 'Availability not found'
-        });
-      }
+    // 2. Buat Appointment
+    const appointment = await Appointment.create({
+      studentId: userId,
+      coachId: slot.coachId,
+      availabilityId: slot.id,
+      status: "confirmed"
+    });
 
-      // Cek apakah student sudah membeli course dari coach ini
-      const purchase = await Purchase.findOne({
-        where: {
-          studentId,
-          courseId,
-          status: 'completed'
-        },
-        include: [{
-          model: Course,
-          where: { coachId: availability.coachId }
-        }]
-      });
+    // 3. Update status Availability menjadi 'booked' agar tidak bisa diambil orang lain
+    await slot.update({ status: "booked" });
 
-      if (!purchase) {
-        return res.status(403).json({
-          success: false,
-          message: 'You need to purchase a course from this coach first'
-        });
-      }
-
-      // Cek apakah slot masih tersedia
-      const existingAppointments = await Appointment.count({
-        where: { availabilityId }
-      });
-
-      if (existingAppointments >= availability.maxStudents) {
-        return res.status(400).json({
-          success: false,
-          message: 'This time slot is fully booked'
-        });
-      }
-
-      // Buat appointment
-      const appointment = await Appointment.create({
-        studentId,
-        coachId: availability.coachId,
-        availabilityId,
-        courseId,
-        appointmentDate: new Date(`${availability.date} ${availability.startTime}`),
-        notes
-      });
-
-      res.status(201).json({
-        success: true,
-        data: appointment
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  getUserAppointments: async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const userRole = req.user.role;
-
-      let appointments;
-      if (userRole === 'student') {
-        appointments = await Appointment.findAll({
-          where: { studentId: userId },
-          include: [
-            { model: User, as: 'Coach', attributes: ['id', 'name', 'email'] },
-            { model: Course, attributes: ['id', 'title'] },
-            { model: Availability, attributes: ['id', 'date', 'startTime', 'endTime'] }
-          ],
-          order: [['appointmentDate', 'ASC']]
-        });
-      } else if (userRole === 'coach') {
-        appointments = await Appointment.findAll({
-          where: { coachId: userId },
-          include: [
-            { model: User, as: 'Student', attributes: ['id', 'name', 'email'] },
-            { model: Course, attributes: ['id', 'title'] },
-            { model: Availability, attributes: ['id', 'date', 'startTime', 'endTime'] }
-          ],
-          order: [['appointmentDate', 'ASC']]
-        });
-      }
-
-      res.json({
-        success: true,
-        data: appointments
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  updateAppointmentStatus: async (req, res) => {
-    try {
-      const { appointmentId } = req.params;
-      const { status, meetingLink } = req.body;
-      const userId = req.user.id;
-
-      const appointment = await Appointment.findByPk(appointmentId);
-      
-      if (!appointment) {
-        return res.status(404).json({
-          success: false,
-          message: 'Appointment not found'
-        });
-      }
-
-      // Cek authorization (coach atau student yang terkait)
-      if (appointment.coachId !== userId && appointment.studentId !== userId) {
-        return res.status(403).json({
-          success: false,
-          message: 'Not authorized to update this appointment'
-        });
-      }
-
-      await appointment.update({
-        status,
-        ...(meetingLink && { meetingLink })
-      });
-
-      res.json({
-        success: true,
-        data: appointment
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
+    res.status(201).json({ message: "Appointment booked successfully", data: appointment });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export default appointmentController;
+// Get Appointments untuk User (Melihat history booking saya)
+export const getMyAppointments = async (req, res) => {
+  const userId = req.user.id;
+  
+  try {
+    const appointments = await Appointment.findAll({
+      where: { studentId: userId },
+      include: [
+        { 
+          model: Coaches, 
+          as: "coach",
+          include: [{ model: Profile, attributes: ['name'] }] // Supaya tau nama coachnya
+        },
+        { model: Availability } // Supaya tau jam dan tanggalnya
+      ]
+    });
+    res.json(appointments);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
