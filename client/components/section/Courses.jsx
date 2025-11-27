@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Folder from "../ui/folder";
 import api from "../../src/api.jsx";
 import SubcoursePopup from "./SubcoursePopup.jsx";
+import AppointmentPopup from "./AppointmentPopup.jsx";
+
 
 
 export function Courses() {
@@ -24,19 +26,25 @@ export function Courses() {
   const [showSubcourseModal, setShowSubcourseModal] = useState(false);
   const [activeCourse, setActiveCourse] = useState(null);
 
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+
+
   const openFolderPopup = (course) => {
     setSelectedCourse(course);
     setShowFolderPopup(true);
   };
 
   const handlePaperClick = (paperItem, index) => {
-  if (index === 0) {
-
+  if (index === 0) { 
     setActiveCourse(selectedCourse);
     setShowSubcourseModal(true);
   }
-};
 
+  if (index === 2) { 
+    setActiveCourse(selectedCourse);
+    setShowAppointmentModal(true);
+  }
+};
 
   useEffect(() => {
     api
@@ -48,6 +56,7 @@ export function Courses() {
         }
       })
       .catch(() => setIsCoach(false));
+      
   }, []);
 
   useEffect(() => {
@@ -58,6 +67,8 @@ export function Courses() {
         const url = isCoach ? "/courses" : "/courses/purchased";
         const res = await api.get(url, { withCredentials: true });
         setCourses(res.data);
+      } catch (error) {
+    console.error("error fetch", error);
       } finally {
         setLoading(false);
       }
@@ -190,7 +201,7 @@ export function Courses() {
               <Folder
                 size={1}
                 color="#4a9fe8"
-                items={[{ chapter: "Subcourses" }, { chapter: "Materials" }]}
+                items={[{ chapter: "Subcourses" }, { chapter: "Assignment" }, { chapter: "Appointment" }]}
                 onPaperSelect={handlePaperClick}
               />
             </div>
@@ -219,6 +230,18 @@ export function Courses() {
           user={user}
         />
       )}
+
+      {showAppointmentModal && activeCourse && (
+  <AppointmentPopup
+    course={activeCourse}
+    onClose={() => {
+      setShowAppointmentModal(false);
+      setActiveCourse(null);
+    }}
+    user={user}
+  />
+)}
+
     </div>
   );
 }

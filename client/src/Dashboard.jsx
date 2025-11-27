@@ -64,20 +64,6 @@ export default function AdminDashboard() {
       URL.revokeObjectURL(url);
     })
     .catch((err) => console.error("Error downloading report:", err));
-
-  // Availability
-  const [availabilities, setAvailabilities] = useState([]);
-  const [availabilityForm, setAvailabilityForm] = useState({
-    date: '',
-    startTime: '',
-    endTime: '',
-    maxStudents: 1,
-    price: 0
-  });
-
-// Appointments
-  const [appointments, setAppointments] = useState([]);
-
 };
 
 
@@ -90,30 +76,20 @@ export default function AdminDashboard() {
 
   // Auth check
   useEffect(() => {
-  let isMounted = true;
-  
-  const checkAuthentication = async () => {
-    try {
-      const res = await api.get("/authentication", { withCredentials: true });
-      if (isMounted && res.status === 200) {
-        setAuth(true);
-        setAdminName(res.data.name || "");
-        setAuthMessage(res.data.message || "");
-      }
-    } catch (error) {
-      if (isMounted) {
+    api
+      .get("/authentication", { withCredentials: true })
+      .then((res) => {
+        if (res.status === 200) {
+          setAuth(true);
+          setAdminName(res.data.name || "");
+          setAuthMessage(res.data.message || "");
+        }
+      })
+      .catch(() => {
         setAuth(false);
         setAuthMessage("Please login to view this page");
-      }
-    }
-  };
-
-  checkAuthentication();
-
-  return () => {
-    isMounted = false;
-  };
-}, []); // Empty dependency array - hanya run sekali
+      });
+  }, []);
 
   // Fetch data
   const fetchUsers = async () => {
@@ -177,28 +153,6 @@ export default function AdminDashboard() {
       console.error(err);
     }
   };
-
-  const fetchAvailabilities = async () => {
-  try {
-    const res = await api.get("/availability", {
-      withCredentials: true,
-    });
-    setAvailabilities(res.data.data || []);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-const fetchAppointments = async () => {
-  try {
-    const res = await api.get("/appointments/my-appointments", {
-      withCredentials: true,
-    });
-    setAppointments(res.data.data || []);
-  } catch (err) {
-    console.error(err);
-  }
-};
 
 
   useEffect(() => {
@@ -280,8 +234,6 @@ const fetchAppointments = async () => {
       fetchPurchases();
       fetchProfiles();
       fetchCoaches();
-      fetchAvailabilities();
-      fetchAppointments();
     }
   }, [auth]);
 
@@ -429,57 +381,6 @@ const fetchAppointments = async () => {
     fetchPurchases();
   };
 
-  // AVAILABILITY
-  const submitAvailability = async (e) => {
-  e.preventDefault();
-  try {
-    await api.post("/availability", availabilityForm, {
-      withCredentials: true,
-    });
-    setAvailabilityForm({
-      date: '',
-      startTime: '',
-      endTime: '',
-      maxStudents: 1,
-      price: 0
-    });
-    fetchAvailabilities();
-    alert("Availability created successfully!");
-  } catch (err) {
-    console.error(err);
-    alert("Error creating availability: " + (err.response?.data?.message || err.message));
-  }
-};
-
-  // Delete Availability
-  const deleteAvailability = async (id) => {
-    if (!confirm("Delete this availability?")) return;
-    try {
-      await api.delete(`/availability/${id}`, {
-        withCredentials: true,
-      });
-      fetchAvailabilities();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // APPOINTMENTS
-  const updateAppointmentStatus = async (appointmentId, status, meetingLink = '') => {
-  try {
-    await api.put(`/appointments/${appointmentId}/status`, {
-      status,
-      meetingLink
-    }, { withCredentials: true });
-    fetchAppointments();
-    alert("Appointment status updated!");
-  } catch (err) {
-    console.error(err);
-    alert("Error updating appointment: " + (err.response?.data?.message || err.message));
-  }
-};
-
-
   const formatDate = (s) => {
     if (!s) return "N/A";
     return new Date(s).toLocaleString();
@@ -558,22 +459,6 @@ const fetchAppointments = async () => {
           >
             Coaches
           </button>
-          <button
-          onClick={() => setActiveTab("availability")}
-          className={`w-full text-left py-2 px-3 rounded ${
-            activeTab === "availability" ? "bg-[#154d71]" : "hover:bg-[#133d5c]"
-          }`}
-        >
-          Availability
-        </button>
-        <button
-          onClick={() => setActiveTab("appointments")}
-          className={`w-full text-left py-2 px-3 rounded ${
-            activeTab === "appointments" ? "bg-[#154d71]" : "hover:bg-[#133d5c]"
-          }`}
-        >
-          Appointments
-        </button>
         </nav>
 
         <button
@@ -1070,133 +955,6 @@ const fetchAppointments = async () => {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-        {/* AVAILABILITY */}
-        {activeTab === "availability" && (<>
-          <div className="bg-white p-5 rounded shadow mb-6">
-            <h2 className="text-lg font-semibold mb-3">Add Availability</h2>
-            <form onSubmit={submitAvailability} className="grid grid-cols-1 md:grid-cols-5 gap-3">
-              <input
-                type="date"
-                className="border p-2 rounded"
-                value={availabilityForm.date}
-                onChange={(e) => setAvailabilityForm({...availabilityForm, date: e.target.value})}
-                required
-              />
-              <input
-                type="time"
-                className="border p-2 rounded"
-                value={availabilityForm.startTime}
-                onChange={(e) => setAvailabilityForm({...availabilityForm, startTime: e.target.value})}
-                required
-              />
-              <input
-                type="time"
-                className="border p-2 rounded"
-                value={availabilityForm.endTime}
-                onChange={(e) => setAvailabilityForm({...availabilityForm, endTime: e.target.value})}
-                required
-              />
-              <input
-                type="number"
-                className="border p-2 rounded"
-                placeholder="Max Students"
-                value={availabilityForm.maxStudents}
-                onChange={(e) => setAvailabilityForm({...availabilityForm, maxStudents: e.target.value})}
-                min="1"
-                required
-              />
-              <input
-                type="number"
-                className="border p-2 rounded"
-                placeholder="Price"
-                value={availabilityForm.price}
-                onChange={(e) => setAvailabilityForm({...availabilityForm, price: e.target.value})}
-                step="0.01"
-                required
-              />
-              <div className="md:col-span-5 text-right">
-                <button type="submit" className="bg-[#0b2a45] text-white px-4 py-2 rounded">
-                  Add Availability
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div className="bg-white p-5 rounded shadow">
-            <h3 className="font-semibold mb-3">Your Availability</h3>
-            <div className="grid gap-4">
-              {availabilities.map((availability) => (
-                <div key={availability.id} className="p-4 border rounded-lg flex justify-between items-center">
-                  <div>
-                    <p><strong>Date:</strong> {availability.date}</p>
-                    <p><strong>Time:</strong> {availability.startTime} - {availability.endTime}</p>
-                    <p><strong>Max Students:</strong> {availability.maxStudents}</p>
-                    <p><strong>Price:</strong> ${availability.price}</p>
-                  </div>
-                  <button
-                    onClick={() => deleteAvailability(availability.id)}
-                    className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-        {/* APPOINTMENTS */}
-        {activeTab === "appointments" && (
-          <div className="bg-white p-5 rounded shadow">
-            <h2 className="text-lg font-semibold mb-3">My Appointments</h2>
-            <div className="grid gap-4">
-              {appointments.map((appointment) => (
-                <div key={appointment.id} className="p-4 border rounded-lg">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p><strong>With:</strong> {appointment.Coach?.name || appointment.Student?.name}</p>
-                      <p><strong>Course:</strong> {appointment.Course?.title}</p>
-                      <p><strong>Date & Time:</strong> {new Date(appointment.appointmentDate).toLocaleString()}</p>
-                      <p><strong>Status:</strong> 
-                        <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                          appointment.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                          appointment.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                          appointment.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {appointment.status}
-                        </span>
-                      </p>
-                      {appointment.meetingLink && (
-                        <p>
-                          <strong>Meeting Link:</strong>{' '}
-                          <a href={appointment.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                            Join Meeting
-                          </a>
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      {appointment.status === 'pending' && (
-                        <button
-                          onClick={async () => {
-                            await api.put(`/appointments/${appointment.id}/status`, {
-                              status: 'cancelled'
-                            }, { withCredentials: true });
-                            fetchAppointments();
-                          }}
-                          className="p-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </div>
