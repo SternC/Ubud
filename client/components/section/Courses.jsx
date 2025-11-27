@@ -4,8 +4,6 @@ import api from "../../src/api.jsx";
 import SubcoursePopup from "./SubcoursePopup.jsx";
 import AppointmentPopup from "./AppointmentPopup.jsx";
 
-
-
 export function Courses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +11,7 @@ export function Courses() {
   const [user, setUser] = useState(null);
   const [isCoach, setIsCoach] = useState(false);
   const [editCourseId, setEditCourseId] = useState(null);
+  const [coaches, setCoaches] = useState(null);
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
@@ -28,23 +27,22 @@ export function Courses() {
 
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
-
   const openFolderPopup = (course) => {
     setSelectedCourse(course);
     setShowFolderPopup(true);
   };
 
   const handlePaperClick = (paperItem, index) => {
-  if (index === 0) { 
-    setActiveCourse(selectedCourse);
-    setShowSubcourseModal(true);
-  }
+    if (index === 0) {
+      setActiveCourse(selectedCourse);
+      setShowSubcourseModal(true);
+    }
 
-  if (index === 2) { 
-    setActiveCourse(selectedCourse);
-    setShowAppointmentModal(true);
-  }
-};
+    if (index === 2) {
+      setActiveCourse(selectedCourse);
+      setShowAppointmentModal(true);
+    }
+  };
 
   useEffect(() => {
     api
@@ -56,7 +54,15 @@ export function Courses() {
         }
       })
       .catch(() => setIsCoach(false));
-      
+  }, []);
+
+  useEffect(() => {
+    api
+      .get("/coaches", { withCredentials: true })
+      .then((res) => {
+        if (res.data) setCoaches(res.data);
+      })
+      .catch(() => setCoaches([]));
   }, []);
 
   useEffect(() => {
@@ -68,7 +74,7 @@ export function Courses() {
         const res = await api.get(url, { withCredentials: true });
         setCourses(res.data);
       } catch (error) {
-    console.error("error fetch", error);
+        console.error("error fetch", error);
       } finally {
         setLoading(false);
       }
@@ -80,7 +86,10 @@ export function Courses() {
     const { name, value } = e.target;
     setNewCourse((prev) => ({
       ...prev,
-      [name]: name === "price" || name === "oldPrice" ? parseFloat(value) || 0 : value,
+      [name]:
+        name === "price" || name === "oldPrice"
+          ? parseFloat(value) || 0
+          : value,
     }));
   };
 
@@ -96,17 +105,17 @@ export function Courses() {
         .put(`/courses/${editCourseId}`, newCourse, { withCredentials: true })
         .then((res) => {
           setCourses((prev) =>
-            prev.map((c) => (c.id === editCourseId ? { ...c, ...res.data.course } : c))
+            prev.map((c) =>
+              c.id === editCourseId ? { ...c, ...res.data.course } : c
+            )
           );
           resetModal();
         });
     } else {
-      api
-        .post("/courses", newCourse, { withCredentials: true })
-        .then((res) => {
-          setCourses((prev) => [...prev, res.data.course]);
-          resetModal();
-        });
+      api.post("/courses", newCourse, { withCredentials: true }).then((res) => {
+        setCourses((prev) => [...prev, res.data.course]);
+        resetModal();
+      });
     }
   };
 
@@ -201,14 +210,22 @@ export function Courses() {
               <Folder
                 size={1}
                 color="#4a9fe8"
-                items={[{ chapter: "Subcourses" }, { chapter: "Assignment" }, { chapter: "Appointment" }]}
+                items={[
+                  { chapter: "Subcourses" },
+                  { chapter: "Assignment" },
+                  { chapter: "Appointment" },
+                ]}
                 onPaperSelect={handlePaperClick}
               />
             </div>
-            <h3 className="mt-2 font-semibold text-center text-sm">{course.title}</h3>
-            <p className="text-xs text-gray-500 text-center">{course.description}</p>
+            <h3 className="mt-2 font-semibold text-center text-sm">
+              {course.title}
+            </h3>
+            <p className="text-xs text-gray-500 text-center">
+              {course.description}
+            </p>
 
-            {isCoach && course.coachId === user?.id && (
+            {isCoach && coaches.some((c) => c.id === course.coachId) && (
               <button
                 onClick={() => handleEdit(course)}
                 className="mt-2 px-3 py-1 bg-blue-900 text-white text-xs rounded-md"
@@ -232,16 +249,15 @@ export function Courses() {
       )}
 
       {showAppointmentModal && activeCourse && (
-  <AppointmentPopup
-    course={activeCourse}
-    onClose={() => {
-      setShowAppointmentModal(false);
-      setActiveCourse(null);
-    }}
-    user={user}
-  />
-)}
-
+        <AppointmentPopup
+          course={activeCourse}
+          onClose={() => {
+            setShowAppointmentModal(false);
+            setActiveCourse(null);
+          }}
+          user={user}
+        />
+      )}
     </div>
   );
 }
