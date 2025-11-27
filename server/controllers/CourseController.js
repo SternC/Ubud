@@ -1,4 +1,4 @@
-// controllers/courseController.js
+
 import Course from "../models/Course.js";
 import Purchase from "../models/Purchase.js";
 
@@ -108,19 +108,53 @@ export const deleteCourse = async (req, res) => {
 
 export const getPurchasedCourses = async (req, res) => {
   try {
-    const userId = req.user.id; // from verifyToken middleware
+    const userId = req.user.id; 
 
     const purchases = await Purchase.findAll({
       where: { userId },
       include: [{ model: Course }],
     });
 
-    // map to just course info
+  
     const courses = purchases.map(p => p.Course);
 
     res.json(courses);
   } catch (err) {
     console.error("Get purchased courses error:", err);
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const uploadCourseMaterial = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+  
+    const user = req.user;
+
+    const course = await Course.findOne({ where: { id: courseId } });
+    if (!course) return res.status(404).json({ message: "Course not found" });
+
+    const isAdmin = Boolean(user.is_admin);
+    const isOwner = user.id === course.coachId || user.id === course.userId; 
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ message: "Forbidden: cannot upload to this course" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+
+    const materialUrl = `/uploads/${req.file.filename}`;
+    course.materialUrl = materialUrl;
+    await course.save();
+
+    return res.status(200).json({
+      message: "Material uploaded successfully",
+      materialUrl,
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    return res.status(500).json({ message: "Server error uploading material" });
   }
 };
