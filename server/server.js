@@ -16,6 +16,7 @@ import Comment from "./models/Comment.js";
 import Coaches from "./models/coach.js";
 import Availability from "./models/availability.js";
 import Appointment from "./models/appointment.js";
+import Assignment from "./models/Assignment.js";
 
 
 
@@ -35,13 +36,16 @@ Appointment.belongsTo(User, { as: "student", foreignKey: "studentId" });
 Appointment.belongsTo(Coaches, { as: "coach", foreignKey: "coachId" });
 Appointment.belongsTo(Availability, { foreignKey: "availabilityId" });
 
+Assignment.belongsTo(Course, { foreignKey: "courseId" });
+Course.hasMany(Assignment, { foreignKey: "courseId" });
+
 
 
 try {
   await sequelize.authenticate();
   console.log("✅ Database connected");
 
- await sequelize.sync();
+ await sequelize.sync({alter: true});
 
   console.log(" Models synced");
 } catch (err) {
@@ -69,13 +73,9 @@ import coachRoutes from "./routes/coachRoutes.js";
 import subcourseRoutes from "./routes/subcourseRoutes.js";
 import availabilityRoutes from "./routes/availabilityRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
+import assignmentRoutes from "./routes/assignmentRoutes.js";
+
 app.use("/api", subcourseRoutes);
-
-
-
-
-
-
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
@@ -84,6 +84,7 @@ app.use("/api", profileRoutes);
 app.use("/api", coachRoutes); 
 app.use("/api/availability", availabilityRoutes); 
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/courses", assignmentRoutes);
 
 
 
