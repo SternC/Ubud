@@ -3,6 +3,7 @@ import Folder from "../ui/folder";
 import api from "../../src/api.jsx";
 import SubcoursePopup from "./SubcoursePopup.jsx";
 import AppointmentPopup from "./AppointmentPopup.jsx";
+import AssignmentPopup from "./AssignmentPopup.jsx";
 
 export function Courses() {
   const [courses, setCourses] = useState([]);
@@ -25,6 +26,8 @@ export function Courses() {
   const [showSubcourseModal, setShowSubcourseModal] = useState(false);
   const [activeCourse, setActiveCourse] = useState(null);
 
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
   const openFolderPopup = (course) => {
@@ -36,6 +39,11 @@ export function Courses() {
     if (index === 0) {
       setActiveCourse(selectedCourse);
       setShowSubcourseModal(true);
+    }
+
+    if (index === 1) {
+      setActiveCourse(selectedCourse);
+      setShowAssignmentModal(true);
     }
 
     if (index === 2) {
@@ -242,6 +250,17 @@ export function Courses() {
           course={activeCourse}
           onClose={() => {
             setShowSubcourseModal(false);
+            setActiveCourse(null);
+          }}
+          user={user}
+        />
+      )}
+
+      {showAssignmentModal && activeCourse && (
+        <AssignmentPopup
+          course={activeCourse}
+          onClose={() => {
+            setShowAssignmentModal(false);
             setActiveCourse(null);
           }}
           user={user}
