@@ -94,8 +94,12 @@ export const updateCourse = async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
-    if (is_coach && course.coachId !== profileId) {
-      return res.status(403).json({ message: "You cannot edit this course" });
+    if (is_coach) {
+      const coach = await Coaches.findOne({ where: { profileId } });
+      if (!coach) return res.status(403).json({ message: "Coach not found" });
+      if (course.coachId !== coach.id) {
+        return res.status(403).json({ message: "You cannot edit this course" });
+      }
     }
 
     course.title = title ?? course.title;
@@ -118,8 +122,12 @@ export const deleteCourse = async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
-    if (is_coach && course.coachId !== profileId) {
-      return res.status(403).json({ message: "You cannot delete this course" });
+    if (is_coach) {
+      const coach = await Coaches.findOne({ where: { profileId } });
+      if (!coach) return res.status(403).json({ message: "Coach not found" });
+      if (course.coachId !== coach.id) {
+        return res.status(403).json({ message: "You cannot delete this course" });
+      }
     }
 
     await course.destroy();
