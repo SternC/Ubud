@@ -48,23 +48,36 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, is_admin } = req.body; 
+  const { name, email, is_admin, password } = req.body;
 
   try {
     const user = await User.findOne({ where: { id } });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    user.name = name ?? user.name;
-    user.email = email ?? user.email;
-    user.is_admin = is_admin !== undefined ? is_admin : user.is_admin; 
-    await user.save();
+    if (email) {
+      const existingEmail = await User.findOne({ where: { email } });
+      if (existingEmail && existingEmail.id != id) {
+        return res.status(400).json({ error: "Email already used by another user" });
+      }
+    }
 
-    res.status(200).json({ message: "User updated successfully" });
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (is_admin !== undefined) user.is_admin = is_admin;
+    if (password && password.trim() !== "") {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+
+    await user.save();
+    return res.status(200).json({ message: "User updated successfully" });
+
   } catch (err) {
-    console.error("Error updating user:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Update error:", err);
+    return res.status(500).json({ error: "Server error" });
   }
 };
+
 
 
 export const getUserProfile = async (req, res) => {
