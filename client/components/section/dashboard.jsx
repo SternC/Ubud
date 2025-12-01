@@ -28,17 +28,23 @@ const UpcomingClassCard = ({ data }) => (
     </h3>
     <p className="text-slate-600 text-[0.95em] mb-2">{data.lecturer}</p>
     <p className="text-gray-500 text-[0.9em] my-1">{data.time}</p>
-    <p className="text-gray-500 text-[0.9em] mb-4">Course: {data.course}</p>
+    <p className={`text-[0.9em] mb-4 font-medium ${
+      data.status === 'confirmed' ? 'text-green-600' : 'text-orange-600'
+    }`}>
+      Status: {data.status}
+    </p>
     <button
       onClick={data.onViewSession}
       className="w-full py-2.5 bg-blue-700 text-white rounded-lg font-medium cursor-pointer transition-colors duration-300 hover:bg-blue-800"
     >
-      Lihat Kegiatan Sesi {data.session}
+      Lihat Detail Appointment
     </button>
-    <p className="mt-2.5 text-slate-700 text-[0.9em]">
-      Progress Kursus:{" "}
-      <span className="text-blue-600 font-semibold">{data.courseProgress}%</span>
-    </p>
+    {data.courseProgress !== undefined && (
+      <p className="mt-2.5 text-slate-700 text-[0.9em]">
+        Progress Kursus:{" "}
+        <span className="text-blue-600 font-semibold">{data.courseProgress}%</span>
+      </p>
+    )}
   </div>
 );
 
@@ -49,6 +55,7 @@ export default function Dashboard() {
   const [courses, setCourses] = useState([]); // purchased courses (array)
   const [courseProgress, setCourseProgress] = useState([]); // [{ courseId, percent }]
   const [studentProgress, setStudentProgress] = useState([]);
+  const [studentUpcomingAppointments, setStudentUpcomingAppointments] = useState([]);
   const [coachUpcomingClasses, setCoachUpcomingClasses] = useState([]);
   const [coachTimeline, setCoachTimeline] = useState([]);
 
@@ -74,12 +81,10 @@ export default function Dashboard() {
         setIsCoach(prof.data.is_coach);
 
         if (!prof.data.is_coach) {
-          // STUDENT: fetch purchases and then progress for each purchased course
-          // Use /purchases (or /purchases/:userId) depending on your backend;
-          // here we call /purchases which should return purchases for logged-in user.
-          const purchasesRes = await api.get("/purchases", {
-            withCredentials: true,
-          });
+          const [purchasesRes, appointmentsRes] = await Promise.all([
+            api.get("/purchases", { withCredentials: true }),
+            api.get("/appointments/my-appointments", { withCredentials: true }).catch(() => ({ data: [] })),
+          ]);
 
           if (cancelled) return;
           // normalize purchases to have: courseId, title, createdAt, code (if available)
@@ -93,6 +98,28 @@ export default function Dashboard() {
           }));
 
           setCourses(normalized);
+          const normalizedAppointments = appointmentsRes.data
+            .filter(a => a.status !== 'completed' && a.status !== 'cancelled') 
+            .map(a => {
+              const dateObj = new Date(a.Availability?.date);
+              const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+              
+              return {
+                id: a.id, 
+                title: `Appointment dengan ${a.coach?.Profile?.name || 'Coach'}`,
+                lecturer: a.coach?.Profile?.name || 'N/A',
+                time: `${formattedDate}, ${a.Availability?.time || 'N/A'}`,
+                status: a.status,
+                courseProgress: undefined, 
+                session: a.Availability?.id || 'N/A'
+              };
+            });
+            
+          setStudentUpcomingAppointments(normalizedAppointments);
 
           // fetch progress for each purchased course (using /progress/:courseId)
           const progressPromises = normalized.map((c) =>
@@ -114,13 +141,35 @@ export default function Dashboard() {
           // COACH: fetch coach-specific endpoints
           const [studentsRes, upcomingRes, timelineRes] = await Promise.all([
             api.get("/students-progress", { withCredentials: true }).catch(() => ({ data: [] })),
-            api.get("/upcoming-classes", { withCredentials: true }).catch(() => ({ data: [] })),
+            // api.get("/upcoming-classes", { withCredentials: true }).catch(() => ({ data: [] })),
+            api.get("/appointments/my-appointments", { withCredentials: true }).catch(() => ({ data: [] })),
             api.get("/timeline", { withCredentials: true }).catch(() => ({ data: [] })),
           ]);
 
+          const normalizedAppointments = upcomingRes.data
+            .filter(a => a.status !== 'completed' && a.status !== 'cancelled') 
+            .map(a => {
+              const dateObj = new Date(a.Availability?.date);
+              const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+              
+              return {
+                id: a.id, 
+                title: `Appointment dengan ${a.student?.name || 'Coach'}`,
+                lecturer: a.student?.name || 'N/A',
+                time: `${formattedDate}, ${a.Availability?.time || 'N/A'}`,
+                status: a.status,
+                courseProgress: undefined, 
+                session: a.Availability?.id || 'N/A'
+              };
+            });
+
           if (cancelled) return;
           setStudentProgress(studentsRes.data || []);
-          setCoachUpcomingClasses(upcomingRes.data || []);
+          setCoachUpcomingClasses(normalizedAppointments || []);
           setCoachTimeline(timelineRes.data || []);
         }
 
@@ -209,6 +258,9 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  console.log(coachUpcomingClasses, 'coachUpcomingClasses');
+  console.log(studentUpcomingAppointments, 'studentUpcomingAppointments');
 
   return (
     <div className="p-6 bg-slate-50 min-h-[85vh]">
@@ -313,48 +365,43 @@ export default function Dashboard() {
           {/* UPCOMING CLASS */}
           <div>
             <h2 className="text-[1.4em] text-slate-900 border-b-2 border-blue-600 pb-2">
-              Upcoming Class
+              Upcoming Appointment
             </h2>
 
-            {coachUpcomingClasses.length === 0 ? (
-              <p className="text-slate-600">No upcoming classes.</p>
-            ) : (
-              coachUpcomingClasses.map((cls, idx) => (
-                <UpcomingClassCard
-                  key={idx}
-                  data={{
-                    ...cls,
-                    onViewSession: () => alert(`Lihat sesi ${cls.session} dari ${cls.title}`),
-                  }}
-                />
-              ))
-            )}
-          </div>
-
-          {/* TIMELINE */}
-          <div>
-            <h2 className="text-[1.4em] text-slate-900 border-b-2 border-blue-600 pb-2 mb-4">
-              Timeline
-            </h2>
-
-            <div className="space-y-4">
-              {coachTimeline.length === 0 ? (
-                <p className="text-slate-600">No timeline items.</p>
+            {/* >>> GANTI DENGAN LOGIKA PERCABANGAN BERIKUT <<< */}
+            {!isCoach ? (
+              // STUDENT VIEW (Menggunakan data Appointment)
+              studentUpcomingAppointments.length === 0 ? (
+                <p className="text-slate-600 mt-4">No upcoming appointments.</p>
               ) : (
-                coachTimeline.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="border-l-4 border-blue-600 pl-4 pb-3 ml-1 flex flex-col gap-2 bg-slate-50 rounded-md p-2"
-                  >
-                    <div>
-                      <p className="text-slate-800 font-semibold">{item.date}</p>
-                      <p className="text-slate-600 text-sm mb-1">{item.course}</p>
-                      <p className="text-sm text-gray-700">Submissions: {item.submissions}</p>
-                    </div>
-                  </div>
+                studentUpcomingAppointments.map((app, idx) => (
+                  <UpcomingClassCard
+                    key={app.id || idx}
+                    data={{
+                      ...app,
+                      onViewSession: () => alert(`Lihat detail appointment dengan ${app.lecturer} pada ${app.time}`),
+                    }}
+                  />
                 ))
-              )}
-            </div>
+              )
+            ) : (
+              // COACH VIEW (Menggunakan data dari /upcoming-classes)
+              coachUpcomingClasses.length === 0 ? (
+                <p className="text-slate-600 mt-4">No upcoming classes.</p>
+              ) : (
+                coachUpcomingClasses.map((cls, idx) => (
+                  <UpcomingClassCard
+                    key={idx}
+                    data={{
+                      ...cls,
+                      onViewSession: () => alert(`Lihat sesi ${cls.session} dari ${cls.title}`),
+                      status: cls.status || 'confirmed', 
+                    }}
+                  />
+                ))
+              )
+            )}
+            
           </div>
         </div>
       </div>
