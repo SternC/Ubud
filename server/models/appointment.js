@@ -3,6 +3,7 @@ import sequelize from "../config/database.js";
 import User from "./User.js";
 import Coaches from "./coach.js";
 import Availability from "./availability.js";
+import Profile from "./Profile.js";
 
 const Appointment = sequelize.define("Appointment", {
   id: {

@@ -36,18 +36,19 @@ export const bookAppointment = async (req, res) => {
 
 // Get Appointments untuk User (Melihat history booking saya)
 export const getMyAppointments = async (req, res) => {
-  const userId = req.user.id;
-  
+  const { id, profileId, is_coach } = req.user; 
+  const coach = await Coaches.findOne({ where: { profileId } });
   try {
     const appointments = await Appointment.findAll({
-      where: { studentId: userId },
+      where: is_coach ? { coachId: coach.id } : { studentId: id },
       include: [
         { 
           model: Coaches, 
           as: "coach",
           include: [{ model: Profile, attributes: ['name'] }] // Supaya tau nama coachnya
         },
-        { model: Availability } // Supaya tau jam dan tanggalnya
+        { model: Availability },
+        { model: User, as: "student", attributes: ['id', 'email', 'name'] },
       ]
     });
     res.json(appointments);

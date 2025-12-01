@@ -17,6 +17,7 @@ import Coaches from "./models/coach.js";
 import Availability from "./models/availability.js";
 import Appointment from "./models/appointment.js";
 import Assignment from "./models/Assignment.js";
+import Profile from "./models/Profile.js";
 
 
 
@@ -35,6 +36,7 @@ Availability.belongsTo(Coaches, { foreignKey: "coachId" });
 Appointment.belongsTo(User, { as: "student", foreignKey: "studentId" });
 Appointment.belongsTo(Coaches, { as: "coach", foreignKey: "coachId" });
 Appointment.belongsTo(Availability, { foreignKey: "availabilityId" });
+
 
 Assignment.belongsTo(Course, { foreignKey: "courseId" });
 Course.hasMany(Assignment, { foreignKey: "courseId" });
