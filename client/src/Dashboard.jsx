@@ -47,26 +47,24 @@ export default function AdminDashboard() {
   const [purchases, setPurchases] = useState([]);
 
   const handleDownloadReport = () => {
-  api
-    .get(`/purchases/download-report?t=${Date.now()}`, {
-      withCredentials: true,
-      responseType: "blob",
-    })
-    .then((res) => {
-      const file = new Blob([res.data], { type: "application/pdf" });
-      const url = URL.createObjectURL(file);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "purchase-report.pdf";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    })
-    .catch((err) => console.error("Error downloading report:", err));
-};
-
-
+    api
+      .get(`/purchases/download-report?t=${Date.now()}`, {
+        withCredentials: true,
+        responseType: "blob",
+      })
+      .then((res) => {
+        const file = new Blob([res.data], { type: "application/pdf" });
+        const url = URL.createObjectURL(file);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "purchase-report.pdf";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      })
+      .catch((err) => console.error("Error downloading report:", err));
+  };
 
   // Profiles
   const [profiles, setProfiles] = useState([]);
@@ -147,13 +145,12 @@ export default function AdminDashboard() {
         withCredentials: true,
       });
       setCoaches(res.data || []);
-   
+
       setAllCoaches(res.data || []);
     } catch (err) {
       console.error(err);
     }
   };
-
 
   useEffect(() => {
     if (search === "") {
@@ -175,19 +172,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     setSearch("");
-  
+
     setUsers(allUsers);
     setProfiles(allProfiles);
     setCoaches(allCoaches);
-  }, [activeTab]); 
-
+  }, [activeTab]);
 
   const handleSearchChange = (value) => {
     const q = (value || "").trim().toLowerCase();
     setSearch(value);
 
     if (q === "") {
-  
       setUsers(allUsers);
       setProfiles(allProfiles);
       setCoaches(allCoaches);
@@ -267,30 +262,26 @@ export default function AdminDashboard() {
 
   const submitUser = async (e) => {
     e.preventDefault();
+
+    // Build payload safely
+    const payload = {
+      name: userForm.name,
+      email: userForm.email,
+      is_admin: userForm.is_admin,
+    };
+
+    // ⭐ Only include password if user typed one
+    if (userForm.password && userForm.password.trim() !== "") {
+      payload.password = userForm.password;
+    }
+
     try {
       if (userEditing) {
-        // Update user
-        await api.put(
-          `/edit/${userForm.id}`,
-          {
-            name: userForm.name,
-            email: userForm.email,
-            password: userForm.password,
-            is_admin: userForm.is_admin,
-          },
-          { withCredentials: true }
-        );
+        await api.put(`/edit/${userForm.id}`, payload, {
+          withCredentials: true,
+        });
       } else {
-        await api.post(
-          "/users",
-          {
-            name: userForm.name,
-            email: userForm.email,
-            password: userForm.password,
-            is_admin: userForm.is_admin,
-          },
-          { withCredentials: true }
-        );
+        await api.post("/users", payload, { withCredentials: true });
       }
 
       cancelUserEdit();
@@ -402,15 +393,15 @@ export default function AdminDashboard() {
   }
 
   return (
-   <div className="min-h-screen flex bg-[#f8fafc] relative">
+    <div className="min-h-screen flex bg-[#f8fafc] relative">
       {/* Sidebar */}
       <aside
-          className={`fixed lg:relative top-0 left-0 h-screen bg-gradient-to-b from-[#0b2a45] to-[#1f4c7b] 
+        className={`fixed lg:relative top-0 left-0 h-screen bg-gradient-to-b from-[#0b2a45] to-[#1f4c7b] 
           text-white w-64 p-6 flex flex-col transition-transform duration-300 z-20 
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
-        >
-
-
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
+      >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Admin Panel</h2>
           <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
@@ -470,8 +461,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main */}
-     <div className="flex-1 p-6 lg:ml-6 transition-all duration-300">
-
+      <div className="flex-1 p-6 lg:ml-6 transition-all duration-300">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="lg:hidden mb-4 p-2 border rounded"
@@ -763,13 +753,13 @@ export default function AdminDashboard() {
               <ShoppingCart /> Purchases
             </h2>
             <div className="flex justify-end mb-4">
-            <button
-              onClick={handleDownloadReport}
-              className="bg-[#0b2a45] text-white px-4 py-2 rounded hover:bg-[#0a1f30]"
-            >
-            Download Report
-            </button>
-          </div>
+              <button
+                onClick={handleDownloadReport}
+                className="bg-[#0b2a45] text-white px-4 py-2 rounded hover:bg-[#0a1f30]"
+              >
+                Download Report
+              </button>
+            </div>
             <table className="min-w-full text-left text-sm border">
               <thead className="bg-gray-100">
                 <tr>
