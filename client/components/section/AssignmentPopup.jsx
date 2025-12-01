@@ -8,21 +8,39 @@ export default function AssignmentPopup({ course, onClose, user }) {
   const [submitAnswerId, setSubmitAnswerId] = useState(null);
   const [answerUrl, setAnswerUrl] = useState("");
   const [openCMS, setOpenCMS] = useState(false);
+  const [doneAssignments, setDoneAssignments] = useState([]);
 
   const isCoach = user?.is_coach;
 
   useEffect(() => {
     if (!course?.id) return;
-    api.get(`/courses/${course.id}/assignments`)
-      .then(res => setAssignments(res.data))
+
+    api
+      .get(`/courses/${course.id}/assignments`)
+      .then((res) => setAssignments(res.data))
       .catch(console.error);
+
   }, [course?.id]);
+
+  const markAsDone = async (assignmentId) => {
+    try {
+      await api.post("/progress/assignment", {
+        assignmentId,
+        courseId: course.id,
+      });
+
+      setDoneAssignments([...doneAssignments, assignmentId]);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to mark as done");
+    }
+  };
 
   const submitAnswer = async () => {
     if (!answerUrl.trim()) return alert("Answer URL cannot be empty.");
 
     await api.post(`/assignments/${submitAnswerId}/answer`, {
-      answerUrl
+      answerUrl,
     });
 
     alert("Answer submitted!");
@@ -33,7 +51,6 @@ export default function AssignmentPopup({ course, onClose, user }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-2 sm:p-4">
       <div className="bg-white w-full max-w-4xl rounded-lg shadow-lg overflow-hidden flex flex-col">
-
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="text-lg font-semibold">
@@ -62,13 +79,12 @@ export default function AssignmentPopup({ course, onClose, user }) {
             <div className="text-gray-500">No assignments yet</div>
           ) : (
             <div className="flex flex-col gap-3">
-              {assignments.map(a => (
+              {assignments.map((a) => (
                 <div key={a.id} className="p-3 border rounded bg-gray-50">
                   <div className="font-semibold">{a.title}</div>
                   <div className="text-sm text-gray-600">{a.description}</div>
 
                   <div className="mt-2 flex gap-2">
-
                     {/* View PDF */}
                     {a.pdfUrl && (
                       <button
@@ -88,6 +104,21 @@ export default function AssignmentPopup({ course, onClose, user }) {
                         Submit Answer
                       </button>
                     )}
+
+                    {/* Mark as Done */}
+                    {!isCoach &&
+                      (doneAssignments.includes(a.id) ? (
+                        <span className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm">
+                          Completed ✓
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => markAsDone(a.id)}
+                          className="px-3 py-1 bg-green-600 text-white rounded text-sm"
+                        >
+                          Mark as Done
+                        </button>
+                      ))}
 
                     {/* Coach review button */}
                     {isCoach && (
@@ -140,7 +171,10 @@ export default function AssignmentPopup({ course, onClose, user }) {
           <div className="bg-white w-full max-w-4xl h-[80vh] rounded shadow-lg flex flex-col">
             <div className="flex justify-between p-3 border-b">
               <div className="font-semibold">PDF Viewer</div>
-              <button onClick={() => setSelectedPdf(null)} className="px-2 py-1 bg-gray-300 rounded">
+              <button
+                onClick={() => setSelectedPdf(null)}
+                className="px-2 py-1 bg-gray-300 rounded"
+              >
                 Close
               </button>
             </div>
@@ -184,12 +218,8 @@ export default function AssignmentPopup({ course, onClose, user }) {
 
       {/* ⭐ Assignment CMS Modal (COACH ONLY) */}
       {openCMS && (
-        <CoachAssignment
-          course={course}
-          onClose={() => setOpenCMS(false)}
-        />
+        <CoachAssignment course={course} onClose={() => setOpenCMS(false)} />
       )}
-
     </div>
   );
 }

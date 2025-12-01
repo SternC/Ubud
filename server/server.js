@@ -74,6 +74,7 @@ import subcourseRoutes from "./routes/subcourseRoutes.js";
 import availabilityRoutes from "./routes/availabilityRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
+import progresssRoutes from "./routes/progressRoutes.js";
 
 app.use("/api", subcourseRoutes);
 app.use("/api", authRoutes);
@@ -85,6 +86,7 @@ app.use("/api", coachRoutes);
 app.use("/api/availability", availabilityRoutes); 
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/courses", assignmentRoutes);
+app.use("/api", progresssRoutes);
 
 
 
