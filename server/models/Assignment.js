@@ -2,6 +2,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
 import Course from "./Course.js"; 
 import { v4 as uuidv4 } from "uuid";
+import StudentProgress from "./studentProgress.js";
 
 const Assignment = sequelize.define(
   "Assignment",
@@ -46,5 +47,9 @@ const Assignment = sequelize.define(
 
 Assignment.belongsTo(Course, { foreignKey: "courseId" });
 Course.hasMany(Assignment, { foreignKey: "courseId" });
+
+Assignment.hasMany(StudentProgress, { foreignKey: "assignmentId" });
+StudentProgress.belongsTo(Assignment, { foreignKey: "assignmentId" });
+
 
 export default Assignment;

@@ -1,6 +1,7 @@
 // server/models/Subcourse.js
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
+import StudentProgress from "./studentProgress.js";
 
 const Subcourse = sequelize.define("Subcourse", {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
@@ -10,5 +11,9 @@ const Subcourse = sequelize.define("Subcourse", {
   tableName: "subcourses",
   timestamps: true
 });
+
+Subcourse.hasMany(StudentProgress, { foreignKey: "subcourseId" });
+StudentProgress.belongsTo(Subcourse, { foreignKey: "subcourseId" });
+
 
 export default Subcourse;
