@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "../config/database.js";
+import StudentProgress from "./studentProgress.js";
 
 const User = db.define("User", {
   name: {
@@ -23,5 +24,8 @@ const User = db.define("User", {
   tableName: "users",
   timestamps: false
 });
+
+StudentProgress.belongsTo(User, { foreignKey: "studentId" });
+User.hasMany(StudentProgress, { foreignKey: "studentId" });
 
 export default User;

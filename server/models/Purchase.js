@@ -26,7 +26,11 @@ const Purchase = sequelize.define("Purchase", {
     allowNull: false,
   },
 });
-Purchase.belongsTo(User, { foreignKey: "userId", targetKey: "id" });
-Purchase.belongsTo(Course, { foreignKey: "courseId", targetKey: "id" });
+
+Purchase.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Purchase, { foreignKey: "userId" });
+
+Purchase.belongsTo(Course, { foreignKey: "courseId" });
+Course.hasMany(Purchase, { foreignKey: "courseId" });
 
 export default Purchase;

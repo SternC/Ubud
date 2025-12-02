@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import db from "../config/database.js";
 import User from './User.js';
+import StudentProgress from './studentProgress.js';
 
 const Profile = db.define('Profile', {
   id: {
@@ -39,5 +40,8 @@ const Profile = db.define('Profile', {
 });
 
 Profile.belongsTo(User, { foreignKey: "userId" });
+
+StudentProgress.belongsTo(Profile, { foreignKey: "studentId" });
+Profile.hasMany(StudentProgress, { foreignKey: "studentId" });
 
 export default Profile;
