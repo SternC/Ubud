@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../../src/api.jsx";
 
-// UI COMPONENTS (unchanged visual behavior)
+// UI COMPONENTS (unchanged)
 const ProgressBar = ({ title, code, progress }) => (
   <div className="mb-5">
     <p className="text-[0.95em] mb-1 text-slate-900">
@@ -15,9 +15,7 @@ const ProgressBar = ({ title, code, progress }) => (
         style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
       ></div>
     </div>
-    <p className="text-right text-[0.85em] text-slate-700 mt-1">
-      {progress}%
-    </p>
+    <p className="text-right text-[0.85em] text-slate-700 mt-1">{progress}%</p>
   </div>
 );
 
@@ -28,9 +26,11 @@ const UpcomingClassCard = ({ data }) => (
     </h3>
     <p className="text-slate-600 text-[0.95em] mb-2">{data.lecturer}</p>
     <p className="text-gray-500 text-[0.9em] my-1">{data.time}</p>
-    <p className={`text-[0.9em] mb-4 font-medium ${
-      data.status === 'confirmed' ? 'text-green-600' : 'text-orange-600'
-    }`}>
+    <p
+      className={`text-[0.9em] mb-4 font-medium ${
+        data.status === "confirmed" ? "text-green-600" : "text-orange-600"
+      }`}
+    >
       Status: {data.status}
     </p>
     <button
@@ -42,7 +42,9 @@ const UpcomingClassCard = ({ data }) => (
     {data.courseProgress !== undefined && (
       <p className="mt-2.5 text-slate-700 text-[0.9em]">
         Progress Kursus:{" "}
-        <span className="text-blue-600 font-semibold">{data.courseProgress}%</span>
+        <span className="text-blue-600 font-semibold">
+          {data.courseProgress}%
+        </span>
       </p>
     )}
   </div>
@@ -52,12 +54,12 @@ export default function Dashboard() {
   const [isCoach, setIsCoach] = useState(false);
 
   // data
-  const [courses, setCourses] = useState([]); // purchased courses (array)
-  const [courseProgress, setCourseProgress] = useState([]); // [{ courseId, percent }]
+  const [courses, setCourses] = useState([]);
+  const [courseProgress, setCourseProgress] = useState([]);
   const [studentProgress, setStudentProgress] = useState([]);
-  const [studentUpcomingAppointments, setStudentUpcomingAppointments] = useState([]);
+  const [studentUpcomingAppointments, setStudentUpcomingAppointments] =
+    useState([]);
   const [coachUpcomingClasses, setCoachUpcomingClasses] = useState([]);
-  const [coachTimeline, setCoachTimeline] = useState([]);
 
   // filters
   const [selectedYear, setSelectedYear] = useState("All");
@@ -67,11 +69,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // single effect: fetch profile -> then fetch needed resources once
+  // LOAD DASHBOARD DATA
   useEffect(() => {
     let cancelled = false;
 
-    const load = async () => {
+    const loadDashboard = async () => {
       setLoading(true);
       setError(null);
 
@@ -81,96 +83,125 @@ export default function Dashboard() {
         setIsCoach(prof.data.is_coach);
 
         if (!prof.data.is_coach) {
+          // ===== STUDENT VIEW =====
           const [purchasesRes, appointmentsRes] = await Promise.all([
             api.get("/purchases", { withCredentials: true }),
-            api.get("/appointments/my-appointments", { withCredentials: true }).catch(() => ({ data: [] })),
+            api
+              .get("/appointments/my-appointments", { withCredentials: true })
+              .catch(() => ({ data: [] })),
           ]);
 
           if (cancelled) return;
-          // normalize purchases to have: courseId, title, createdAt, code (if available)
-          const normalized = purchasesRes.data.map((p) => ({
-            courseId: p.courseId ?? p.Course?.id ?? p.id,
-            title: p.title ?? p.Course?.title ?? p.Course?.name ?? "Untitled course",
-            createdAt: p.createdAt ?? p.Course?.createdAt ?? p.createdAt,
-            code: p.code ?? p.Course?.code ?? "",
-            // keep any other fields you like:
-            raw: p,
-          }));
 
-          setCourses(normalized);
+          // only include purchases belonging to this student
+          const normalizedCourses = purchasesRes.data
+            .filter((p) => p.userId === prof.data.id) // <-- FILTER HERE
+            .map((p) => ({
+              courseId: p.courseId ?? p.Course?.id ?? p.id,
+              title:
+                p.title ??
+                p.Course?.title ??
+                p.Course?.name ??
+                "Untitled course",
+              createdAt: p.createdAt ?? p.Course?.createdAt ?? p.createdAt,
+              code: p.code ?? p.Course?.code ?? "",
+              raw: p,
+            }));
+
+          setCourses(normalizedCourses);
+
           const normalizedAppointments = appointmentsRes.data
-            .filter(a => a.status !== 'completed' && a.status !== 'cancelled') 
-            .map(a => {
-              const dateObj = new Date(a.Availability?.date);
-              const formattedDate = dateObj.toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-              });
-              
+            .filter((a) => a.status !== "completed" && a.status !== "cancelled")
+            .map((a) => {
+              const dateObj = a.Availability?.date
+                ? new Date(a.Availability.date)
+                : null;
+              const formattedDate = dateObj
+                ? dateObj.toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "N/A";
+
               return {
-                id: a.id, 
-                title: `Appointment dengan ${a.coach?.Profile?.name || 'Coach'}`,
-                lecturer: a.coach?.Profile?.name || 'N/A',
-                time: `${formattedDate}, ${a.Availability?.time || 'N/A'}`,
+                id: a.id,
+                title: `Appointment dengan ${
+                  a.coach?.Profile?.name || "Coach"
+                }`,
+                lecturer: a.coach?.Profile?.name || "N/A",
+                time: `${formattedDate}, ${a.Availability?.time || "N/A"}`,
                 status: a.status,
-                courseProgress: undefined, 
-                session: a.Availability?.id || 'N/A'
+                courseProgress: undefined,
+                session: a.Availability?.id || "N/A",
               };
             });
-            
+
           setStudentUpcomingAppointments(normalizedAppointments);
 
-          // fetch progress for each purchased course (using /progress/:courseId)
-          const progressPromises = normalized.map((c) =>
+          // fetch progress per course
+          const progressPromises = normalizedCourses.map((c) =>
             api
               .get(`/progress/${c.courseId}`, { withCredentials: true })
-              .then((r) => {
-                // support two possible shapes: { percent } or { progress } or { percent: number }
-                const percent =
-                  r.data.percent ?? r.data.progress ?? r.data.percentComplete ?? 0;
-                return { courseId: c.courseId, percent: Math.round(percent) };
-              })
+              .then((r) => ({
+                courseId: c.courseId,
+                percent: Math.round(r.data.percent ?? 0),
+              }))
               .catch(() => ({ courseId: c.courseId, percent: 0 }))
           );
-
           const progressResults = await Promise.all(progressPromises);
           if (cancelled) return;
           setCourseProgress(progressResults);
         } else {
-          // COACH: fetch coach-specific endpoints
-          const [studentsRes, upcomingRes, timelineRes] = await Promise.all([
-            api.get("/students-progress", { withCredentials: true }).catch(() => ({ data: [] })),
-            // api.get("/upcoming-classes", { withCredentials: true }).catch(() => ({ data: [] })),
-            api.get("/appointments/my-appointments", { withCredentials: true }).catch(() => ({ data: [] })),
-            api.get("/timeline", { withCredentials: true }).catch(() => ({ data: [] })),
-          ]);
+          // COACH VIEW
+          const coursesRes = await api.get("/courses", {
+            withCredentials: true,
+          });
+          if (cancelled) return;
 
+          const coachCourses = coursesRes.data;
+          setCourses(coachCourses);
+
+          const studentsRes = await api
+            .get("/students-progress", { withCredentials: true })
+            .catch(() => ({ data: [] }));
+          if (cancelled) return;
+
+          // Ensure each course has unique students
+          setStudentProgress(
+            Array.isArray(studentsRes.data) ? studentsRes.data : []
+          );
+
+          const upcomingRes = await api.get("/appointments/my-appointments", {
+            withCredentials: true,
+          });
           const normalizedAppointments = upcomingRes.data
-            .filter(a => a.status !== 'completed' && a.status !== 'cancelled') 
-            .map(a => {
-              const dateObj = new Date(a.Availability?.date);
-              const formattedDate = dateObj.toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-              });
-              
+            .filter((a) => a.status !== "completed" && a.status !== "cancelled")
+            .map((a) => {
+              const dateObj = a.Availability?.date
+                ? new Date(a.Availability.date)
+                : null;
+              const formattedDate = dateObj
+                ? dateObj.toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "N/A";
+
               return {
-                id: a.id, 
-                title: `Appointment dengan ${a.student?.name || 'Coach'}`,
-                lecturer: a.student?.name || 'N/A',
-                time: `${formattedDate}, ${a.Availability?.time || 'N/A'}`,
+                id: a.id,
+                title: `Appointment dengan ${a.student?.name || "Student"}`,
+                lecturer: a.student?.name || "N/A",
+                time: `${formattedDate}, ${a.Availability?.time || "N/A"}`,
                 status: a.status,
-                courseProgress: undefined, 
-                session: a.Availability?.id || 'N/A'
+                courseProgress: undefined,
+                session: a.Availability?.id || "N/A",
               };
             });
 
           if (cancelled) return;
-          setStudentProgress(studentsRes.data || []);
-          setCoachUpcomingClasses(normalizedAppointments || []);
-          setCoachTimeline(timelineRes.data || []);
+          setCoachUpcomingClasses(normalizedAppointments);
         }
 
         setLoading(false);
@@ -183,13 +214,13 @@ export default function Dashboard() {
       }
     };
 
-    load();
+    loadDashboard();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // FILTER OPTIONS derived from courses (include "All")
+  // FILTER OPTIONS
   const availableYears = useMemo(() => {
     const years = new Set();
     courses.forEach((c) => {
@@ -213,10 +244,9 @@ export default function Dashboard() {
     []
   );
 
-  // FILTER COURSES: if course has no date, include it (so things don't disappear)
   const filteredCourses = useMemo(() => {
     return courses.filter((course) => {
-      if (!course.createdAt) return true; // include courses with no date
+      if (!course.createdAt) return true;
       const d = new Date(course.createdAt);
       if (isNaN(d)) return true;
 
@@ -232,7 +262,6 @@ export default function Dashboard() {
     });
   }, [courses, selectedYear, selectedMonth, selectedDay]);
 
-  // AVG PROGRESS across filteredCourses (use courseProgress mapping)
   const avgProgress = useMemo(() => {
     if (filteredCourses.length === 0) return 0;
     const total = filteredCourses.reduce((acc, course) => {
@@ -242,25 +271,18 @@ export default function Dashboard() {
     return Math.round(total / filteredCourses.length);
   }, [filteredCourses, courseProgress]);
 
-  // helper: showLoading or error
-  if (loading) {
+  if (loading)
     return (
-      <div className="p-6 bg-slate-50 min-h-[85vh]">
-        <div className="text-center text-slate-700">Loading dashboard…</div>
+      <div className="p-6 bg-slate-50 min-h-[85vh] text-center text-slate-700">
+        Loading dashboard…
       </div>
     );
-  }
-
-  if (error) {
+  if (error)
     return (
-      <div className="p-6 bg-slate-50 min-h-[85vh]">
-        <div className="text-red-600">Error: {error}</div>
+      <div className="p-6 bg-slate-50 min-h-[85vh] text-red-600">
+        Error: {error}
       </div>
     );
-  }
-
-  console.log(coachUpcomingClasses, 'coachUpcomingClasses');
-  console.log(studentUpcomingAppointments, 'studentUpcomingAppointments');
 
   return (
     <div className="p-6 bg-slate-50 min-h-[85vh]">
@@ -271,10 +293,8 @@ export default function Dashboard() {
             {isCoach ? "Student Progress" : "My Progress"}
           </h2>
 
-          {/* STUDENT VIEW */}
           {!isCoach ? (
             <>
-              {/* FILTERS */}
               <div className="flex flex-wrap gap-3 mt-5 mb-5">
                 <select
                   value={selectedYear}
@@ -289,7 +309,6 @@ export default function Dashboard() {
                     <option key={year}>{year}</option>
                   ))}
                 </select>
-
                 <select
                   value={selectedMonth}
                   onChange={(e) => {
@@ -302,7 +321,6 @@ export default function Dashboard() {
                     <option key={m}>{m}</option>
                   ))}
                 </select>
-
                 <select
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value)}
@@ -314,14 +332,14 @@ export default function Dashboard() {
                 </select>
               </div>
 
-              {/* COURSE PROGRESS LIST */}
               {filteredCourses.length === 0 ? (
                 <div className="text-slate-600">No courses to show.</div>
               ) : (
                 filteredCourses.map((course) => {
-                  const prog = courseProgress.find((p) => p.courseId === course.courseId);
+                  const prog = courseProgress.find(
+                    (p) => p.courseId === course.courseId
+                  );
                   const realProgress = prog ? prog.percent : 0;
-
                   return (
                     <ProgressBar
                       key={course.courseId}
@@ -335,42 +353,65 @@ export default function Dashboard() {
 
               <p className="text-right text-sm text-slate-600 mt-4">
                 Rata-rata progress:{" "}
-                <span className="text-blue-600 font-semibold">{avgProgress}%</span>
+                <span className="text-blue-600 font-semibold">
+                  {avgProgress}%
+                </span>
               </p>
             </>
           ) : (
             // COACH VIEW
-            <div className="mt-5 space-y-4">
-              {studentProgress.length === 0 ? (
-                <p className="text-slate-600">Belum ada data student.</p>
-              ) : (
-                studentProgress.map((student, i) => (
-                  <div key={i} className="border p-3 rounded-lg bg-slate-50">
-                    <p className="font-semibold text-slate-900">{student.name}</p>
-                    <p className="text-sm text-gray-600 mb-1">{student.course}</p>
-                    <ProgressBar
-                      title="Progress"
-                      code={student.code}
-                      progress={student.progress}
-                    />
-                  </div>
-                ))
-              )}
-            </div>
+<div className="mt-5 space-y-4">
+  {Array.isArray(studentProgress) && studentProgress.length > 0 ? (
+    studentProgress.map((course) => (
+      <div key={course.courseId} className="mb-6">
+        <h3 className="font-semibold text-slate-900 text-[1.1em] mb-2">
+          {course.title}
+        </h3>
+
+        <div className="space-y-4">
+          {Array.isArray(course.students) && course.students.length > 0 ? (
+            course.students.map((student) => (
+              <div
+                key={student.studentId}
+                className="border p-3 rounded-lg bg-slate-50"
+              >
+                <p className="font-semibold text-slate-900">{student.name}</p>
+                <p className="text-sm text-gray-600 mb-1">{student.course}</p>
+                <ProgressBar
+                  title="Progress"
+                  code={student.studentId}
+                  progress={
+                    typeof student.progress === "number"
+                      ? Math.min(Math.max(student.progress, 0), 100)
+                      : 0
+                  }
+                />
+              </div>
+            ))
+          ) : (
+            <p className="text-slate-600">
+              Belum ada student yang membeli kursus ini.
+            </p>
+          )}
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-slate-600">Belum ada data student.</p>
+  )}
+</div>
+
           )}
         </div>
 
         {/* RIGHT SIDE */}
         <div className="flex flex-col gap-8">
-          {/* UPCOMING CLASS */}
           <div>
             <h2 className="text-[1.4em] text-slate-900 border-b-2 border-blue-600 pb-2">
               Upcoming Appointment
             </h2>
 
-            {/* >>> GANTI DENGAN LOGIKA PERCABANGAN BERIKUT <<< */}
             {!isCoach ? (
-              // STUDENT VIEW (Menggunakan data Appointment)
               studentUpcomingAppointments.length === 0 ? (
                 <p className="text-slate-600 mt-4">No upcoming appointments.</p>
               ) : (
@@ -379,29 +420,29 @@ export default function Dashboard() {
                     key={app.id || idx}
                     data={{
                       ...app,
-                      onViewSession: () => alert(`Lihat detail appointment dengan ${app.lecturer} pada ${app.time}`),
+                      onViewSession: () =>
+                        alert(
+                          `Lihat detail appointment dengan ${app.lecturer} pada ${app.time}`
+                        ),
                     }}
                   />
                 ))
               )
+            ) : coachUpcomingClasses.length === 0 ? (
+              <p className="text-slate-600 mt-4">No upcoming classes.</p>
             ) : (
-              // COACH VIEW (Menggunakan data dari /upcoming-classes)
-              coachUpcomingClasses.length === 0 ? (
-                <p className="text-slate-600 mt-4">No upcoming classes.</p>
-              ) : (
-                coachUpcomingClasses.map((cls, idx) => (
-                  <UpcomingClassCard
-                    key={idx}
-                    data={{
-                      ...cls,
-                      onViewSession: () => alert(`Lihat sesi ${cls.session} dari ${cls.title}`),
-                      status: cls.status || 'confirmed', 
-                    }}
-                  />
-                ))
-              )
+              coachUpcomingClasses.map((cls, idx) => (
+                <UpcomingClassCard
+                  key={idx}
+                  data={{
+                    ...cls,
+                    onViewSession: () =>
+                      alert(`Lihat sesi ${cls.session} dari ${cls.title}`),
+                    status: cls.status || "confirmed",
+                  }}
+                />
+              ))
             )}
-            
           </div>
         </div>
       </div>
