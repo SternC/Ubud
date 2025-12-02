@@ -25,7 +25,4 @@ const User = db.define("User", {
   timestamps: false
 });
 
-StudentProgress.belongsTo(User, { foreignKey: "studentId" });
-User.hasMany(StudentProgress, { foreignKey: "studentId" });
-
 export default User;

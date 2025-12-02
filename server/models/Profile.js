@@ -41,7 +41,4 @@ const Profile = db.define('Profile', {
 
 Profile.belongsTo(User, { foreignKey: "userId" });
 
-StudentProgress.belongsTo(Profile, { foreignKey: "studentId" });
-Profile.hasMany(StudentProgress, { foreignKey: "studentId" });
-
 export default Profile;
