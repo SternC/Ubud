@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, Settings, LogOut } from "lucide-react";
-import  Courses from "../components/section/Courses";
+import Courses from "../components/section/Courses";
 import { Coachdeck } from "../components/section/Coachdeck";
 import ProfileCard from "../components/section/Card";
 import BuyCourse from "../components/section/BuyCourse";
 import TransactionHistory from "../components/section/Transaction";
 import Dashboard from "../components/section/dashboard";
 import CoachTransactions from "../components/section/coachTransaction";
+import ConfirmModal from "../components/ui/confirmModal";
 
 import api from "./api";
 
@@ -17,6 +18,13 @@ export default function Module() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCoach, setIsCoach] = useState(false);
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  const handleConfirm = async () => {
+    setShowConfirm(false);
+    if (confirmAction) await confirmAction();
+  };
 
   const handleLogout = async () => {
     await api.get("/logout", { withCredentials: true });
@@ -45,7 +53,7 @@ export default function Module() {
       case "Buy Course":
         return <BuyCourse />;
       case "Transaction":
-        return isCoach? <CoachTransactions /> : <TransactionHistory />;
+        return isCoach ? <CoachTransactions /> : <TransactionHistory />;
       case "Dashboard":
         return <Dashboard />;
       default:
@@ -79,33 +87,32 @@ export default function Module() {
             <img src="/logo.png" alt="Ubud Logo" className="w-14 h-12 mb-2" />
           </div>
 
-          <ProfileCard />
+          <ProfileCard
+            setShowConfirm={setShowConfirm}
+            setConfirmAction={setConfirmAction}
+          />
 
           <nav className="flex flex-col gap-4 mt-4">
-            {[
-              "Dashboard",
-              "Courses",
-              "Coach",
-              "Transaction",
-              "Buy Course",
-            ].map((page) => {
-              if ((page === "Coach" || page === "Buy Course") && isCoach)
-                return null;
-              return (
-                <button
-                  key={page}
-                  className={`text-left p-2 rounded-md hover:bg-[#133d5c] transition ${
-                    activePage === page ? "bg-[#154d71]" : ""
-                  }`}
-                  onClick={() => {
-                    setActivePage(page);
-                    setSidebarOpen(false);
-                  }}
-                >
-                  {page}
-                </button>
-              );
-            })}
+            {["Dashboard", "Courses", "Coach", "Transaction", "Buy Course"].map(
+              (page) => {
+                if ((page === "Coach" || page === "Buy Course") && isCoach)
+                  return null;
+                return (
+                  <button
+                    key={page}
+                    className={`text-left p-2 rounded-md hover:bg-[#133d5c] transition ${
+                      activePage === page ? "bg-[#154d71]" : ""
+                    }`}
+                    onClick={() => {
+                      setActivePage(page);
+                      setSidebarOpen(false);
+                    }}
+                  >
+                    {page}
+                  </button>
+                );
+              }
+            )}
           </nav>
         </div>
 
@@ -140,6 +147,12 @@ export default function Module() {
           {renderContent()}
         </div>
       </main>
+      <ConfirmModal
+        show={showConfirm}
+        message="Are you sure?"
+        onConfirm={handleConfirm}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 }

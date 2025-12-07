@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../src/api.jsx";
+import ConfirmModal from "../ui/confirmModal.jsx";
 
-export default function ProfileCard() {
+export default function ProfileCard({ setShowConfirm, setConfirmAction }) {
   const [flipped, setFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
@@ -13,6 +14,13 @@ export default function ProfileCard() {
     city: "",
   });
   const [role, setRole] = useState("student");
+
+  
+  const askConfirmSave = (e) => {
+    e.preventDefault();
+    setConfirmAction(() => handleSave);
+    setShowConfirm(true);
+  }
 
   useEffect(() => {
     api
@@ -43,13 +51,14 @@ export default function ProfileCard() {
   };
 
   const handleSave = (e) => {
-    e.preventDefault();
     api
       .put("/profile", profile)
       .then((res) => {
         if (res.status === 200) setIsEditing(false);
       })
-      .catch((err) => console.error("Profile update error:", err.response || err));
+      .catch((err) =>
+        console.error("Profile update error:", err.response || err)
+      );
   };
 
   return (
@@ -64,7 +73,11 @@ export default function ProfileCard() {
       >
         <div className="absolute inset-0 bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center justify-center gap-1 [backface-visibility:hidden]">
           <div className="w-18 h-18 bg-red-400 rounded-full flex items-center justify-center">
-            <img src="logo.png" alt="Logo" className="w-16 h-16 object-contain" />
+            <img
+              src="logo.png"
+              alt="Logo"
+              className="w-16 h-16 object-contain"
+            />
           </div>
           <h2 className="text-xl font-bold text-[#6D94C5]">
             {profile.name || "Name"}
@@ -105,7 +118,7 @@ export default function ProfileCard() {
                 </>
               ) : (
                 <form
-                  onSubmit={handleSave}
+                  onSubmit={askConfirmSave}
                   className="flex flex-col gap-1 w-full max-w-[250px] text-left text-xs"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -116,7 +129,9 @@ export default function ProfileCard() {
                       value={profile[field]}
                       onChange={handleChange}
                       className="p-1 text-black rounded-lg border border-gray-300 bg-transparent"
-                      placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                      placeholder={
+                        field.charAt(0).toUpperCase() + field.slice(1)
+                      }
                     />
                   ))}
                   <button
