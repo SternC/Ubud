@@ -14,6 +14,154 @@ function drawLine(doc, y, color = '#aaaaaa') {
        .stroke();
 }
 
+function renderReceiptPage(doc, tx, userData, logoPath) {
+  const { id, title, price, createdAt } = tx;
+
+  const numericPrice = Number(price);
+  const formattedPrice = numericPrice.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+  });
+
+  const formattedDate = new Date(createdAt).toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
+  const recipientName = userData?.name ?? "Nama Pelanggan";
+  const recipientEmail = userData?.email ?? "Email Pelanggan";
+
+  // HEADER
+  if (fs.existsSync(logoPath)) {
+    doc.image(logoPath, 50, 15, { width: 40 });
+    doc.fontSize(28).fillColor("#333").text("INVOICE", 100, 25);
+  }
+
+  doc.moveDown(0.5);
+  doc.fontSize(10).text(`INVOICE # ${id}`, 50, doc.y);
+  doc.text(`Date: ${formattedDate}`, 50, doc.y);
+  doc.text("Status: Paid", 50, doc.y);
+
+  doc.rect(380, 50, 170, 40).fillAndStroke("#1f4c7b", "#1f4c7b");
+  doc.fillColor("#ffffff")
+    .fontSize(10)
+    .text("TOTAL PAID", 390, 55, { width: 150, align: "right" });
+
+  doc.fontSize(16).text(formattedPrice, 390, 70, {
+    width: 150,
+    align: "right",
+  });
+
+  doc.fillColor("#000000");
+  doc.moveDown(4);
+
+  // CUSTOMER INFO
+  const detailY = doc.y;
+  doc.fontSize(12).fillColor("#333").text("TO:", 50, detailY);
+  doc.fontSize(10).fillColor("#555").text(recipientName, 50, detailY + 15);
+  doc.text(`Email: ${recipientEmail}`, 50, detailY + 30);
+
+  doc.moveDown(4);
+  doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke("#ccc");
+  doc.moveDown(1);
+
+  // TABLE HEADER
+  const tableTop = doc.y;
+  doc.rect(50, tableTop, 500, 20).fill("#0b2a45");
+  doc.fillColor("#ffffff")
+    .fontSize(9)
+    .text("Details", 55, tableTop + 6)
+    .text("Price", 275, tableTop + 6, { width: 65, align: "right" })
+    .text("Quantity", 370, tableTop + 6, { width: 40, align: "right" })
+    .text("Total", 465, tableTop + 6, { width: 65, align: "right" });
+
+  // TABLE ROW
+  const rowTop = tableTop + 20;
+  doc.rect(50, rowTop, 500, 20).fill("#f9f9f9");
+  doc.fillColor("#000000")
+    .text(title, 55, rowTop + 5)
+    .text(formattedPrice, 275, rowTop + 5, { width: 65, align: "right" })
+    .text("1", 370, rowTop + 5, { width: 40, align: "right" })
+    .text(formattedPrice, 465, rowTop + 5, { width: 65, align: "right" });
+
+  doc.moveDown(3);
+
+  // SUMMARY
+  const summaryY = doc.y;
+  const summaryX = 400;
+  const summaryWidth = 150;
+
+  doc.fontSize(10).fillColor("#555");
+  doc.text("Sub Total:", summaryX, summaryY, { continued: true })
+    .text(formattedPrice, summaryX - 15, summaryY, {
+      width: summaryWidth,
+      align: "right",
+    });
+
+  doc.text("Tax (0%):", summaryX, summaryY + 15, { continued: true })
+    .text("$ 0", summaryX - 15, summaryY + 15, {
+      width: summaryWidth,
+      align: "right",
+    });
+
+  doc.rect(summaryX, summaryY + 30, summaryWidth, 20).fill("#1f4c7b");
+  doc.fillColor("#ffffff")
+    .fontSize(12)
+    .text("TOTAL:", summaryX, summaryY + 35, { continued: true })
+    .text(formattedPrice, summaryX - 15, summaryY + 35, {
+      width: summaryWidth,
+      align: "right",
+    });
+
+  doc.moveDown(3);
+
+  // FOOTER
+  doc.fillColor("#000")
+    .fontSize(10)
+    .text("THANK YOU", 450, doc.y, { align: "right" });
+}
+
+export const downloadAllReceipts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const transactions = await Purchase.findAll({
+      where: { userId },
+      include: [{ model: User, attributes: ["name", "email"] }],
+      order: [["createdAt", "ASC"]],
+    });
+
+    if (!transactions.length) {
+      return res.status(404).json({ message: "No transactions found." });
+    }
+
+    const doc = new PDFDocument({ margin: 50, autoFirstPage: false });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="all-receipts-${userId}.pdf"`
+    );
+
+    doc.pipe(res);
+
+    const logoPath = path.resolve("../client/public/logo.png");
+
+    transactions.forEach((tx, index) => {
+      doc.addPage();
+      renderReceiptPage(doc, tx, tx.User, logoPath);
+    });
+
+    doc.end();
+  } catch (error) {
+    console.error("Bulk PDF generation error:", error);
+    res.status(500).json({ message: "Failed to generate bulk PDF" });
+  }
+};
+
+
 export const downloadReceipt = async (req, res) => {
   try {
     const { transactionId } = req.params;

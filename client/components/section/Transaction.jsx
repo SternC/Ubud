@@ -3,34 +3,66 @@ import api from "../../src/api.jsx";
 import useAuth from "../../src/hook/useAuth";
 
 export default function TransactionHistory() {
-  const { user, loading: userLoading } = useAuth(); 
+  const { user, loading: userLoading } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalIncome, setTotalIncome] = useState(0);
 
-const handleDownloadReceipt = (tx) => {
-
+  const handleDownloadReceipt = (tx) => {
     api
-      .get(`/transactions/download-receipt/${tx.id}`, { 
+      .get(`/transactions/download-receipt/${tx.id}`, {
         withCredentials: true,
-        responseType: 'blob', 
+        responseType: "blob",
       })
       .then((response) => {
-        const file = new Blob([response.data], { type: 'application/pdf' });
+        const file = new Blob([response.data], { type: "application/pdf" });
         const fileURL = URL.createObjectURL(file);
 
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = fileURL;
-        link.setAttribute('download', `receipt-${tx.id}-${tx.courseTitle.replace(/\s/g, '_')}.pdf`);
+        link.setAttribute(
+          "download",
+          `receipt-${tx.id}-${tx.courseTitle.replace(/\s/g, "_")}.pdf`
+        );
         document.body.appendChild(link);
-        
+
         link.click();
         link.remove();
         URL.revokeObjectURL(fileURL);
       })
       .catch((err) => {
         console.error("Error downloading receipt:", err);
-        alert("Gagal mengunduh bukti pembelian. Pastikan server berjalan dan API endpoint sudah benar.");
+        alert(
+          "Gagal mengunduh bukti pembelian. Pastikan server berjalan dan API endpoint sudah benar."
+        );
+      });
+  };
+
+  const handleDownloadAll = () => {
+    if (transactions.length === 0)
+      return alert("No receipts available to download.");
+
+    api
+      .get(`/transactions/download-all-receipts/${user.id}`, {
+        withCredentials: true,
+        responseType: "blob",
+      })
+      .then((response) => {
+        const file = new Blob([response.data], { type: "application/pdf" });
+        const fileURL = URL.createObjectURL(file);
+
+        const link = document.createElement("a");
+        link.href = fileURL;
+        link.setAttribute("download", "all-receipts.pdf");
+        document.body.appendChild(link);
+
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(fileURL);
+      })
+      .catch((err) => {
+        console.error("Error downloading merged PDF:", err);
+        alert("Failed to download combined receipts.");
       });
   };
 
@@ -55,27 +87,40 @@ const handleDownloadReceipt = (tx) => {
       .finally(() => setLoading(false));
   }, [user]);
 
-  if (loading || userLoading) return <p className="p-8">Loading transactions...</p>;
-  if (!user) return <p className="p-8 text-red-600">Please log in to view transactions.</p>;
-  if (transactions.length === 0) return <p className="p-8">No transactions yet.</p>;
-
-
-
+  if (loading || userLoading)
+    return <p className="p-8">Loading transactions...</p>;
+  if (!user)
+    return (
+      <p className="p-8 text-red-600">Please log in to view transactions.</p>
+    );
+  if (transactions.length === 0)
+    return <p className="p-8">No transactions yet.</p>;
 
   return (
     <main className="min-h-[85vh] bg-gray-50 p-6">
       <div className="mx-auto max-w-4xl">
         <h1 className="text-3xl font-bold mb-6">Transaction History</h1>
+        <button
+          onClick={handleDownloadAll}
+          className="mb-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
+        >
+          Download All Receipts
+        </button>
         <div className="space-y-4">
           {transactions.map((tx) => (
-            <div key={tx.id} className="p-4 border rounded-md bg-white shadow-sm flex justify-between items-center">
+            <div
+              key={tx.id}
+              className="p-4 border rounded-md bg-white shadow-sm flex justify-between items-center"
+            >
               <div>
                 <h2 className="font-semibold">{tx.courseTitle}</h2>
-                <p className="text-gray-600">Price: ${Number(tx.price).toFixed(2)}</p>
+                <p className="text-gray-600">
+                  Price: ${Number(tx.price).toFixed(2)}
+                </p>
                 <p className="text-sm text-gray-500">Date: {tx.date}</p>
-          </div>
-              
-              <button 
+              </div>
+
+              <button
                 onClick={() => handleDownloadReceipt(tx)}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150"
               >
@@ -87,4 +132,4 @@ const handleDownloadReceipt = (tx) => {
       </div>
     </main>
   );
-} 
+}

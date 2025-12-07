@@ -1,5 +1,5 @@
 import express from "express";
-import { createPurchase, getUserPurchases, getTransactions, downloadReceipt,getAllPurchases,deletePurchase, downloadPurchaseReport, getCoachTransactions} from "../controllers/PurchaseController.js"; 
+import { createPurchase, getUserPurchases, getTransactions, downloadReceipt,getAllPurchases,deletePurchase, downloadPurchaseReport, getCoachTransactions, downloadAllReceipts} from "../controllers/PurchaseController.js"; 
 import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -14,6 +14,7 @@ router.get("/purchases/:userId", getUserPurchases);
 router.get("/transactions/:userId", getTransactions);
 
 router.get("/transactions/download-receipt/:transactionId", downloadReceipt);
+router.get("/transactions/download-all-receipts/:userId", downloadAllReceipts);
 router.delete("/purchases/:id", deletePurchase);
 router.get("/purchases", getAllPurchases);
 router.get("/courses/coach/transactions", verifyToken, getCoachTransactions);
