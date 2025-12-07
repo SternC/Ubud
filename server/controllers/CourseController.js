@@ -58,7 +58,7 @@ export const getCourseById = async (req, res) => {
 export const createCourse = async (req, res) => {
   try {
     const { title, description, price, oldPrice } = req.body;
-    const { id, profileId, is_coach } = req.user; // assuming verifyToken adds user to req
+    const { id, profileId, is_coach } = req.user;
 
     if (!is_coach) {
       return res.status(403).json({ message: "Only coaches can create courses" });

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "./api";
+import ConfirmModal from "../components/ui/confirmModal";
 import {
   Menu,
   X,
@@ -20,6 +21,45 @@ export default function AdminDashboard() {
   const [adminName, setAdminName] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("users");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  const handleConfirm = async () => {
+    setShowConfirm(false);
+
+    if (confirmAction) {
+      await confirmAction();
+    }
+  };
+
+  const askConfirmUser = (e) => {
+    e.preventDefault();
+
+    setConfirmAction(() => submitUser);
+    setShowConfirm(true);
+  };
+
+  const askConfirmDeleteUser = (id) => {
+    setConfirmAction(() => () => deleteUser(id));
+    setShowConfirm(true);
+  };
+
+  const askConfirmCourse = (e) => {
+    e.preventDefault();
+
+    setConfirmAction(() => submitCourse);
+    setShowConfirm(true);
+  };
+
+  const askConfirmDeleteCourse = (id) => {
+    setConfirmAction(() => () => deleteCourse(id));
+    setShowConfirm(true);
+  };
+
+  const askConfirmDeletePurchase = (id) => {
+    setConfirmAction(() => () => deletePurchase(id));
+    setShowConfirm(true);
+  };
 
   // Users
   const [users, setUsers] = useState([]);
@@ -261,9 +301,7 @@ export default function AdminDashboard() {
   };
 
   const submitUser = async (e) => {
-    e.preventDefault();
 
-    // Build payload safely
     const payload = {
       name: userForm.name,
       email: userForm.email,
@@ -295,7 +333,6 @@ export default function AdminDashboard() {
   };
 
   const deleteUser = async (id) => {
-    if (!confirm("Delete this user?")) return;
     await api.delete(`/users/${id}`, {
       withCredentials: true,
     });
@@ -320,7 +357,6 @@ export default function AdminDashboard() {
   };
 
   const submitCourse = async (e) => {
-    e.preventDefault();
     try {
       if (courseEditing) {
         await api.put(`/courses/${courseForm.id}`, courseForm, {
@@ -356,7 +392,6 @@ export default function AdminDashboard() {
   };
 
   const deleteCourse = async (id) => {
-    if (!confirm("Delete this course?")) return;
     await api.delete(`/courses/${id}`, {
       withCredentials: true,
     });
@@ -365,7 +400,6 @@ export default function AdminDashboard() {
 
   // PURCHASES
   const deletePurchase = async (id) => {
-    if (!confirm("Delete this purchase record?")) return;
     await api.delete(`/purchases/${id}`, {
       withCredentials: true,
     });
@@ -480,7 +514,7 @@ export default function AdminDashboard() {
                 <UserPlus /> {userEditing ? "Edit User" : "Add User"}
               </h2>
               <form
-                onSubmit={submitUser}
+                onSubmit={askConfirmUser}
                 className="grid grid-cols-1 md:grid-cols-4 gap-3"
               >
                 <input
@@ -597,7 +631,7 @@ export default function AdminDashboard() {
                             <Edit size={16} />
                           </button>
                           <button
-                            onClick={() => deleteUser(u.id)}
+                            onClick={() => askConfirmDeleteUser(u.id)}
                             className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
                           >
                             <Trash2 size={16} />
@@ -629,7 +663,7 @@ export default function AdminDashboard() {
                 <Database /> Edit Course
               </h2>
               <form
-                onSubmit={submitCourse}
+                onSubmit={askConfirmCourse}
                 className="grid grid-cols-1 md:grid-cols-4 gap-3"
               >
                 <input
@@ -732,7 +766,7 @@ export default function AdminDashboard() {
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => deleteCourse(c.id)}
+                          onClick={() => askConfirmDeleteCourse(c.id)}
                           className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
                         >
                           <Trash2 size={16} />
@@ -781,7 +815,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="border px-4 py-2">
                       <button
-                        onClick={() => deletePurchase(p.id)}
+                        onClick={() => askConfirmDeletePurchase(p.id)}
                         className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
                       >
                         <Trash2 size={16} />
@@ -948,6 +982,12 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      <ConfirmModal
+        show={showConfirm}
+        message="Are you sure?"
+        onConfirm={handleConfirm}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 }
