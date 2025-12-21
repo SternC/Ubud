@@ -48,7 +48,7 @@ export default function CoachAssignment({ course, onClose }) {
     if (!confirm("Delete this assignment?")) return;
 
     try {
-      await api.delete(`/assignments/${id}`);
+      await api.delete(`courses/assignments/${id}`);
       fetchAssignments();
     } catch {
       alert("Error deleting assignment");
