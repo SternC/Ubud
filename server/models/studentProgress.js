@@ -25,7 +25,7 @@ const StudentProgress = sequelize.define("StudentProgress", {
   },
 
   assignmentId: {
-    type: DataTypes.INTEGER,  // Change to STRING if assignment uses UUID
+    type: DataTypes.STRING,  // Change to STRING if assignment uses UUID
     allowNull: true,
   },
 
