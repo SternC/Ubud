@@ -7,6 +7,9 @@ export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalIncome, setTotalIncome] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDate, setFilterDate] = useState(""); 
+  
 
   const handleDownloadReceipt = (tx) => {
     api
@@ -66,6 +69,18 @@ export default function TransactionHistory() {
       });
   };
 
+  const filteredTransactions = transactions.filter((tx) => {
+  const matchesSearch = tx.courseTitle
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase());
+
+  const matchesDate = filterDate ? tx.date === filterDate : true;
+  
+
+  return matchesSearch && matchesDate;
+});
+
+
   useEffect(() => {
     if (!user) return;
 
@@ -106,28 +121,57 @@ export default function TransactionHistory() {
         >
           Download All Receipts
         </button>
-        <div className="space-y-4">
-          {transactions.map((tx) => (
-            <div
-              key={tx.id}
-              className="p-4 border rounded-md bg-white shadow-sm flex justify-between items-center"
-            >
-              <div>
-                <h2 className="font-semibold">{tx.courseTitle}</h2>
-                <p className="text-gray-600">
-                  Price: ${Number(tx.price).toFixed(2)}
-                </p>
-                <p className="text-sm text-gray-500">Date: {tx.date}</p>
-              </div>
+        <div className="flex flex-col sm:flex-row gap-2 mb-4">
+  <input
+    type="text"
+    placeholder="Search by course..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="border px-2 py-1 rounded flex-1"
+  />
+  <input
+    type="date"
+    value={filterDate}
+    onChange={(e) => setFilterDate(e.target.value)}
+    className="border px-2 py-1 rounded"
+  />
+ 
+  <button
+    onClick={() => {
+      setSearchTerm("");
+      setFilterDate("");
+    }}
+    className="px-3 py-1 bg-gray-200 rounded"
+  >
+    Reset
+  </button>
+</div>
 
-              <button
-                onClick={() => handleDownloadReceipt(tx)}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150"
-              >
-                Download Receipt
-              </button>
-            </div>
-          ))}
+        <div className="space-y-4">
+        {filteredTransactions.length === 0 ? (
+  <p className="p-4 text-gray-500">No transactions match your search/filter.</p>
+) : (
+  filteredTransactions.map((tx) => (
+    <div
+      key={tx.id}
+      className="p-4 border rounded-md bg-white shadow-sm flex justify-between items-center"
+    >
+      <div>
+        <h2 className="font-semibold">{tx.courseTitle}</h2>
+        <p className="text-gray-600">Price: ${Number(tx.price).toFixed(2)}</p>
+        <p className="text-sm text-gray-500">Date: {tx.date}</p>
+      </div>
+
+      <button
+        onClick={() => handleDownloadReceipt(tx)}
+        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150"
+      >
+        Download Receipt
+      </button>
+    </div>
+  ))
+)}
+
         </div>
       </div>
     </main>
