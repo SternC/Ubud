@@ -4,6 +4,7 @@ import PDFDocument from 'pdfkit';
 import User from "../models/User.js";
 import path from "path";
 import fs from "fs";
+import Coach from "../models/coach.js";
 
 
 function drawLine(doc, y, color = '#aaaaaa') {
@@ -569,18 +570,19 @@ export const downloadPurchaseReport = async (req, res) => {
 
 export const getCoachTransactions = async (req, res) => {
   try {
-    const { profileId, is_coach } = req.user;
+    const profileId = req.user.id; // logged-in profile ID
 
-    if (!is_coach) {
-      return res.status(403).json({ message: "Only coaches can access this data" });
-    }
-
-    const purchases = await Purchase.findAll({
+    const allPurchases = await Purchase.findAll({
       include: [
         {
           model: Course,
-          where: { coachId: profileId },
-          attributes: ["id", "title", "price"],
+          include: [
+            {
+              model: Coach,
+              attributes: ["id", "profileId"],
+            },
+          ],
+          attributes: ["id", "title", "price", "coachId"],
         },
         {
           model: User,
@@ -590,12 +592,17 @@ export const getCoachTransactions = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
+  
+    const purchases = allPurchases.filter(
+      (p) => p.Course?.Coach?.profileId === profileId
+    );
+
     const formatted = purchases.map((p) => ({
       id: p.id,
       studentName: p.User?.name || "Unknown",
       studentEmail: p.User?.email || "Unknown",
       courseTitle: p.Course?.title || "Unknown",
-      price: p.Course?.price || 0,
+      price: p.price ?? p.Course?.price ?? 0,
       date: new Date(p.createdAt).toLocaleString(),
     }));
 

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+
 import api from "./api";
 import ConfirmModal from "../components/ui/confirmModal";
 import {
@@ -16,13 +17,17 @@ import { useNavigate, Link } from "react-router-dom";
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
-  const [auth, setAuth] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [adminName, setAdminName] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("users");
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
+  const [auth, setAuth] = useState(false);
+const formatDate = (s) => {
+    if (!s) return "N/A";
+    return new Date(s).toLocaleString();
+  };
 
   const handleConfirm = async () => {
     setShowConfirm(false);
@@ -86,6 +91,29 @@ export default function AdminDashboard() {
   // Purchases
   const [purchases, setPurchases] = useState([]);
 
+  const [purchaseSearch, setPurchaseSearch] = useState("");
+
+  const filteredPurchases = useMemo(() => {
+  const q = (purchaseSearch || "").trim().toLowerCase();
+  if (!q) return purchases;
+
+  return purchases.filter((p) => {
+    const userName = p.User?.name?.toLowerCase() || "";
+    const userEmail = p.User?.email?.toLowerCase() || "";
+    const courseTitle = p.Course?.title?.toLowerCase() || "";
+    const price = (p.price?.toString() || "").toLowerCase();
+    const date = (new Date(p.createdAt).toLocaleString() || "").toLowerCase();
+
+    return (
+      userName.includes(q) ||
+      userEmail.includes(q) ||
+      courseTitle.includes(q) ||
+      price.includes(q) ||
+      date.includes(q)
+    );
+  });
+}, [purchases, purchaseSearch]);
+
   const handleDownloadReport = () => {
     api
       .get(`/purchases/download-report?t=${Date.now()}`, {
@@ -105,6 +133,14 @@ export default function AdminDashboard() {
       })
       .catch((err) => console.error("Error downloading report:", err));
   };
+  useEffect(() => {
+    if (auth) {
+      api
+        .get("/purchases", { withCredentials: true })
+        .then((res) => setPurchases(res.data || []))
+        .catch(console.error);
+    }
+  }, [auth]);
 
   // Profiles
   const [profiles, setProfiles] = useState([]);
@@ -406,10 +442,7 @@ export default function AdminDashboard() {
     fetchPurchases();
   };
 
-  const formatDate = (s) => {
-    if (!s) return "N/A";
-    return new Date(s).toLocaleString();
-  };
+  
 
   if (!auth) {
     return (
@@ -786,14 +819,22 @@ export default function AdminDashboard() {
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
               <ShoppingCart /> Purchases
             </h2>
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={handleDownloadReport}
-                className="bg-[#0b2a45] text-white px-4 py-2 rounded hover:bg-[#0a1f30]"
-              >
-                Download Report
-              </button>
-            </div>
+           <div className="flex flex-col md:flex-row justify-between mb-4 gap-2">
+  <input
+    type="text"
+    placeholder="Search purchases by user, course, price, or date..."
+    value={purchaseSearch}
+    onChange={(e) => setPurchaseSearch(e.target.value)}
+    className="border p-2 rounded w-full md:w-1/2"
+  />
+  <button
+    onClick={handleDownloadReport}
+    className="bg-[#0b2a45] text-white px-4 py-2 rounded hover:bg-[#0a1f30]"
+  >
+    Download Report
+  </button>
+</div>
+
             <table className="min-w-full text-left text-sm border">
               <thead className="bg-gray-100">
                 <tr>
@@ -805,25 +846,33 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {purchases.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="border px-4 py-2">{p.userId}</td>
-                    <td className="border px-4 py-2">{p.courseId}</td>
-                    <td className="border px-4 py-2">{p.price}</td>
-                    <td className="border px-4 py-2">
-                      {formatDate(p.createdAt)}
-                    </td>
-                    <td className="border px-4 py-2">
-                      <button
-                        onClick={() => askConfirmDeletePurchase(p.id)}
-                        className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+  {filteredPurchases.length > 0 ? (
+    filteredPurchases.map((p) => (
+      <tr key={p.id} className="hover:bg-gray-50">
+        <td className="border px-4 py-2">{p.User?.name}</td>
+        <td className="border px-4 py-2">{p.Course?.title}</td>
+
+        <td className="border px-4 py-2">{p.price}</td>
+        <td className="border px-4 py-2">{formatDate(p.createdAt)}</td>
+        <td className="border px-4 py-2">
+          <button
+            onClick={() => askConfirmDeletePurchase(p.id)}
+            className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            <Trash2 size={16} />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="5" className="text-center py-4 text-gray-500">
+        No matching purchases found.
+      </td>
+    </tr>
+  )}
+</tbody>
+
             </table>
           </div>
         )}
