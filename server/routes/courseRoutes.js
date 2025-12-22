@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 router.get("/courses", verifyToken, getCourses);
-router.get("/courses/purchased", verifyToken, getPurchasedCourses); // move this above :id
+router.get("/courses/purchased", verifyToken, getPurchasedCourses); 
 router.get("/courses/:id", verifyToken, getCourseById);
 router.post("/courses", verifyToken, createCourse);
 router.put("/courses/:id", verifyToken, updateCourse);

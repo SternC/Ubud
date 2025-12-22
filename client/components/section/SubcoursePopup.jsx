@@ -14,6 +14,8 @@ export default function SubcoursePopup({ course, onClose, user }) {
   const [comments, setComments] = useState({});
   const fileInputRef = useRef();
   const dragIndexRef = useRef(null);
+  const [doneSubcourses, setDoneSubcourses] = useState([]);
+
 
   const isCoach = user?.is_coach;
 
@@ -25,6 +27,19 @@ export default function SubcoursePopup({ course, onClose, user }) {
       .catch(console.error);
   }, [course?.id]);
 
+  useEffect(() => {
+  if (!course?.id) return;
+
+  api
+    .get(`/progress/subcourse/${course.id}`, { withCredentials: true })
+    .then((res) => {
+      const completedIds = res.data.map(p => p.subcourseId);
+      setDoneSubcourses(completedIds);
+    })
+    .catch(console.error);
+}, [course?.id]);
+
+
   const markAsDone = async () => {
     if (!activeSub || !course?.id) return;
 
@@ -34,7 +49,10 @@ export default function SubcoursePopup({ course, onClose, user }) {
         courseId: course.id,
       });
 
-      alert("Marked as done!");
+     setDoneSubcourses(prev =>
+  prev.includes(activeSub) ? prev : [...prev, activeSub]
+);
+
     } catch (err) {
       console.error(err);
       alert("Failed to mark as done");
@@ -42,13 +60,20 @@ export default function SubcoursePopup({ course, onClose, user }) {
   };
 
   const loadMaterials = (subId) => {
-    setActiveSub(subId);
-    api
-      .get(`/subcourses/${subId}/materials`)
-      .then((res) => setMaterials(res.data))
-      .catch(console.error);
-    setComments({});
-  };
+  setActiveSub(subId);
+  api
+    .get(`/subcourses/${subId}/materials`)
+    .then((res) => {
+      setMaterials(res.data);
+      setComments({}); 
+   
+      res.data.forEach((m) => {
+        fetchComments(m.id);
+      });
+    })
+    .catch(console.error);
+};
+
 
   const addSubcourse = async () => {
     if (!newSubTitle.trim()) return alert("Title required");
@@ -365,13 +390,21 @@ export default function SubcoursePopup({ course, onClose, user }) {
               <div className="text-gray-500">Select a subcourse</div>
             ) : (
               <>
-                {!isCoach && activeSub && (
-                  <button
-                    onClick={markAsDone}
-                    className="mb-3 px-4 py-2 bg-green-600 text-white rounded"
-                  >
-                    Mark as Done ✔
-                  </button>
+                {!isCoach && (
+                  <>
+                    {doneSubcourses.includes(activeSub) ? (
+                      <div className="mb-3 px-4 py-2 bg-gray-300 text-gray-700 rounded">
+                        Completed ✓
+                      </div>
+                    ) : (
+                      <button
+                        onClick={markAsDone}
+                        className="mb-3 px-4 py-2 bg-green-600 text-white rounded"
+                      >
+                        Mark as Done ✔
+                      </button>
+                    )}
+                  </>
                 )}
 
                 {isCoach && (
@@ -565,12 +598,6 @@ export default function SubcoursePopup({ course, onClose, user }) {
                               className="px-3 py-1 bg-blue-600 text-white rounded"
                             >
                               Post
-                            </button>
-                            <button
-                              onClick={() => fetchComments(m.id)}
-                              className="px-3 py-1 bg-gray-200 rounded"
-                            >
-                              Refresh
                             </button>
                           </div>
                         </div>
