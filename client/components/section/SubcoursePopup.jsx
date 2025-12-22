@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import api from "../../src/api.jsx";
 
+const API_BASE = import.meta.env.VITE_API_BASE;
+
 export default function SubcoursePopup({ course, onClose, user }) {
   const [subcourses, setSubcourses] = useState([]);
   const [materials, setMaterials] = useState([]);
@@ -276,7 +278,7 @@ export default function SubcoursePopup({ course, onClose, user }) {
     if (lower.match(/\.(png|jpe?g|gif)$/)) {
       return (
         <img
-          src={`http://localhost:5000${m.fileUrl}`}
+          src={`${API_BASE}${m.fileUrl}`}
           alt={m.originalName}
           className="max-h-48 rounded"
         />
@@ -287,7 +289,7 @@ export default function SubcoursePopup({ course, onClose, user }) {
     if (lower.match(/\.(mp4|webm|ogg)$/)) {
       return (
         <video controls className="w-full max-h-48 rounded">
-          <source src={`http://localhost:5000${m.fileUrl}`} />
+          <source src={`${API_BASE}${m.fileUrl}`} />
         </video>
       );
     }
@@ -296,7 +298,7 @@ export default function SubcoursePopup({ course, onClose, user }) {
     if (lower.endsWith(".pdf")) {
       return (
         <iframe
-          src={`http://localhost:5000${m.fileUrl}`}
+          src={`${API_BASE}${m.fileUrl}`}
           width="100%"
           height="480px"
           title={m.originalName}
@@ -308,7 +310,7 @@ export default function SubcoursePopup({ course, onClose, user }) {
     if (lower.match(/\.(docx|pptx)$/)) {
       return (
         <a
-          href={`http://localhost:5000${m.fileUrl}`}
+          href={`${API_BASE}${m.fileUrl}`}
           target="_blank"
           rel="noreferrer"
           className="text-blue-600 underline"
@@ -321,7 +323,7 @@ export default function SubcoursePopup({ course, onClose, user }) {
     // Default fallback
     return (
       <a
-        href={`http://localhost:5000${m.fileUrl}`}
+        href={`${API_BASE}${m.fileUrl}`}
         target="_blank"
         rel="noreferrer"
         className="text-blue-600 underline"

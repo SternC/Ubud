@@ -53,7 +53,7 @@ export default function AssignmentPopup({ course, onClose, user }) {
   const submitAnswer = async () => {
     if (!answerUrl.trim()) return alert("Answer URL cannot be empty.");
 
-    await api.post(`/assignments/${submitAnswerId}/answer`, {
+    await api.post(`/courses/assignments/${submitAnswerId}/answer`, {
       answerUrl,
     });
 
@@ -133,18 +133,7 @@ export default function AssignmentPopup({ course, onClose, user }) {
                           Mark as Done
                         </button>
                       ))}
-
-                    {/* Coach review button */}
-                    {isCoach && (
-                      <button
-                        onClick={() => alert("Review UI to be added")}
-                        className="px-3 py-1 bg-purple-500 text-white rounded text-sm"
-                      >
-                        Review Answers
-                      </button>
-                    )}
                   </div>
-
                   {/* Student answer */}
                   {a.studentAnswerUrl && (
                     <div className="mt-2 text-sm">
