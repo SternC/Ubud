@@ -6,14 +6,16 @@ export default function CoachTransactions() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDate, setFilterDate] = useState("");
+  const [downloading, setDownloading] = useState(false);
 
-
+  
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await api.get("/courses/coach/transactions", {
-          withCredentials: true,
-        });
+        const res = await api.get(
+          "/courses/coach/transactions",
+          { withCredentials: true }
+        );
         setTransactions(res.data);
       } catch (err) {
         console.error("Error fetching coach transactions:", err);
@@ -22,57 +24,106 @@ export default function CoachTransactions() {
         setLoading(false);
       }
     };
+
     fetchTransactions();
   }, []);
 
-  // Filter transactions based on search and date
+  
   const filteredTransactions = useMemo(() => {
-    return transactions.filter((transaction) => {
+    return transactions.filter((t) => {
       const matchesSearch =
-        transaction.courseTitle
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
+        t.courseTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.studentName?.toLowerCase().includes(searchTerm.toLowerCase());
+
       const matchesDate = filterDate
-        ? transaction.date.startsWith(filterDate)
+        ? t.date.startsWith(filterDate)
         : true;
+
       return matchesSearch && matchesDate;
     });
   }, [transactions, searchTerm, filterDate]);
 
-  if (loading)
-    return <div className="p-6 text-gray-500">Loading transactions...</div>;
+ 
+  const downloadPDF = async () => {
+    try {
+      setDownloading(true);
+
+      const res = await api.get(
+        "/courses/coach/transactions/pdf",
+        {
+          responseType: "blob",
+          withCredentials: true,
+        }
+      );
+
+      const blob = new Blob([res.data], {
+        type: "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "coach-course-report.pdf";
+      document.body.appendChild(a);
+      a.click();
+
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("PDF download failed:", err);
+      alert("Failed to download PDF report.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  
+  if (loading) {
+    return (
+      <div className="p-6 text-gray-500">
+        Loading transactions...
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Course Purchases</h2>
+      <h2 className="text-2xl font-semibold mb-6">
+        Course Purchases
+      </h2>
 
-      {/* Search & Filter */}
+      {/* SEARCH & FILTER */}
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <input
           type="text"
-          placeholder="Search by course..."
+          placeholder="Search by course or student..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border px-2 py-1 rounded flex-1"
         />
+
         <input
           type="date"
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
           className="border px-2 py-1 rounded"
         />
+
         <button
-          onClick={() => {
-            setSearchTerm("");
-            setFilterDate("");
-          }}
-          className="px-3 py-1 bg-gray-200 rounded"
+          onClick={downloadPDF}
+          disabled={downloading}
+          className={`px-4 py-2 text-white rounded ${
+            downloading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#0b2a45] hover:bg-[#0a1f30]"
+          }`}
         >
-          Reset
+          {downloading ? "Generating..." : "Download PDF Report"}
         </button>
       </div>
 
-      {/* Table */}
+      {/* TABLE */}
       {filteredTransactions.length === 0 ? (
         <p className="text-gray-500">
           No transactions match your search/filter.
@@ -91,14 +142,21 @@ export default function CoachTransactions() {
               </tr>
             </thead>
             <tbody>
-              {filteredTransactions.map((transaction, idx) => (
-                <tr key={transaction.id} className="border-t hover:bg-gray-50">
+              {filteredTransactions.map((t, idx) => (
+                <tr
+                  key={t.id}
+                  className="border-t hover:bg-gray-50"
+                >
                   <td className="px-4 py-2">{idx + 1}</td>
-                  <td className="px-4 py-2">{transaction.studentName}</td>
-                  <td className="px-4 py-2">{transaction.studentEmail}</td>
-                  <td className="px-4 py-2">{transaction.courseTitle}</td>
-                  <td className="px-4 py-2 text-right">${transaction.price}</td>
-                  <td className="px-4 py-2 text-right">{transaction.date}</td>
+                  <td className="px-4 py-2">{t.studentName}</td>
+                  <td className="px-4 py-2">{t.studentEmail}</td>
+                  <td className="px-4 py-2">{t.courseTitle}</td>
+                  <td className="px-4 py-2 text-right">
+                    ${t.price}
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    {t.date}
+                  </td>
                 </tr>
               ))}
             </tbody>

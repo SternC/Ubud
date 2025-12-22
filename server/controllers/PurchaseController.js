@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs";
 import Coach from "../models/coach.js";
 
+const logoPath = path.resolve("../client/public/logo.png");
 
 function drawLine(doc, y, color = '#aaaaaa') {
     doc.strokeColor(color)
@@ -124,6 +125,38 @@ function renderReceiptPage(doc, tx, userData, logoPath) {
     .text("THANK YOU", 450, doc.y, { align: "right" });
 }
 
+function renderCoachReport(doc, groupedData) {
+  if (fs.existsSync(logoPath)) {
+    doc.image(logoPath, 50, 15, { width: 40 });
+  }
+  doc.fontSize(20).text("Coach Course Sales Report", { align: "center" });
+  doc.moveDown(2);
+
+  Object.entries(groupedData).forEach(([courseTitle, data]) => {
+    doc
+      .fontSize(14)
+      .fillColor("#0b2a45")
+     .text(`Course: ${courseTitle}`);
+
+    doc
+      .fontSize(10)
+      .fillColor("#000")
+      .text(`Course Price: $${data.price}`)
+      .text(`Total Revenue: $${data.total}`);
+
+    doc.moveDown(0.5);
+    drawLine(doc, doc.y);
+    doc.moveDown(0.5);
+
+    data.students.forEach((s, idx) => {
+      doc.text(`${idx + 1}. ${s.name} (${s.email})`);
+    });
+
+    doc.addPage();
+  });
+}
+
+
 export const downloadAllReceipts = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -148,7 +181,7 @@ export const downloadAllReceipts = async (req, res) => {
 
     doc.pipe(res);
 
-    const logoPath = path.resolve("../client/public/logo.png");
+    
 
     transactions.forEach((tx, index) => {
       doc.addPage();
@@ -610,5 +643,67 @@ export const getCoachTransactions = async (req, res) => {
   } catch (error) {
     console.error("Error fetching coach transactions:", error);
     res.status(500).json({ message: "Error fetching coach transactions" });
+  }
+};
+
+export const downloadCoachCourseReport = async (req, res) => {
+  try {
+    const profileId = req.user.id;
+
+    const purchases = await Purchase.findAll({
+      include: [
+        {
+          model: Course,
+          include: [{ model: Coach, attributes: ["profileId"] }],
+        },
+        {
+          model: User,
+          attributes: ["name", "email"],
+        },
+      ],
+      order: [["createdAt", "ASC"]],
+    });
+
+    const coachPurchases = purchases.filter(
+      (p) => p.Course?.Coach?.profileId === profileId
+    );
+
+    if (!coachPurchases.length) {
+      return res.status(404).json({ message: "No transactions found" });
+    }
+
+    const grouped = {};
+    coachPurchases.forEach((p) => {
+      const title = p.Course.title;
+
+      if (!grouped[title]) {
+        grouped[title] = {
+          price: p.Course.price,
+          total: 0,
+          students: [],
+        };
+      }
+
+      grouped[title].students.push({
+        name: p.User.name,
+        email: p.User.email,
+      });
+
+      grouped[title].total += Number(p.price);
+    });
+
+    const doc = new PDFDocument({ margin: 50 });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=coach-course-report.pdf"
+    );
+
+    doc.pipe(res);
+    renderCoachReport(doc, grouped);
+    doc.end();
+  } catch (error) {
+    console.error("Coach PDF error:", error);
+    res.status(500).json({ message: "Failed to generate coach report" });
   }
 };
