@@ -28,8 +28,8 @@ Course.hasMany(Purchase, { foreignKey: "courseId", sourceKey: "id" });
 Purchase.belongsTo(Course, { foreignKey: "courseId", targetKey: "id" });
 Subcourse.hasMany(Material, { foreignKey: "subcourseId" });
 Material.belongsTo(Subcourse, { foreignKey: "subcourseId" });
-Material.hasMany(Comment, { foreignKey: "materialId" });
-Comment.belongsTo(Material, { foreignKey: "materialId" });
+Material.hasMany(Comment, { foreignKey: "materialId", onDelete: "SET NULL" });
+Comment.belongsTo(Material, { foreignKey: "materialId", onDelete: "SET NULL" });
 Coaches.hasMany(Availability, { foreignKey: "coachId" });
 Availability.belongsTo(Coaches, { foreignKey: "coachId" });
 
@@ -38,10 +38,13 @@ Appointment.belongsTo(Coaches, { as: "coach", foreignKey: "coachId" });
 Appointment.belongsTo(Availability, { foreignKey: "availabilityId" });
 
 
-Assignment.belongsTo(Course, { foreignKey: "courseId" });
-Course.hasMany(Assignment, { foreignKey: "courseId" });
+Assignment.hasMany(Comment, { foreignKey: "assignmentId", onDelete: "SET NULL" });
+Comment.belongsTo(Assignment, { foreignKey: "assignmentId", onDelete: "SET NULL" });
 
-
+Material.hasMany(Comment, { foreignKey: "materialId" });
+Comment.belongsTo(Material, { foreignKey: "materialId" });
+Assignment.hasMany(Comment, { foreignKey: "assignmentId" });
+Comment.belongsTo(Assignment, { foreignKey: "assignmentId" });
 
 try {
   await sequelize.authenticate();
@@ -77,6 +80,7 @@ import availabilityRoutes from "./routes/availabilityRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 import progresssRoutes from "./routes/progressRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js"
 
 app.use("/api", subcourseRoutes);
 app.use("/api", authRoutes);
@@ -89,6 +93,7 @@ app.use("/api/availability", availabilityRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/courses", assignmentRoutes);
 app.use("/api", progresssRoutes);
+app.use("/api", commentRoutes);
 
 
 

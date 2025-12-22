@@ -1,7 +1,8 @@
 import express from "express";
 import { verifyToken } from "../middleware/authMiddleware.js";
-import { markSubcourseDone, markAssignmentDone, getCourseProgress } from "../controllers/progressController.js";
+import { markSubcourseDone, markAssignmentDone, getCourseProgress, getAssignmentProgress, getSubcourseProgress } from "../controllers/progressController.js";
 import { getStudentsProgress } from "../controllers/coachProgressController.js";
+
 
 const router = express.Router();
 
@@ -10,6 +11,19 @@ router.post("/progress/assignment", verifyToken, markAssignmentDone);
 router.get("/progress/:courseId", verifyToken, getCourseProgress);
 
 router.get("/students-progress", verifyToken, getStudentsProgress);
+router.get(
+  "/progress/assignment/:courseId",
+  verifyToken,
+  getAssignmentProgress,
+);
+router.get(
+  "/progress/subcourse/:courseId",
+  verifyToken,
+  getSubcourseProgress
+);
+
+
+
 
 
 export default router;

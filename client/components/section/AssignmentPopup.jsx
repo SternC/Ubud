@@ -22,6 +22,20 @@ export default function AssignmentPopup({ course, onClose, user }) {
 
   }, [course?.id]);
 
+  useEffect(() => {
+  if (!course?.id) return;
+
+  api
+    .get(`/progress/assignment/${course.id}`, { withCredentials: true })
+    .then((res) => {
+      const completedIds = res.data.map(p => p.assignmentId);
+      setDoneAssignments(completedIds);
+    })
+    .catch(console.error);
+
+}, [course?.id]);
+
+
   const markAsDone = async (assignmentId) => {
     try {
       await api.post("/progress/assignment", {

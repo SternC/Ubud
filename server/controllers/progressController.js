@@ -2,6 +2,8 @@ import StudentProgress from "../models/studentProgress.js";
 import Subcourse from "../models/Subcourse.js";
 import Assignment from "../models/Assignment.js";
 import Purchase from "../models/Purchase.js";
+import { Op } from "sequelize";
+
 
 // Helper: check if student owns the course
 const ensureCourseAccess = async (studentId, courseId) => {
@@ -86,6 +88,52 @@ export const getCourseProgress = async (req, res) => {
       completed,
       percent,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getAssignmentProgress = async (req, res) => {
+  const studentId = req.user.id;
+  const { courseId } = req.params;
+
+  try {
+    const ownsCourse = await ensureCourseAccess(studentId, courseId);
+    if (!ownsCourse)
+      return res.status(403).json({ error: "You have not purchased this course." });
+
+    const completedAssignments = await StudentProgress.findAll({
+      where: {
+        studentId,
+        courseId,
+        assignmentId: { [Op.ne]: null },
+        isDone: true,
+      },
+      attributes: ["assignmentId"],
+    });
+
+    res.json(completedAssignments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getSubcourseProgress = async (req, res) => {
+  const studentId = req.user.id;
+  const { courseId } = req.params;
+
+  try {
+    const progress = await StudentProgress.findAll({
+      where: {
+        studentId,
+        courseId,
+        subcourseId: { [Op.ne]: null },
+        isDone: true,
+      },
+      attributes: ["subcourseId"],
+    });
+
+    res.json(progress);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
